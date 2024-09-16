@@ -5,16 +5,29 @@ import {
   IonPage,
   IonTitle,
   IonToolbar,
-  IonInput,
-  IonItem,
+  IonCard,
+  IonCardHeader,
+  IonCardSubtitle,
+  IonCardTitle,
+  IonCardContent,
   IonButton,
   IonGrid,
   IonRow,
-  IonCol
+  IonCol,
+  IonFab,
+  IonFabButton,
+  IonIcon,
+  IonFooter,
+  IonLabel,
+  IonToast,
+  IonInput,
+  IonButtons,
+  IonBackButton
 } from '@ionic/react';
 import { useHistory } from 'react-router-dom';
+import './Register.css';
 
-const Login: React.FC = () => {
+const Register: React.FC = () => {
   const history = useHistory();
 
   // State to hold the values of each phone number digit
@@ -60,14 +73,11 @@ const Login: React.FC = () => {
     }
   };
 
-  const handleLogin = () => {
+  const register1 = () => {
+    let phoneNumberToRegister = phoneNumber.join('')
     localStorage.setItem('phoneNumber', phoneNumber.join(''));
-    history.push('/tabs/home');
-  };  
-
-  const handleRegister = () => {
-    console.log('Register button clicked');
-    history.push('/tabs/register');
+    console.log('Register button clicked' + phoneNumberToRegister);
+    history.push('/tabs/accoutSetup');
     // Add your register logic here
   };
 
@@ -75,12 +85,20 @@ const Login: React.FC = () => {
     <IonPage>
       <IonHeader>
         <IonToolbar>
-          <IonTitle>Login</IonTitle>
+          <IonButtons slot="start">
+            <IonBackButton defaultHref="/" />
+          </IonButtons>
+          <IonTitle>Register</IonTitle>
         </IonToolbar>
       </IonHeader>
+
       <IonContent className="ion-padding">
+        <div className="welcomeText">
+          <h1>Sign up with phone number</h1>
+          <h5>Please key in your phone number</h5>
+        </div>
+
         <IonGrid>
-          
           {/* 8 Input boxes for the phone number */}
           <IonRow className="ion-justify-content-center">
             {phoneNumber.map((digit, index) => (
@@ -107,14 +125,7 @@ const Login: React.FC = () => {
 
           <IonRow>
             <IonCol>
-              <IonButton expand="block" color="primary" onClick={handleLogin}>
-                Login
-              </IonButton>
-            </IonCol>
-          </IonRow>
-          <IonRow>
-            <IonCol>
-              <IonButton expand="block" fill="outline" color="secondary" onClick={handleRegister}>
+              <IonButton expand="block" fill="outline" color="secondary" onClick={register1}>
                 Register
               </IonButton>
             </IonCol>
@@ -125,4 +136,4 @@ const Login: React.FC = () => {
   );
 };
 
-export default Login;
+export default Register;
