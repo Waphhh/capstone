@@ -46,7 +46,8 @@ const AccountSetup: React.FC = () => {
         phoneNumber: storedPhoneNumber,
         language,
         postalCode,
-        flatNo
+        flatNo,
+        requests: {}
       });
       console.log('User data uploaded successfully');
       

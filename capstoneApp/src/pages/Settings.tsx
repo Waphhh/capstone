@@ -1,73 +1,150 @@
-import { useState, useRef } from 'react';
-import { IonButton, IonIcon } from '@ionic/react';
-import { micOutline, stopCircleOutline } from 'ionicons/icons';
+import React, { useState, useEffect } from 'react';
+import {
+  IonContent,
+  IonHeader,
+  IonPage,
+  IonTitle,
+  IonToolbar,
+  IonInput,
+  IonButton,
+  IonItem,
+  IonLabel,
+  IonSelect,
+  IonSelectOption,
+  IonGrid,
+  IonRow,
+  IonCol,
+  IonToast,
+  IonButtons,
+  IonBackButton
+} from '@ionic/react';
+import { doc, getDoc, updateDoc } from 'firebase/firestore';
+import { db } from './firebaseConfig'; // Adjust the import path as needed
 
-const Home: React.FC = () => {
-  const [isRecording, setIsRecording] = useState(false);
-  const [audioUrl, setAudioUrl] = useState<string | null>(null);
-  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
-  const audioChunksRef = useRef<Blob[]>([]);
+const Settings: React.FC = () => {
+  const [phoneNumber, setPhoneNumber] = useState<string>('');
+  const [postalCode, setPostalCode] = useState<string>('');
+  const [flatNo, setFlatNo] = useState<string>(''); // Changed from unitNo to flatNo
+  const [language, setLanguage] = useState<string>('English');
+  const [loading, setLoading] = useState<boolean>(true);
+  const [showToast, setShowToast] = useState<{ isOpen: boolean, message: string }>({ isOpen: false, message: '' });
 
-  // Function to start recording
-  const startRecording = async () => {
-    try {
-      console.log("recording");
-      // Request permission to use the microphone
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      const mediaRecorder = new MediaRecorder(stream);
-      mediaRecorderRef.current = mediaRecorder;
-      audioChunksRef.current = [];
+  const storedPhoneNumber = localStorage.getItem('phoneNumber'); // Assumes phoneNumber is stored in localStorage
 
-      // Collect audio data in chunks
-      mediaRecorder.ondataavailable = (event) => {
-        audioChunksRef.current.push(event.data);
-      };
+  useEffect(() => {
+    const fetchData = async () => {
+      if (storedPhoneNumber) {
+        try {
+          const docRef = doc(db, 'users', storedPhoneNumber);
+          const docSnap = await getDoc(docRef);
 
-      // Create the audio blob and URL when recording stops
-      mediaRecorder.onstop = () => {
-        const audioBlob = new Blob(audioChunksRef.current, { type: 'audio/wav' });
-        const audioUrl = URL.createObjectURL(audioBlob);
-        setAudioUrl(audioUrl);
-      };
+          if (docSnap.exists()) {
+            const data = docSnap.data();
+            setPhoneNumber(data.phoneNumber || '');
+            setPostalCode(data.postalCode || '');
+            setFlatNo(data.flatNo || ''); // Changed from unitNo to flatNo
+            setLanguage(data.language || 'English');
+          } else {
+            console.log('No such document!');
+          }
+        } catch (error) {
+          console.error('Error fetching user data:', error);
+        } finally {
+          setLoading(false);
+        }
+      }
+    };
 
-      // Start recording
-      mediaRecorder.start();
-      setIsRecording(true);
-    } catch (err) {
-      console.error('Error accessing microphone: ', err);
+    fetchData();
+  }, [storedPhoneNumber]);
+
+  const handleSave = async () => {
+    if (storedPhoneNumber) {
+      try {
+        const docRef = doc(db, 'users', storedPhoneNumber);
+        await updateDoc(docRef, {
+          phoneNumber,
+          postalCode,
+          flatNo, // Changed from unitNo to flatNo
+          language,
+        });
+        setShowToast({ isOpen: true, message: 'Settings updated successfully!' });
+      } catch (error) {
+        console.error('Error updating settings:', error);
+        setShowToast({ isOpen: true, message: 'Error updating settings. Please try again.' });
+      }
     }
   };
 
-  // Function to stop recording
-  const stopRecording = () => {
-    if (mediaRecorderRef.current) {
-      mediaRecorderRef.current.stop();
-      setIsRecording(false);
-    }
-  };
+  if (loading) return <p>Loading...</p>;
 
   return (
-    <div>
-      {/* Button for starting/stopping recording */}
-      {isRecording ? (
-        <IonButton onClick={stopRecording}>
-          <IonIcon icon={stopCircleOutline} />
-        </IonButton>
-      ) : (
-        <IonButton onClick={startRecording}>
-          <IonIcon icon={micOutline} />
-        </IonButton>
-      )}
+    <IonPage>
+      <IonHeader>
+      <IonToolbar>
+          <IonButtons slot="start">
+            <IonBackButton defaultHref="/tabs/home" />
+          </IonButtons>
+          <IonTitle>Settings</IonTitle>
+        </IonToolbar>
+      </IonHeader>
 
-      {/* Display the recorded audio */}
-      {audioUrl && (
-        <div>
-          <p>Recorded Audio:</p>
-          <audio controls src={audioUrl}></audio>
-        </div>
-      )}
-    </div>
+      <IonContent className="ion-padding">
+        <IonGrid>
+          <IonRow>
+            <IonCol>
+              <IonItem>
+                <IonLabel position="floating" style={{marginBottom: '15px'}}>Phone Number</IonLabel>
+                <IonInput
+                  value={phoneNumber}
+                  onIonChange={(e) => setPhoneNumber(e.detail.value!)}
+                />
+              </IonItem>
+              <IonItem>
+                <IonLabel position="floating" style={{marginBottom: '15px'}}>Postal Code</IonLabel>
+                <IonInput
+                  value={postalCode}
+                  onIonChange={(e) => setPostalCode(e.detail.value!)}
+                />
+              </IonItem>
+              <IonItem>
+                <IonLabel position="floating" style={{marginBottom: '15px'}}>Flat/Unit number</IonLabel> {/* Changed from Unit Number to Flat Number */}
+                <IonInput
+                  value={flatNo} // Changed from unitNo to flatNo
+                  onIonChange={(e) => setFlatNo(e.detail.value!)} // Changed from unitNo to flatNo
+                />
+              </IonItem>
+              <IonItem>
+                <IonLabel>Language</IonLabel>
+                <IonSelect
+                  value={language}
+                  placeholder="Select Language"
+                  onIonChange={(e) => setLanguage(e.detail.value!)}
+                >
+                  <IonSelectOption value="English">English</IonSelectOption>
+                  <IonSelectOption value="Chinese">Chinese</IonSelectOption>
+                  <IonSelectOption value="Tamil">Tamil</IonSelectOption>
+                  <IonSelectOption value="Malay">Malay</IonSelectOption>
+                </IonSelect>
+              </IonItem>
+              <IonButton expand="full" onClick={handleSave}>
+                Save
+              </IonButton>
+            </IonCol>
+          </IonRow>
+        </IonGrid>
+
+        {/* Toast Notification */}
+        <IonToast
+          isOpen={showToast.isOpen}
+          onDidDismiss={() => setShowToast({ ...showToast, isOpen: false })}
+          message={showToast.message}
+          duration={2000}
+          position="bottom"
+        />
+      </IonContent>
+    </IonPage>
   );
 };
 
-export default Home;
+export default Settings;

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   IonContent,
   IonHeader,
@@ -7,7 +7,6 @@ import {
   IonToolbar,
   IonCard,
   IonCardHeader,
-  IonCardSubtitle,
   IonCardTitle,
   IonCardContent,
   IonButton,
@@ -19,43 +18,46 @@ import {
   IonIcon,
   IonFooter,
   IonLabel,
-  IonToast
+  IonToast,
+  IonModal,
+  IonDatetime
 } from '@ionic/react';
 import { micOutline, stopCircleOutline, homeOutline, settingsOutline, peopleOutline, giftOutline } from 'ionicons/icons';
-import './Home.css'; // Add your custom styles
-import { useState, useRef } from 'react';
-import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
-import { storage } from './firebaseConfig'; 
+import './Home.css';
+import { useRef } from 'react';
+import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
+import { storage, db } from './firebaseConfig'; // Ensure Firebase is initialized
+import { doc, updateDoc, getDoc } from 'firebase/firestore';
 
 const Home: React.FC = () => {
   const [isRecording, setIsRecording] = useState(false);
   const [audioUrl, setAudioUrl] = useState<string | null>(null);
   const [showToast, setShowToast] = useState(false);
+  const [showDateTimeModal, setShowDateTimeModal] = useState(false);
+  const [selectedDateTime, setSelectedDateTime] = useState<string | null>(null); // Selected Date and Time
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const audioChunksRef = useRef<Blob[]>([]);
   const storedPhoneNumber = localStorage.getItem('phoneNumber');
+  const [ongoingRequests, setOngoingRequests] = useState<any[]>([]); // State to store requests
 
   // Function to start recording
   const startRecording = async () => {
     try {
-      console.log("recording");
-      // Request permission to use the microphone
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
       const mediaRecorder = new MediaRecorder(stream);
       mediaRecorderRef.current = mediaRecorder;
       audioChunksRef.current = [];
 
-      // Collect audio data in chunks
       mediaRecorder.ondataavailable = (event) => {
         audioChunksRef.current.push(event.data);
       };
 
       mediaRecorder.onstop = async () => {
         const audioBlob = new Blob(audioChunksRef.current, { type: 'audio/wav' });
-        uploadAudioToFirebase(audioBlob); // Upload the audio to Firebase
+        uploadAudioToFirebase(audioBlob);
+        setShowDateTimeModal(true); // Show date and time selector after recording stops
       };
 
-      // Start recording
       mediaRecorder.start();
       setIsRecording(true);
     } catch (err) {
@@ -71,26 +73,69 @@ const Home: React.FC = () => {
     }
   };
 
+  // Function to upload audio to Firebase
   const uploadAudioToFirebase = async (audioBlob: Blob) => {
-    const fileName = 'recordings/' + storedPhoneNumber + '_' + Date.now() + '.wav'; // Name the file uniquely
+    const fileName = 'recordings/' + storedPhoneNumber + '_' + Date.now() + '.wav';
     const storageRef = ref(storage, fileName);
 
     try {
-      // Upload the audio file to Firebase
       const snapshot = await uploadBytes(storageRef, audioBlob);
-      console.log('Uploaded a blob or file!', snapshot);
-
-      // Get the download URL for the uploaded audio
       const downloadURL = await getDownloadURL(snapshot.ref);
       setAudioUrl(downloadURL);
-      console.log('Download URL:', downloadURL);
-
-      // Show the toast notification
       setShowToast(true);
     } catch (error) {
       console.error('Error uploading audio to Firebase:', error);
     }
   };
+
+  // Function to fetch requests from Firestore for the current user
+  const fetchOngoingRequests = async () => {
+    try {
+      if (storedPhoneNumber) {
+        const docRef = doc(db, 'users', storedPhoneNumber);
+        const docSnap = await getDoc(docRef);
+
+        if (docSnap.exists()) {
+          const userData = docSnap.data();
+          const requests = userData.requests || {};
+          const requestsArray = Object.keys(requests).map((key) => ({
+            name: key,
+            status: requests[key],
+          }));
+
+          setOngoingRequests(requestsArray);
+        } else {
+          console.log("No such document!");
+        }
+      } else {
+        console.log("Phone number not found in localStorage");
+      }
+    } catch (error) {
+      console.error('Error fetching ongoing requests:', error);
+    }
+  };
+
+  // Function to submit the date and time to Firestore
+  const submitDateTimeToFirestore = async () => {
+    if (storedPhoneNumber && selectedDateTime) {
+      const docRef = doc(db, 'users', storedPhoneNumber);
+
+      try {
+        await updateDoc(docRef, {
+          [`requests.${selectedDateTime}`]: 'Pending'
+        });
+        setShowDateTimeModal(false); // Close the modal
+        fetchOngoingRequests(); // Refresh the ongoing requests
+      } catch (error) {
+        console.error('Error saving date and time to Firestore:', error);
+      }
+    }
+  };
+
+  // Fetch ongoing requests on component mount
+  useEffect(() => {
+    fetchOngoingRequests();
+  }, []);
 
   return (
     <IonPage>
@@ -102,7 +147,6 @@ const Home: React.FC = () => {
 
       <IonContent className="ion-padding">
         <IonGrid>
-
           {/* Welcome Section */}
           <IonRow>
             <IonCol>
@@ -123,77 +167,61 @@ const Home: React.FC = () => {
             <IonCol>
               <IonCard className="ongoing-requests-card">
                 <IonCardHeader>
-                  <IonCardTitle>Ongoing Requests</IonCardTitle>
+                  <IonCardTitle>Ongoing Request(s)</IonCardTitle>
                 </IonCardHeader>
                 <IonCardContent>
-                  <p className="request-item">
-                    <span>Recorded Request 1: Google maps</span>
-                    <IonLabel className="accepted-label">Accepted</IonLabel>
-                  </p>
-                  <p className="request-item">
-                    <span>Recorded Request 2: YouTube</span>
-                    <IonLabel className="pending-label">Pending</IonLabel>
-                  </p>
-                  <IonButton fill="clear" className="expand-button">▼</IonButton>
-                </IonCardContent>
-              </IonCard>
-            </IonCol>
-          </IonRow>
-
-          {/* Rate Previous Volunteers */}
-          <IonRow>
-            <IonCol size="6">
-              <IonCard className="volunteer-card">
-                <img src="path_to_image" alt="Volunteer" />
-                <IonCardContent>
-                  Helped you set up Google
-                </IonCardContent>
-              </IonCard>
-            </IonCol>
-            <IonCol size="6">
-              <IonCard className="volunteer-card">
-                <img src="path_to_image" alt="Volunteer" />
-                <IonCardContent>
-                  Helped you learn YouTube, Candy Crush, and Roblox
+                  {ongoingRequests.length > 0 ? (
+                    ongoingRequests.map((request) => (
+                      <p className="request-item" key={request.id}>
+                        <span>{request.name}</span>
+                        <IonLabel className={request.status === 'Accepted' ? 'accepted-label' : 'pending-label'}>
+                          {request.status}
+                        </IonLabel>
+                      </p>
+                    ))
+                  ) : (
+                    <p>No ongoing requests</p>
+                  )}
                 </IonCardContent>
               </IonCard>
             </IonCol>
           </IonRow>
         </IonGrid>
 
-        <div>
-          <IonFab vertical="bottom" horizontal="center" slot="fixed">
-            {/* Button for starting/stopping recording */}
-            {isRecording ? (
-              <IonFabButton onClick={stopRecording}>
-                <IonIcon icon={stopCircleOutline} />
-              </IonFabButton>
-            ) : (
-              <IonFabButton onClick={startRecording}>
-                <IonIcon icon={micOutline} />
-              </IonFabButton>
-            )}
-            {/* Toast Notification */}
-            <IonToast
-              isOpen={showToast}
-              onDidDismiss={() => setShowToast(false)}
-              message="Audio has been recorded and uploaded successfully!"
-              duration={2000}
-              position="bottom"
+        {/* Modal for Date and Time Picker */}
+        <IonModal isOpen={showDateTimeModal} onDidDismiss={() => setShowDateTimeModal(false)}>
+          <IonContent>
+            <IonDatetime
+              presentation="date-time"
+              onIonChange={(e) => setSelectedDateTime(e.detail.value!)}
+              value={selectedDateTime}
             />
+            <IonButton expand="block" onClick={submitDateTimeToFirestore}>
+              Submit Date and Time
+            </IonButton>
+          </IonContent>
+        </IonModal>
 
-            {/* Display the recorded audio
-            {audioUrl && (
-              <div>
-                <p>Recorded Audio:</p>
-                <audio controls src={audioUrl}></audio>
-              </div>
-            )} */}
-          </IonFab>
-        </div>
+        <IonFab vertical="bottom" horizontal="center" slot="fixed">
+          {isRecording ? (
+            <IonFabButton onClick={stopRecording}>
+              <IonIcon icon={stopCircleOutline} />
+            </IonFabButton>
+          ) : (
+            <IonFabButton onClick={startRecording}>
+              <IonIcon icon={micOutline} />
+            </IonFabButton>
+          )}
+          <IonToast
+            isOpen={showToast}
+            onDidDismiss={() => setShowToast(false)}
+            message="Audio has been recorded and uploaded successfully!"
+            duration={2000}
+            position="bottom"
+          />
+        </IonFab>
       </IonContent>
 
-      {/* Bottom Navigation */}
       <IonFooter>
         <IonToolbar>
           <IonGrid>
