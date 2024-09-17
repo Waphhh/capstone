@@ -47,7 +47,8 @@ const AccountSetup: React.FC = () => {
         language,
         postalCode,
         flatNo,
-        requests: {}
+        requests: {},
+        history: {}
       });
       console.log('User data uploaded successfully');
       

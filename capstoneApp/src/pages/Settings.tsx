@@ -81,7 +81,7 @@ const Settings: React.FC = () => {
   return (
     <IonPage>
       <IonHeader>
-      <IonToolbar>
+        <IonToolbar>
           <IonButtons slot="start">
             <IonBackButton defaultHref="/tabs/home" />
           </IonButtons>
@@ -122,9 +122,9 @@ const Settings: React.FC = () => {
                   onIonChange={(e) => setLanguage(e.detail.value!)}
                 >
                   <IonSelectOption value="English">English</IonSelectOption>
-                  <IonSelectOption value="Chinese">Chinese</IonSelectOption>
-                  <IonSelectOption value="Tamil">Tamil</IonSelectOption>
-                  <IonSelectOption value="Malay">Malay</IonSelectOption>
+                  <IonSelectOption value="Chinese">华语</IonSelectOption>
+                  <IonSelectOption value="Tamil">தமிழ்</IonSelectOption>
+                  <IonSelectOption value="Malay">Bahasa Melayu</IonSelectOption>
                 </IonSelect>
               </IonItem>
               <IonButton expand="full" onClick={handleSave}>

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   IonContent,
   IonHeader,
@@ -24,7 +24,6 @@ import {
 } from '@ionic/react';
 import { micOutline, stopCircleOutline, homeOutline, settingsOutline, peopleOutline, giftOutline } from 'ionicons/icons';
 import './Home.css';
-import { useRef } from 'react';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { storage, db } from './firebaseConfig'; // Ensure Firebase is initialized
 import { doc, updateDoc, getDoc } from 'firebase/firestore';
@@ -40,8 +39,19 @@ const Home: React.FC = () => {
   const storedPhoneNumber = localStorage.getItem('phoneNumber');
   const [ongoingRequests, setOngoingRequests] = useState<any[]>([]); // State to store requests
 
-  // Function to start recording
+  // Function to start recording after date and time are selected
   const startRecording = async () => {
+    // Open the modal for the user to select date and time
+    setShowDateTimeModal(true);
+  };
+
+  // Function to continue recording after the time is selected
+  const handleRecordingStart = async () => {
+    if (!selectedDateTime) {
+      console.error("Please select a date and time before starting the recording.");
+      return;
+    }
+
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
       const mediaRecorder = new MediaRecorder(stream);
@@ -55,7 +65,6 @@ const Home: React.FC = () => {
       mediaRecorder.onstop = async () => {
         const audioBlob = new Blob(audioChunksRef.current, { type: 'audio/wav' });
         uploadAudioToFirebase(audioBlob);
-        setShowDateTimeModal(true); // Show date and time selector after recording stops
       };
 
       mediaRecorder.start();
@@ -75,7 +84,8 @@ const Home: React.FC = () => {
 
   // Function to upload audio to Firebase
   const uploadAudioToFirebase = async (audioBlob: Blob) => {
-    const fileName = 'recordings/' + storedPhoneNumber + '_' + Date.now() + '.wav';
+    console.log(selectedDateTime);
+    const fileName = 'recordings/' + storedPhoneNumber + '_' + selectedDateTime + '.wav';
     const storageRef = ref(storage, fileName);
 
     try {
@@ -115,17 +125,19 @@ const Home: React.FC = () => {
     }
   };
 
-  // Function to submit the date and time to Firestore
+  // Function to submit the date and time to Firestore and start recording
   const submitDateTimeToFirestore = async () => {
     if (storedPhoneNumber && selectedDateTime) {
-      const docRef = doc(db, 'users', storedPhoneNumber);
-
       try {
+        const docRef = doc(db, 'users', storedPhoneNumber);
         await updateDoc(docRef, {
           [`requests.${selectedDateTime}`]: 'Pending'
         });
         setShowDateTimeModal(false); // Close the modal
         fetchOngoingRequests(); // Refresh the ongoing requests
+
+        // Proceed to start recording after date/time is submitted
+        handleRecordingStart();
       } catch (error) {
         console.error('Error saving date and time to Firestore:', error);
       }
@@ -155,7 +167,7 @@ const Home: React.FC = () => {
                 <h2>Welcome</h2>
                 <IonLabel className="subtitle">Hot Apps</IonLabel>
                 <p>Apps that would be useful for you!</p>
-                <IonButton fill="solid" color="danger" size="small">
+                <IonButton fill="solid" color="danger" size="small" routerLink="/tabs/library">
                   Read more
                 </IonButton>
               </div>
@@ -237,7 +249,7 @@ const Home: React.FC = () => {
                 </IonButton>
               </IonCol>
               <IonCol className="ion-text-center">
-                <IonButton fill="clear" routerLink="/tabs/rewards">
+                <IonButton fill="clear" routerLink="/tabs/library">
                   <IonIcon icon={giftOutline} />
                 </IonButton>
               </IonCol>
