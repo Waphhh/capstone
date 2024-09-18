@@ -84,7 +84,7 @@ const Register: React.FC = () => {
   return (
     <IonPage>
       <IonHeader>
-        <IonToolbar>
+        <IonToolbar color="danger">
           <IonButtons slot="start">
             <IonBackButton defaultHref="/" />
           </IonButtons>

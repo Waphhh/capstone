@@ -22,7 +22,7 @@ import {
   IonModal,
   IonDatetime
 } from '@ionic/react';
-import { micOutline, stopCircleOutline, homeOutline, settingsOutline, peopleOutline, giftOutline } from 'ionicons/icons';
+import { micOutline, stopCircleOutline, homeOutline, settingsOutline, peopleOutline, bookOutline } from 'ionicons/icons';
 import './Home.css';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { storage, db } from './firebaseConfig'; // Ensure Firebase is initialized
@@ -244,13 +244,13 @@ const Home: React.FC = () => {
                 </IonButton>
               </IonCol>
               <IonCol className="ion-text-center">
-                <IonButton fill="clear" routerLink="/tabs/requests">
+                <IonButton fill="clear" routerLink="/tabs/history">
                   <IonIcon icon={peopleOutline} />
                 </IonButton>
               </IonCol>
               <IonCol className="ion-text-center">
                 <IonButton fill="clear" routerLink="/tabs/library">
-                  <IonIcon icon={giftOutline} />
+                  <IonIcon icon={bookOutline} />
                 </IonButton>
               </IonCol>
               <IonCol className="ion-text-center">

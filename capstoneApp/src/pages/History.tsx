@@ -6,8 +6,6 @@ import {
   IonTitle,
   IonContent,
   IonCard,
-  IonCardHeader,
-  IonCardTitle,
   IonCardContent,
   IonGrid,
   IonRow,
@@ -19,21 +17,16 @@ import {
   IonIcon
 } from '@ionic/react';
 import { db } from './firebaseConfig'; // Ensure Firebase is initialized
-import { doc, getDoc } from 'firebase/firestore';
 import { homeOutline, settingsOutline, peopleOutline, bookOutline } from 'ionicons/icons';
-import * as Papa from 'papaparse';
-
-// CSV file path (adjust if needed)
-const csvFilePath = './resources.csv';
+import { doc, getDoc } from 'firebase/firestore';
 
 const Library: React.FC = () => {
-  const [userLanguage, setUserLanguage] = useState<string | null>(null);
-  const [filteredTutorials, setFilteredTutorials] = useState<any[]>([]);
-
+  const [userHistory, setuserHistory] = useState<any[]>([]);
   const storedPhoneNumber = localStorage.getItem('phoneNumber');
 
   // Fetch user language from Firestore
-  const fetchUserLanguage = async () => {
+  // Function to fetch requests from Firestore for the current user
+  const fetchOngoingRequests = async () => {
     try {
       if (storedPhoneNumber) {
         const docRef = doc(db, 'users', storedPhoneNumber);
@@ -41,89 +34,52 @@ const Library: React.FC = () => {
 
         if (docSnap.exists()) {
           const userData = docSnap.data();
-          setUserLanguage(userData.language || null);
+          const history = userData.history || {};
+          const requestsArray = Object.keys(history).map((key) => ({
+            historyItem: key,
+            index: history[key],
+          }));
+
+          setuserHistory(requestsArray);
         } else {
-          console.log('No such document!');
+          console.log("No such document!");
         }
+      } else {
+        console.log("Phone number not found in localStorage");
       }
     } catch (error) {
-      console.error('Error fetching user data:', error);
+      console.error('Error fetching ongoing requests:', error);
     }
-  };
-
-  // Fetch and parse the CSV file
-  const fetchCSVData = async () => {
-    try {
-      const response = await fetch(csvFilePath);
-      const csvText = await response.text();
-      console.log(csvText)
-      const parsedData = Papa.parse(csvText, {
-        header: true,
-        skipEmptyLines: true,
-      });
-      return parsedData.data;
-    } catch (error) {
-      console.error('Error fetching CSV:', error);
-      return [];
-    }
-  };
-
-  // Filter tutorials by user's preferred language
-  const filterTutorialsByLanguage = (tutorials: any[], language: string | null) => {
-    if (!language) return [];
-
-    return tutorials.filter((tutorial) => {
-      return tutorial.Language.toLowerCase().includes(language.toLowerCase());
-    });
   };
 
   useEffect(() => {
-    fetchUserLanguage(); // Fetch the user's language on component mount
+    fetchOngoingRequests();
   }, []);
-
-  useEffect(() => {
-    const loadAndFilterTutorials = async () => {
-      if (userLanguage) {
-        const tutorials = await fetchCSVData(); // Fetch CSV data
-        const filtered = filterTutorialsByLanguage(tutorials, userLanguage);
-        setFilteredTutorials(filtered);
-      }
-    };
-
-    loadAndFilterTutorials();
-  }, [userLanguage]);
 
   return (
     <IonPage>
       <IonHeader>
         <IonToolbar color="danger">
-          <IonTitle>Library</IonTitle>
+          <IonTitle>History</IonTitle>
         </IonToolbar>
       </IonHeader>
 
       <IonContent className="ion-padding">
         <IonGrid>
           <IonRow>
-            {filteredTutorials.length > 0 ? (
-              filteredTutorials.map((tutorial, index) => (
+            {userHistory.length > 0 ? (
+              userHistory.map((item, index) => (
                 <IonCol size="12" size-md="6" key={index}>
                   <IonCard>
-                    <IonCardHeader>
-                      <IonCardTitle>{tutorial.Title}</IonCardTitle>
-                    </IonCardHeader>
                     <IonCardContent>
-                      <p>Content: {tutorial.Content}</p>
-                      <p>Type: {tutorial.Type}</p>
-                      <p>Language: {tutorial.Language}</p>
-                      <a href={tutorial.Link} target="_blank" rel="noopener noreferrer">
-                        Watch Video
-                      </a>
+                      <p>Date: {item.historyItem}</p>
+                      <p>Comment: {item.index}</p>
                     </IonCardContent>
                   </IonCard>
                 </IonCol>
               ))
             ) : (
-              <p>No tutorials available for your language</p>
+              <p>No history</p>
             )}
           </IonRow>
         </IonGrid>

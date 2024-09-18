@@ -16,9 +16,13 @@ import {
   IonCol,
   IonToast,
   IonButtons,
-  IonBackButton
+  IonBackButton,
+  IonIcon,
+  IonFooter,
 } from '@ionic/react';
+import { homeOutline, settingsOutline, peopleOutline, bookOutline } from 'ionicons/icons';
 import { doc, getDoc, updateDoc } from 'firebase/firestore';
+import { useHistory } from 'react-router-dom';
 import { db } from './firebaseConfig'; // Adjust the import path as needed
 
 const Settings: React.FC = () => {
@@ -28,6 +32,7 @@ const Settings: React.FC = () => {
   const [language, setLanguage] = useState<string>('English');
   const [loading, setLoading] = useState<boolean>(true);
   const [showToast, setShowToast] = useState<{ isOpen: boolean, message: string }>({ isOpen: false, message: '' });
+  const history = useHistory();
 
   const storedPhoneNumber = localStorage.getItem('phoneNumber'); // Assumes phoneNumber is stored in localStorage
 
@@ -69,6 +74,7 @@ const Settings: React.FC = () => {
           language,
         });
         setShowToast({ isOpen: true, message: 'Settings updated successfully!' });
+        history.push('/tabs/home');
       } catch (error) {
         console.error('Error updating settings:', error);
         setShowToast({ isOpen: true, message: 'Error updating settings. Please try again.' });
@@ -81,10 +87,7 @@ const Settings: React.FC = () => {
   return (
     <IonPage>
       <IonHeader>
-        <IonToolbar>
-          <IonButtons slot="start">
-            <IonBackButton defaultHref="/tabs/home" />
-          </IonButtons>
+        <IonToolbar color="danger">
           <IonTitle>Settings</IonTitle>
         </IonToolbar>
       </IonHeader>
@@ -143,6 +146,35 @@ const Settings: React.FC = () => {
           position="bottom"
         />
       </IonContent>
+
+      <IonFooter>
+        <IonToolbar>
+          <IonGrid>
+            <IonRow>
+              <IonCol className="ion-text-center">
+                <IonButton fill="clear" routerLink="/tabs/home">
+                  <IonIcon icon={homeOutline} />
+                </IonButton>
+              </IonCol>
+              <IonCol className="ion-text-center">
+                <IonButton fill="clear" routerLink="/tabs/history">
+                  <IonIcon icon={peopleOutline} />
+                </IonButton>
+              </IonCol>
+              <IonCol className="ion-text-center">
+                <IonButton fill="clear" routerLink="/tabs/library">
+                  <IonIcon icon={bookOutline} />
+                </IonButton>
+              </IonCol>
+              <IonCol className="ion-text-center">
+                <IonButton fill="clear" routerLink="/tabs/settings">
+                  <IonIcon icon={settingsOutline} />
+                </IonButton>
+              </IonCol>
+            </IonRow>
+          </IonGrid>
+        </IonToolbar>
+      </IonFooter>
     </IonPage>
   );
 };
