@@ -5,24 +5,14 @@ import {
   IonPage,
   IonTitle,
   IonToolbar,
-  IonCard,
-  IonCardHeader,
-  IonCardSubtitle,
-  IonCardTitle,
-  IonCardContent,
   IonButton,
   IonGrid,
   IonRow,
   IonCol,
-  IonFab,
-  IonFabButton,
-  IonIcon,
-  IonFooter,
-  IonLabel,
-  IonToast,
   IonInput,
   IonButtons,
-  IonBackButton
+  IonBackButton,
+  IonText
 } from '@ionic/react';
 import { useHistory } from 'react-router-dom';
 import './Register.css';
@@ -35,6 +25,8 @@ const Register: React.FC = () => {
 
   // Create refs for each input box
   const inputRefs = useRef<(HTMLIonInputElement | null)[]>(new Array(8).fill(null));
+
+  const [errorMessage, setErrorMessage] = useState<string>('');
 
   const handleInputChange = (index: number, event: CustomEvent) => {
     const value = event.detail.value;
@@ -75,6 +67,11 @@ const Register: React.FC = () => {
 
   const register1 = () => {
     let phoneNumberToRegister = phoneNumber.join('')
+    if (phoneNumberToRegister.length != 8) {
+      setErrorMessage('A phone number requires 8 digits');
+      return;
+    }
+    
     localStorage.setItem('phoneNumber', phoneNumber.join(''));
     console.log('Register button clicked' + phoneNumberToRegister);
     history.push('/tabs/accoutSetup');
@@ -93,6 +90,12 @@ const Register: React.FC = () => {
       </IonHeader>
 
       <IonContent className="ion-padding">
+        {errorMessage && (
+          <IonText color="danger">
+            <b><p>{errorMessage}</p></b>
+          </IonText>
+        )}
+
         <div className="welcomeText">
           <h1>Sign up with phone number</h1>
           <h5>Please key in your phone number</h5>

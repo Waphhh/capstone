@@ -15,17 +15,21 @@ import {
   IonRow,
   IonCol,
   IonToast,
-  IonButtons,
-  IonBackButton,
   IonIcon,
-  IonFooter,
+  IonTabs,
+  IonRouterOutlet,
+  IonTabBar,
+  IonTabButton
 } from '@ionic/react';
 import { homeOutline, settingsOutline, peopleOutline, bookOutline } from 'ionicons/icons';
+import { Route } from 'react-router';
 import { doc, getDoc, updateDoc } from 'firebase/firestore';
 import { useHistory } from 'react-router-dom';
-import { db } from './firebaseConfig'; // Adjust the import path as needed
+import { auth, db } from './firebaseConfig'; // Adjust the import path as needed
+import './footer.css'
 
 const Settings: React.FC = () => {
+
   const [phoneNumber, setPhoneNumber] = useState<string>('');
   const [postalCode, setPostalCode] = useState<string>('');
   const [flatNo, setFlatNo] = useState<string>(''); // Changed from unitNo to flatNo
@@ -63,21 +67,37 @@ const Settings: React.FC = () => {
     fetchData();
   }, [storedPhoneNumber]);
 
+  function containsOnlyDigits(str) {
+    return /^\d+$/.test(str);
+  }
+
   const handleSave = async () => {
     if (storedPhoneNumber) {
-      try {
-        const docRef = doc(db, 'users', storedPhoneNumber);
-        await updateDoc(docRef, {
-          phoneNumber,
-          postalCode,
-          flatNo, // Changed from unitNo to flatNo
-          language,
-        });
-        setShowToast({ isOpen: true, message: 'Settings updated successfully!' });
-        history.push('/tabs/home');
-      } catch (error) {
-        console.error('Error updating settings:', error);
-        setShowToast({ isOpen: true, message: 'Error updating settings. Please try again.' });
+      if (phoneNumber.length != 8) {
+        setShowToast({ isOpen: true, message: 'A phone number is only 8 digits long. Please try again.' });
+      } else if (!(containsOnlyDigits(phoneNumber))) {
+        setShowToast({ isOpen: true, message: 'A phone number can only contain numbers. Please try again.' });
+      } else if (postalCode.length != 6) {
+        setShowToast({ isOpen: true, message: 'A postal code is only 6 digits long. Please try again.' });
+      } else if (!(containsOnlyDigits(postalCode))) {
+        setShowToast({ isOpen: true, message: 'A postal code can only contain numbers. Please try again.' });
+      } else if (flatNo.length == 0) {
+        setShowToast({ isOpen: true, message: 'Flat/Unit number cannot be empty. Please try again.' });
+      } else {
+        try {
+          const docRef = doc(db, 'users', storedPhoneNumber);
+          await updateDoc(docRef, {
+            phoneNumber,
+            postalCode,
+            flatNo,
+            language,
+          });
+          setShowToast({ isOpen: true, message: 'Settings updated successfully!' });
+          history.push('/tabs/home');
+        } catch (error) {
+          console.error('Error updating settings:', error);
+          setShowToast({ isOpen: true, message: 'Error updating settings. Please try again.' });
+        }
       }
     }
   };
@@ -96,28 +116,28 @@ const Settings: React.FC = () => {
         <IonGrid>
           <IonRow>
             <IonCol>
-              <IonItem>
-                <IonLabel position="floating" style={{marginBottom: '15px'}}>Phone Number</IonLabel>
+              <IonItem style={{ paddingRight: '16px' }}>
+                <IonLabel position="floating" style={{marginBottom: '15px' }}>Phone Number</IonLabel>
                 <IonInput
                   value={phoneNumber}
-                  onIonChange={(e) => setPhoneNumber(e.detail.value!)}
+                  onIonInput={(e) => setPhoneNumber(e.detail.value!)}
                 />
               </IonItem>
-              <IonItem>
+              <IonItem style={{ paddingRight: '16px' }}> 
                 <IonLabel position="floating" style={{marginBottom: '15px'}}>Postal Code</IonLabel>
                 <IonInput
                   value={postalCode}
-                  onIonChange={(e) => setPostalCode(e.detail.value!)}
+                  onIonInput={(e) => setPostalCode(e.detail.value!)}
                 />
               </IonItem>
-              <IonItem>
+              <IonItem style={{ paddingRight: '16px' }}>
                 <IonLabel position="floating" style={{marginBottom: '15px'}}>Flat/Unit number</IonLabel> {/* Changed from Unit Number to Flat Number */}
                 <IonInput
                   value={flatNo} // Changed from unitNo to flatNo
-                  onIonChange={(e) => setFlatNo(e.detail.value!)} // Changed from unitNo to flatNo
+                  onIonInput={(e) => setFlatNo(e.detail.value!)} // Changed from unitNo to flatNo
                 />
               </IonItem>
-              <IonItem>
+              <IonItem style={{ paddingRight: '16px' }}>
                 <IonLabel>Language</IonLabel>
                 <IonSelect
                   value={language}
@@ -130,7 +150,7 @@ const Settings: React.FC = () => {
                   <IonSelectOption value="Malay">Bahasa Melayu</IonSelectOption>
                 </IonSelect>
               </IonItem>
-              <IonButton expand="full" onClick={handleSave}>
+              <IonButton expand="full" onClick={handleSave} style={{ marginTop: '10px'}}>
                 Save
               </IonButton>
             </IonCol>
@@ -147,34 +167,40 @@ const Settings: React.FC = () => {
         />
       </IonContent>
 
-      <IonFooter>
-        <IonToolbar>
-          <IonGrid>
-            <IonRow>
-              <IonCol className="ion-text-center">
-                <IonButton fill="clear" routerLink="/tabs/home">
-                  <IonIcon icon={homeOutline} />
-                </IonButton>
-              </IonCol>
-              <IonCol className="ion-text-center">
-                <IonButton fill="clear" routerLink="/tabs/history">
-                  <IonIcon icon={peopleOutline} />
-                </IonButton>
-              </IonCol>
-              <IonCol className="ion-text-center">
-                <IonButton fill="clear" routerLink="/tabs/library">
-                  <IonIcon icon={bookOutline} />
-                </IonButton>
-              </IonCol>
-              <IonCol className="ion-text-center">
-                <IonButton fill="clear" routerLink="/tabs/settings">
-                  <IonIcon icon={settingsOutline} />
-                </IonButton>
-              </IonCol>
-            </IonRow>
-          </IonGrid>
-        </IonToolbar>
-      </IonFooter>
+      <IonToolbar>
+        <IonTabs>
+          <IonRouterOutlet>
+            {/* Define your routes here */}
+            <Route path="/tabs/home" exact={true} />
+            <Route path="/tabs/history" exact={true} />
+            <Route path="/tabs/library" exact={true} />
+            <Route path="/tabs/settings" exact={true} />
+          </IonRouterOutlet>
+
+          <IonTabBar slot="bottom">
+            <IonTabButton tab="home" href="/tabs/home">
+              <IonIcon icon={homeOutline} style={{ fontSize: '28px' }} />
+              <IonLabel>Home</IonLabel>
+            </IonTabButton>
+
+            <IonTabButton tab="history" href="/tabs/history">
+              <IonIcon icon={peopleOutline} style={{ fontSize: '28px' }} />
+              <IonLabel>History</IonLabel>
+            </IonTabButton>
+
+            <IonTabButton tab="library" href="/tabs/library">
+              <IonIcon icon={bookOutline} style={{ fontSize: '28px' }} />
+              <IonLabel>Library</IonLabel>
+            </IonTabButton>
+
+            <IonTabButton tab="settings" href="/tabs/settings">
+              <IonIcon icon={settingsOutline} style={{ fontSize: '28px' }} />
+              <IonLabel>Settings</IonLabel>
+            </IonTabButton>
+          </IonTabBar>
+        </IonTabs>
+      </IonToolbar>
+
     </IonPage>
   );
 };

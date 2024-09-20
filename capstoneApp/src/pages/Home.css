@@ -17,9 +17,19 @@
   font-size: 1.2em;
 }
 
-.ongoing-requests-card {
+.accepted-requests-card {
+  border-left: 5px solid green;
+  padding: 10px;
+  margin-right: 0px;
+  margin-left: 0px;
+}
+
+.pending-requests-card {
   border-left: 5px solid red;
   padding: 10px;
+  margin-right: 0px;
+  margin-left: 0px;
+  margin-top: 0px;
 }
 
 .request-item {
@@ -46,4 +56,8 @@
   width: 100%;
   height: auto;
   border-radius: 10px;
+}
+
+.welcomeText {
+  text-align: center;
 }

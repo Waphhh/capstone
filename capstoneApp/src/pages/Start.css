@@ -1,9 +1,47 @@
+.container {
+    text-align: center;
+}
+
 .top-image {
     width: 100%;
     height: auto;
+    max-height: 300px;
+    transition: opacity 0.3s ease-in-out;
+}
+
+.fade-in {
+    opacity: 1;
+}
+
+.fade-out {
+    opacity: 0;
+}
+
+/* Dots at the bottom of the image */
+.dots {
+    text-align: center;
+    margin-top: 10px;
+}
+
+.dot {
+    display: inline-block;
+    width: 12px;
+    height: 12px;
+    margin: 0 5px;
+    background-color: #ccc;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.dot.active {
+    background-color: #ff4757; /* Active dot color */
 }
 
 .bottom-text {
-    text-align: center;
-    padding: 30px;
+    margin-top: 20px;
+}
+
+.getStartedButton {
+    margin-top: 20px;
 }

@@ -12,21 +12,25 @@ import {
   IonGrid,
   IonRow,
   IonCol,
-  IonButtons,
-  IonBackButton,
-  IonFooter,
-  IonButton,
-  IonIcon
+  IonIcon,
+  IonTabs,
+  IonRouterOutlet,
+  IonTabBar,
+  IonTabButton,
+  IonLabel,
 } from '@ionic/react';
 import { db } from './firebaseConfig'; // Ensure Firebase is initialized
 import { doc, getDoc } from 'firebase/firestore';
+import { Route } from 'react-router';
 import { homeOutline, settingsOutline, peopleOutline, bookOutline } from 'ionicons/icons';
 import * as Papa from 'papaparse';
+import './footer.css'
 
 // CSV file path (adjust if needed)
 const csvFilePath = './resources.csv';
 
 const Library: React.FC = () => {
+
   const [userLanguage, setUserLanguage] = useState<string | null>(null);
   const [filteredTutorials, setFilteredTutorials] = useState<any[]>([]);
 
@@ -56,11 +60,11 @@ const Library: React.FC = () => {
     try {
       const response = await fetch(csvFilePath);
       const csvText = await response.text();
-      console.log(csvText)
       const parsedData = Papa.parse(csvText, {
         header: true,
         skipEmptyLines: true,
       });
+      console.log(parsedData.data);
       return parsedData.data;
     } catch (error) {
       console.error('Error fetching CSV:', error);
@@ -77,21 +81,23 @@ const Library: React.FC = () => {
     });
   };
 
-  useEffect(() => {
-    fetchUserLanguage(); // Fetch the user's language on component mount
-  }, []);
+  const loadAndFilterTutorials = async () => {
+    if (userLanguage) {
+      const tutorials = await fetchCSVData(); // Fetch CSV data
+      const filtered = filterTutorialsByLanguage(tutorials, userLanguage);
+      setFilteredTutorials(filtered);
+    }
+  };
 
   useEffect(() => {
-    const loadAndFilterTutorials = async () => {
-      if (userLanguage) {
-        const tutorials = await fetchCSVData(); // Fetch CSV data
-        const filtered = filterTutorialsByLanguage(tutorials, userLanguage);
-        setFilteredTutorials(filtered);
-      }
-    };
-
+    console.log("use effect1 triggered");
     loadAndFilterTutorials();
-  }, [userLanguage]);
+  }, [userLanguage]); 
+
+  useEffect(() => {
+    console.log("use effect2 triggered");
+    fetchUserLanguage();
+  });
 
   return (
     <IonPage>
@@ -129,34 +135,39 @@ const Library: React.FC = () => {
         </IonGrid>
       </IonContent>
 
-      <IonFooter>
-        <IonToolbar>
-          <IonGrid>
-            <IonRow>
-              <IonCol className="ion-text-center">
-                <IonButton fill="clear" routerLink="/tabs/home">
-                  <IonIcon icon={homeOutline} />
-                </IonButton>
-              </IonCol>
-              <IonCol className="ion-text-center">
-                <IonButton fill="clear" routerLink="/tabs/history">
-                  <IonIcon icon={peopleOutline} />
-                </IonButton>
-              </IonCol>
-              <IonCol className="ion-text-center">
-                <IonButton fill="clear" routerLink="/tabs/library">
-                  <IonIcon icon={bookOutline} />
-                </IonButton>
-              </IonCol>
-              <IonCol className="ion-text-center">
-                <IonButton fill="clear" routerLink="/tabs/settings">
-                  <IonIcon icon={settingsOutline} />
-                </IonButton>
-              </IonCol>
-            </IonRow>
-          </IonGrid>
-        </IonToolbar>
-      </IonFooter>
+      <IonToolbar>
+        <IonTabs>
+          <IonRouterOutlet>
+            <Route path="/tabs/home" exact={true} />
+            <Route path="/tabs/history" exact={true} />
+            <Route path="/tabs/library" exact={true} />
+            <Route path="/tabs/settings" exact={true} />
+          </IonRouterOutlet>
+
+          <IonTabBar slot="bottom">
+            <IonTabButton tab="home" href="/tabs/home">
+              <IonIcon icon={homeOutline} style={{ fontSize: '28px' }} />
+              <IonLabel>Home</IonLabel>
+            </IonTabButton>
+
+            <IonTabButton tab="history" href="/tabs/history">
+              <IonIcon icon={peopleOutline} style={{ fontSize: '28px' }} />
+              <IonLabel>History</IonLabel>
+            </IonTabButton>
+
+            <IonTabButton tab="library" href="/tabs/library">
+              <IonIcon icon={bookOutline} style={{ fontSize: '28px' }} />
+              <IonLabel>Library</IonLabel>
+            </IonTabButton>
+
+            <IonTabButton tab="settings" href="/tabs/settings">
+              <IonIcon icon={settingsOutline} style={{ fontSize: '28px' }} />
+              <IonLabel>Settings</IonLabel>
+            </IonTabButton>
+          </IonTabBar>
+        </IonTabs>
+      </IonToolbar>
+      
     </IonPage>
   );
 };

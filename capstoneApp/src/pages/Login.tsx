@@ -79,6 +79,11 @@ const Login: React.FC = () => {
         </IonToolbar>
       </IonHeader>
       <IonContent className="ion-padding">
+        <div className="welcomeText">
+          <h1>Sign in with phone number</h1>
+          <h5>Please key in your phone number</h5>
+        </div>
+
         <IonGrid>
           
           {/* 8 Input boxes for the phone number */}

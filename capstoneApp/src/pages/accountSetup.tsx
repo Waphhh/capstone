@@ -16,7 +16,12 @@ const AccountSetup: React.FC = () => {
   // Error state for form validation and Firebase errors
   const [errorMessage, setErrorMessage] = useState<string>('');
 
+  function containsOnlyDigits(str) {
+    return /^\d+$/.test(str);
+  }
+
   const handleContinue = async () => {
+
     // Validate form fields
     if (!language) {
       setErrorMessage('Please select a language.');
@@ -26,16 +31,26 @@ const AccountSetup: React.FC = () => {
       setErrorMessage('Please enter your postal code.');
       return;
     }
+    if (!(containsOnlyDigits(postalCode))) {
+      setErrorMessage('A postal code can only contain digits');
+      return;
+    }
+    if (postalCode.length != 6) {
+      setErrorMessage('A postal code is only 6 digits long');
+      return;
+    }
     if (!flatNo.trim()) {
+      console.log(flatNo.trim());
+      console.log(flatNo);
       setErrorMessage('Please enter your flat/unit number.');
       return;
     }
 
     // Check if storedPhoneNumber is available
-    if (!storedPhoneNumber) {
-      setErrorMessage('Phone number is missing. Please try again.');
-      return;
-    }
+    // if (!storedPhoneNumber) {
+    //   setErrorMessage('Phone number is missing. Please try again.');
+    //   return;
+    // }
 
     // Clear any error messages
     setErrorMessage('');
@@ -131,7 +146,7 @@ const AccountSetup: React.FC = () => {
         <IonItem>
           <IonInput
             value={postalCode}
-            onIonChange={e => setPostalCode(e.detail.value!)}
+            onIonInput={e => setPostalCode(e.detail.value!)}
             placeholder="Enter your postal code"
           />
         </IonItem>
@@ -139,7 +154,7 @@ const AccountSetup: React.FC = () => {
         <IonItem>
           <IonInput
             value={flatNo}
-            onIonChange={e => setFlatNo(e.detail.value!)}
+            onIonInput={e => setFlatNo(e.detail.value!)}
             placeholder="Enter your flat/unit number"
           />
         </IonItem>

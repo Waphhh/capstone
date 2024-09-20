@@ -10,17 +10,23 @@ import {
   IonGrid,
   IonRow,
   IonCol,
-  IonButtons,
-  IonBackButton,
-  IonFooter,
-  IonButton,
-  IonIcon
+  IonIcon,
+  useIonRouter,
+  IonTabs,
+  IonRouterOutlet,
+  IonTabBar,
+  IonTabButton,
+  IonLabel
 } from '@ionic/react';
 import { db } from './firebaseConfig'; // Ensure Firebase is initialized
+import { Route } from 'react-router';
 import { homeOutline, settingsOutline, peopleOutline, bookOutline } from 'ionicons/icons';
 import { doc, getDoc } from 'firebase/firestore';
+import './footer.css'
 
 const Library: React.FC = () => {
+  const router = useIonRouter();
+
   const [userHistory, setuserHistory] = useState<any[]>([]);
   const storedPhoneNumber = localStorage.getItem('phoneNumber');
 
@@ -85,34 +91,41 @@ const Library: React.FC = () => {
         </IonGrid>
       </IonContent>
 
-      <IonFooter>
-        <IonToolbar>
-          <IonGrid>
-            <IonRow>
-              <IonCol className="ion-text-center">
-                <IonButton fill="clear" routerLink="/tabs/home">
-                  <IonIcon icon={homeOutline} />
-                </IonButton>
-              </IonCol>
-              <IonCol className="ion-text-center">
-                <IonButton fill="clear" routerLink="/tabs/history">
-                  <IonIcon icon={peopleOutline} />
-                </IonButton>
-              </IonCol>
-              <IonCol className="ion-text-center">
-                <IonButton fill="clear" routerLink="/tabs/library">
-                  <IonIcon icon={bookOutline} />
-                </IonButton>
-              </IonCol>
-              <IonCol className="ion-text-center">
-                <IonButton fill="clear" routerLink="/tabs/settings">
-                  <IonIcon icon={settingsOutline} />
-                </IonButton>
-              </IonCol>
-            </IonRow>
-          </IonGrid>
-        </IonToolbar>
-      </IonFooter>
+      <IonToolbar>
+        <IonTabs>
+          <IonRouterOutlet>
+            {/* Define your routes here */}
+            <Route path="/tabs/home" exact={true} />
+            <Route path="/tabs/history" exact={true} />
+            <Route path="/tabs/library" exact={true} />
+            <Route path="/tabs/settings" exact={true} />
+          </IonRouterOutlet>
+
+          <IonTabBar slot="bottom">
+            <IonTabButton tab="home" href="/tabs/home">
+              <IonIcon icon={homeOutline} style={{ fontSize: '28px' }} />
+              <IonLabel>Home</IonLabel>
+            </IonTabButton>
+
+            <IonTabButton tab="history" href="/tabs/history">
+              <IonIcon icon={peopleOutline} style={{ fontSize: '28px' }} />
+              <IonLabel>History</IonLabel>
+            </IonTabButton>
+
+            <IonTabButton tab="library" href="/tabs/library">
+              <IonIcon icon={bookOutline} style={{ fontSize: '28px' }} />
+              <IonLabel>Library</IonLabel>
+            </IonTabButton>
+
+            <IonTabButton tab="settings" href="/tabs/settings">
+              <IonIcon icon={settingsOutline} style={{ fontSize: '28px' }} />
+              <IonLabel>Settings</IonLabel>
+            </IonTabButton>
+          </IonTabBar>
+        </IonTabs>
+      </IonToolbar>
+
+      
     </IonPage>
   );
 };
