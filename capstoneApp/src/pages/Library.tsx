@@ -18,26 +18,27 @@ import {
   IonTabBar,
   IonTabButton,
   IonLabel,
+  IonSearchbar,
+  IonButton,
 } from '@ionic/react';
-import { db } from './firebaseConfig'; // Ensure Firebase is initialized
-import { doc, getDoc } from 'firebase/firestore';
+import { db } from './firebaseConfig';
+import { updateDoc, arrayUnion, arrayRemove, doc, getDoc } from 'firebase/firestore';
 import { Route } from 'react-router';
-import { homeOutline, settingsOutline, peopleOutline, bookOutline } from 'ionicons/icons';
+import { homeOutline, settingsOutline, peopleOutline, bookOutline, heart, heartOutline } from 'ionicons/icons';
 import * as Papa from 'papaparse';
 import './footer.css'
 
-// CSV file path (adjust if needed)
 const csvFilePath = './resources.csv';
 
 const Library: React.FC = () => {
-
   const [userLanguage, setUserLanguage] = useState<string | null>(null);
   const [filteredTutorials, setFilteredTutorials] = useState<any[]>([]);
-
+  const [favorites, setFavorites] = useState<any[]>([]);
+  const [searchQuery, setSearchQuery] = useState<string>(''); 
   const storedPhoneNumber = localStorage.getItem('phoneNumber');
 
-  // Fetch user language from Firestore
-  const fetchUserLanguage = async () => {
+  // Fetch user language and favorites from Firestore
+  const fetchUserData = async () => {
     try {
       if (storedPhoneNumber) {
         const docRef = doc(db, 'users', storedPhoneNumber);
@@ -46,8 +47,7 @@ const Library: React.FC = () => {
         if (docSnap.exists()) {
           const userData = docSnap.data();
           setUserLanguage(userData.language || null);
-        } else {
-          console.log('No such document!');
+          setFavorites(userData.favorites || []);
         }
       }
     } catch (error) {
@@ -55,49 +55,78 @@ const Library: React.FC = () => {
     }
   };
 
-  // Fetch and parse the CSV file
+  // Fetch and parse CSV data
   const fetchCSVData = async () => {
-    try {
-      const response = await fetch(csvFilePath);
-      const csvText = await response.text();
-      const parsedData = Papa.parse(csvText, {
-        header: true,
-        skipEmptyLines: true,
-      });
-      console.log(parsedData.data);
-      return parsedData.data;
-    } catch (error) {
-      console.error('Error fetching CSV:', error);
-      return [];
-    }
+    const response = await fetch(csvFilePath);
+    const csvText = await response.text();
+    const parsedData = Papa.parse(csvText, {
+      header: true,
+      skipEmptyLines: true,
+    });
+    return parsedData.data;
   };
 
-  // Filter tutorials by user's preferred language
+  // Filter tutorials by language
   const filterTutorialsByLanguage = (tutorials: any[], language: string | null) => {
-    if (!language) return [];
+    return language ? tutorials.filter(t => t.Language.toLowerCase().includes(language.toLowerCase())) : [];
+  };
 
-    return tutorials.filter((tutorial) => {
-      return tutorial.Language.toLowerCase().includes(language.toLowerCase());
-    });
+  // Filter tutorials by search
+  const filterTutorialsBySearch = (tutorials: any[], query: string) => {
+    return tutorials.filter((tutorial) =>
+      tutorial.Title.toLowerCase().includes(query.toLowerCase()) ||
+      tutorial.Content.toLowerCase().includes(query.toLowerCase())
+    );
+  };
+
+  // Filter out already favorited tutorials
+  const filterOutFavorited = (tutorials: any[], favorites: any[]) => {
+    return tutorials.filter(tutorial => !favorites.some(fav => fav.Title === tutorial.Title));
   };
 
   const loadAndFilterTutorials = async () => {
-    if (userLanguage) {
-      const tutorials = await fetchCSVData(); // Fetch CSV data
-      const filtered = filterTutorialsByLanguage(tutorials, userLanguage);
-      setFilteredTutorials(filtered);
+    const tutorials = await fetchCSVData();
+    let filtered = filterTutorialsByLanguage(tutorials, userLanguage);
+
+    if (searchQuery) {
+      filtered = filterTutorialsBySearch(filtered, searchQuery);
+    }
+
+    // Remove already favorited tutorials from the list
+    filtered = filterOutFavorited(filtered, favorites);
+
+    setFilteredTutorials(filtered);
+  };
+
+  // Add a tutorial to the user's favorites
+  const addToFavorites = async (tutorial: any) => {
+    if (storedPhoneNumber) {
+      const userDocRef = doc(db, 'users', storedPhoneNumber);
+      await updateDoc(userDocRef, {
+        favorites: arrayUnion(tutorial),
+      });
+      setFavorites([...favorites, tutorial]); // Update local favorites state
+    }
+  };
+
+  // Remove a tutorial from the user's favorites (unfavoriting)
+  const removeFromFavorites = async (tutorial: any) => {
+    if (storedPhoneNumber) {
+      const userDocRef = doc(db, 'users', storedPhoneNumber);
+      await updateDoc(userDocRef, {
+        favorites: arrayRemove(tutorial),
+      });
+      setFavorites(favorites.filter((fav) => fav.Title !== tutorial.Title)); // Update local favorites state
     }
   };
 
   useEffect(() => {
-    console.log("use effect1 triggered");
-    loadAndFilterTutorials();
-  }, [userLanguage]); 
+    fetchUserData();
+  }, []);
 
   useEffect(() => {
-    console.log("use effect2 triggered");
-    fetchUserLanguage();
-  });
+    loadAndFilterTutorials();
+  }, [userLanguage, searchQuery, favorites]);
 
   return (
     <IonPage>
@@ -105,31 +134,59 @@ const Library: React.FC = () => {
         <IonToolbar color="danger">
           <IonTitle>Library</IonTitle>
         </IonToolbar>
+        <IonToolbar>
+          <IonSearchbar
+            placeholder="Look for a tutorial"
+            value={searchQuery}
+            onIonInput={(e) => setSearchQuery(e.detail.value!)}
+          />
+        </IonToolbar>
       </IonHeader>
 
       <IonContent className="ion-padding">
         <IonGrid>
           <IonRow>
-            {filteredTutorials.length > 0 ? (
-              filteredTutorials.map((tutorial, index) => (
-                <IonCol size="12" size-md="6" key={index}>
-                  <IonCard>
+            {/* Display favorited tutorials */}
+            {favorites.length > 0 && (
+              <IonCol size="12">
+                {favorites.map((tutorial, index) => (
+                  <IonCard key={index} style={{ backgroundColor: '#f0f0f0', borderRadius: '15px', overflow: 'hidden' }}>
                     <IonCardHeader>
                       <IonCardTitle>{tutorial.Title}</IonCardTitle>
                     </IonCardHeader>
                     <IonCardContent>
-                      <p>Content: {tutorial.Content}</p>
-                      <p>Type: {tutorial.Type}</p>
-                      <p>Language: {tutorial.Language}</p>
-                      <a href={tutorial.Link} target="_blank" rel="noopener noreferrer">
-                        Watch Video
-                      </a>
+                      <p>{tutorial.Content}</p>
+                      <IonButton href={tutorial.Link} target="_blank" style={{ margin: '0px', borderRadius: '30px', overflow: 'hidden' }}>Go learn</IonButton>
+                      <IonButton onClick={() => removeFromFavorites(tutorial)} style={{ borderRadius: '30px', overflow: 'hidden' }}>
+                        <IonIcon icon={heart} /> Unfavorite
+                      </IonButton>
+                    </IonCardContent>
+                  </IonCard>
+                ))}
+              </IonCol>
+            )}
+
+            {/* Display filtered tutorials, excluding favorited ones */}
+            {filteredTutorials.length > 0 ? (
+              filteredTutorials.map((tutorial, index) => (
+                <IonCol size="12" size-md="6" key={index}>
+                  <IonCard style={{ backgroundColor: '#f0f0f0', borderRadius: '15px', overflow: 'hidden' }}>
+                    <IonCardHeader>
+                      <IonCardTitle>{tutorial.Title}</IonCardTitle>
+                    </IonCardHeader>
+                    <IonCardContent>
+                      <p>{tutorial.Content}</p>
+                      <IonButton href={tutorial.Link} target="_blank" style={{ margin: '0px', borderRadius: '30px', overflow: 'hidden' }}>Go learn</IonButton>
+                      <IonButton onClick={() => addToFavorites(tutorial)} style={{ borderRadius: '30px', overflow: 'hidden' }}>
+                        <IonIcon icon={favorites.some(fav => fav.Title === tutorial.Title) ? heart : heartOutline} />
+                        {favorites.some(fav => fav.Title === tutorial.Title) ? 'Favorited' : 'Favorite'}
+                      </IonButton>
                     </IonCardContent>
                   </IonCard>
                 </IonCol>
               ))
             ) : (
-              <p>No tutorials available for your language</p>
+              <p>No tutorials available for your language or search term</p>
             )}
           </IonRow>
         </IonGrid>
@@ -146,28 +203,24 @@ const Library: React.FC = () => {
 
           <IonTabBar slot="bottom">
             <IonTabButton tab="home" href="/tabs/home">
-              <IonIcon icon={homeOutline} style={{ fontSize: '28px' }} />
+              <IonIcon icon={homeOutline} />
               <IonLabel>Home</IonLabel>
             </IonTabButton>
-
             <IonTabButton tab="history" href="/tabs/history">
-              <IonIcon icon={peopleOutline} style={{ fontSize: '28px' }} />
+              <IonIcon icon={peopleOutline} />
               <IonLabel>History</IonLabel>
             </IonTabButton>
-
             <IonTabButton tab="library" href="/tabs/library">
-              <IonIcon icon={bookOutline} style={{ fontSize: '28px' }} />
+              <IonIcon icon={bookOutline} />
               <IonLabel>Library</IonLabel>
             </IonTabButton>
-
             <IonTabButton tab="settings" href="/tabs/settings">
-              <IonIcon icon={settingsOutline} style={{ fontSize: '28px' }} />
+              <IonIcon icon={settingsOutline} />
               <IonLabel>Settings</IonLabel>
             </IonTabButton>
           </IonTabBar>
         </IonTabs>
       </IonToolbar>
-      
     </IonPage>
   );
 };

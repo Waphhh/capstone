@@ -63,7 +63,8 @@ const AccountSetup: React.FC = () => {
         postalCode,
         flatNo,
         requests: {},
-        history: {}
+        history: {},
+        favorites: [],
       });
       console.log('User data uploaded successfully');
       

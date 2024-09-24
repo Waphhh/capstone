@@ -1,12 +1,14 @@
 .container {
     text-align: center;
+    height: 85vh; /* Full height of the viewport */
 }
 
 .top-image {
     width: 100%;
-    height: auto;
-    max-height: 300px;
-    transition: opacity 0.3s ease-in-out;
+    height: 60vh; /* 50% of the viewport height */
+    object-fit: cover; /* Cover the container without stretching */
+    overflow: hidden; /* Hide overflow */
+    transition: opacity 0.3s ease-in-out; /* Smooth fade transition */
 }
 
 .fade-in {
@@ -23,25 +25,11 @@
     margin-top: 10px;
 }
 
-.dot {
-    display: inline-block;
-    width: 12px;
-    height: 12px;
-    margin: 0 5px;
-    background-color: #ccc;
-    border-radius: 50%;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-}
-
-.dot.active {
-    background-color: #ff4757; /* Active dot color */
-}
-
 .bottom-text {
     margin-top: 20px;
 }
 
 .getStartedButton {
-    margin-top: 20px;
+    margin-top: 5px;
+    height: 10vh;
 }

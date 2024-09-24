@@ -28,14 +28,6 @@ const Start: React.FC = () => {
     }, 3500); // Change image every 3.5 seconds
   };
 
-  const resetCooldown = (index: number) => {
-    if (intervalRef.current) {
-      clearInterval(intervalRef.current); // Clear existing interval
-    }
-    changeImage(index); // Change image immediately
-    startInterval(); // Restart the interval
-  };
-
   useEffect(() => {
     startInterval(); // Start interval on component mount
     return () => {
@@ -54,19 +46,10 @@ const Start: React.FC = () => {
             alt="Start Page"
             className={`top-image ${fadeClass}`} // Add fade animation class
           />
-          <div className="dots">
-            {images.map((_, index) => (
-              <span
-                key={index}
-                className={`dot ${index === currentImageIndex ? 'active' : ''}`}
-                onClick={() => resetCooldown(index)} // Reset cooldown on dot click
-              ></span>
-            ))}
-          </div>
           <div className="bottom-text">
             <h1>Welcome to the HWN app</h1>
-            <p>The HWN x SST app made by students for elderly to voice their concerns to HWN for help.</p>
-            <p>If it isn't from the heart, it is not worth doing.</p>
+            <p style={{ padding: '0px', fontSize: '16px' }}>The HWN x SST app made by students for elderly to voice their concerns to HWN for help.</p>
+            <p style={{ padding: '0px', fontSize: '16px' }}>If it isn't from the heart, it is not worth doing.</p>
           </div>
         </div>
 
