@@ -1,0 +1,51 @@
+/* Style for the main card */
+.request-card {
+    display: flex;
+    padding: 0;
+    margin: 20px;
+    border-radius: 10px;
+  }
+  
+  /* Left date section */
+  .date-section {
+    background-color: #e0efff; /* Light blue background */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  
+  .date-block {
+    text-align: center;
+  }
+  
+  .day, .month, .year {
+    font-size: 14px;
+    color: #666;
+  }
+  
+  .date {
+    font-size: 32px;
+    font-weight: bold;
+    color: #000;
+  }
+  
+  /* Right info section */
+  .info-section {
+    padding: 10px;
+  }
+  
+  .info-section h3, h4 {
+    margin: 0;
+    font-weight: bold;
+  }
+  
+  .time {
+    color: #007bff;
+    font-weight: bold;
+  }
+  
+  /* Style for buttons */
+  .action-button {
+    border-radius: 20px;
+  }
+  

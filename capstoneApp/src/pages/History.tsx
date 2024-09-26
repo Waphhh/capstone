@@ -16,7 +16,9 @@ import {
   IonRouterOutlet,
   IonTabBar,
   IonTabButton,
-  IonLabel
+  IonLabel,
+  IonText,
+  IonRouterLink
 } from '@ionic/react';
 import { db } from './firebaseConfig'; // Ensure Firebase is initialized
 import { Route } from 'react-router';
@@ -27,10 +29,9 @@ import './footer.css'
 const Library: React.FC = () => {
   const router = useIonRouter();
 
-  const [userHistory, setuserHistory] = useState<any[]>([]);
+  const [userHistory, setUserHistory] = useState<any[]>([]);
   const storedPhoneNumber = localStorage.getItem('phoneNumber');
 
-  // Fetch user language from Firestore
   // Function to fetch requests from Firestore for the current user
   const fetchOngoingRequests = async () => {
     try {
@@ -43,10 +44,10 @@ const Library: React.FC = () => {
           const history = userData.history || {};
           const requestsArray = Object.keys(history).map((key) => ({
             historyItem: key,
-            index: history[key],
+            comment: history[key],
           }));
 
-          setuserHistory(requestsArray);
+          setUserHistory(requestsArray);
         } else {
           console.log("No such document!");
         }
@@ -56,6 +57,30 @@ const Library: React.FC = () => {
     } catch (error) {
       console.error('Error fetching ongoing requests:', error);
     }
+  };
+
+  // Function to convert URLs in comments to clickable links
+  const formatComment = (comment: string) => {
+    // Regular expression to detect URLs
+    const urlRegex = /(https?:\/\/[^\s]+|www\.[^\s]+)/g;
+
+    return comment.split(urlRegex).map((part, index) => {
+      if (urlRegex.test(part)) {
+        // Ensure correct URL format (add http if missing)
+        const formattedLink = part.startsWith('http') ? part : `http://${part}`;
+
+        // Check if the part ends with '.' or ',' and trim it
+        const cleanedPart = part.replace(/[.,]+$/, '');
+
+        return (
+          <IonRouterLink key={index} href={formattedLink} target="_blank">
+            {cleanedPart}
+          </IonRouterLink>
+        );
+      } else {
+        return part;
+      }
+    });
   };
 
   useEffect(() => {
@@ -79,7 +104,9 @@ const Library: React.FC = () => {
                   <IonCard>
                     <IonCardContent>
                       <p>Date: {item.historyItem}</p>
-                      <p>Comment: {item.index}</p>
+                      <IonText>
+                        Comment: {formatComment(item.comment)}
+                      </IonText>
                     </IonCardContent>
                   </IonCard>
                 </IonCol>
@@ -124,8 +151,6 @@ const Library: React.FC = () => {
           </IonTabBar>
         </IonTabs>
       </IonToolbar>
-
-      
     </IonPage>
   );
 };
