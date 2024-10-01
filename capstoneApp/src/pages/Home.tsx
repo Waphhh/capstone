@@ -42,21 +42,37 @@ const RequestCard: React.FC = () => {
       if (storedPhoneNumber) {
         const docRef = doc(db, 'users', storedPhoneNumber);
         const docSnap = await getDoc(docRef);
-
+  
         if (docSnap.exists()) {
           const userData = docSnap.data();
           const userRequests = userData.requests || {};
-          const requestsArray = await Promise.all(Object.keys(userRequests).map(async (key) => {
-            const fileName = `recordings/${storedPhoneNumber}_${key}.wav`;
-            const audioRef = ref(storage, fileName);
-            const audioUrl = await getDownloadURL(audioRef);  // Get the download URL for each request
-            return {
-              name: key,
-              status: userRequests[key],
-              audioUrl  // Store the audio URL for playing
-            };
-          }));
-          setRequests(requestsArray);  // Set the requests array with audio URLs
+  
+          // Fetch requests and filter out completed ones
+          const requestsArray = await Promise.all(
+            Object.keys(userRequests).map(async (key) => {
+              const requestData = userRequests[key];
+  
+              // Check if the request status is not completed
+              if (requestData !== 'Completed') {
+                const fileName = `recordings/${storedPhoneNumber}_${key}.wav`;
+                const audioRef = ref(storage, fileName);
+                const audioUrl = await getDownloadURL(audioRef); // Get the download URL for each request
+                return {
+                  name: key,
+                  status: requestData,
+                  audioUrl // Store the audio URL for playing
+                };
+              }
+  
+              // Return null for completed requests
+              return null;
+            })
+          );
+  
+          // Filter out null values from the array
+          const filteredRequests = requestsArray.filter(request => request !== null);
+          filteredRequests.sort((a, b) => new Date(a.name) - new Date(b.name));
+          setRequests(filteredRequests); // Set the requests array with audio URLs
         } else {
           console.log('No such document!');
         }
@@ -67,7 +83,7 @@ const RequestCard: React.FC = () => {
       console.error('Error fetching ongoing requests:', error);
     }
   };
-
+  
   const handleCancelRequest = async (requestName: string) => {
     try {
       const docRef = doc(db, 'users', storedPhoneNumber as string);
@@ -110,7 +126,6 @@ const RequestCard: React.FC = () => {
         second: 'numeric',
         hour12: true
       }); 
-      console.log(humanReadableDate);
 
       try {
         const docRef = doc(db, 'users', storedPhoneNumber);
@@ -130,8 +145,6 @@ const RequestCard: React.FC = () => {
 
   const startRecording = async () => {
     // Open the modal for the user to select date and time
-    // console.log(roundUpToNearest15Min());
-    // console.log(selectedDateTime);
     setShowDateTimeModal(true);
   };
 
@@ -168,7 +181,10 @@ const RequestCard: React.FC = () => {
   const stopRecording = () => {
     if (mediaRecorderRef.current) {
       mediaRecorderRef.current.stop();
+      mediaRecorderRef.current.stream.getTracks().forEach( track => track.stop() );
+      console.log("mic off");
       setIsRecording(false);
+      fetchOngoingRequests();
     }
   };
 
@@ -188,13 +204,8 @@ const RequestCard: React.FC = () => {
   };
 
   const toLocalISOString = (date: Date) => {
-    const tzOffset = -date.getTimezoneOffset(); // in minutes, negative for UTC- timezones
-    const diffHours = Math.floor(tzOffset / 60);
-    const diffMinutes = tzOffset % 60;
-  
-    date.setHours(date.getHours() + diffHours);
-    date.setMinutes(date.getMinutes() + diffMinutes);
-  
+    date.setHours(date.getHours() + 8);
+
     return date.toISOString().slice(0, 19); // Removes the 'Z' that causes UTC conversion
   };  
   
@@ -204,6 +215,7 @@ const RequestCard: React.FC = () => {
     const remainder = 15 - (minutes % 15); // Calculate how much to add to round to nearest 15
     now.setMinutes(minutes + remainder);   // Add the remainder to get the next 15-minute mark
     now.setSeconds(0, 0);
+
     return toLocalISOString(now);
   };
 
@@ -227,6 +239,7 @@ const RequestCard: React.FC = () => {
   };
 
   useEffect(() => {
+    console.log("refresh");
     const initialDateTime = roundUpToNearest15Min();
     setSelectedDateTime(initialDateTime);
     fetchOngoingRequests();

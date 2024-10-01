@@ -23,7 +23,7 @@ import {
 } from '@ionic/react';
 import { db } from './firebaseConfig';
 import { updateDoc, arrayUnion, arrayRemove, doc, getDoc } from 'firebase/firestore';
-import { Route } from 'react-router';
+import { Route, useLocation } from 'react-router';
 import { homeOutline, settingsOutline, peopleOutline, bookOutline, heart, heartOutline } from 'ionicons/icons';
 import * as Papa from 'papaparse';
 import './footer.css'
@@ -36,6 +36,7 @@ const Library: React.FC = () => {
   const [favorites, setFavorites] = useState<any[]>([]);
   const [searchQuery, setSearchQuery] = useState<string>(''); 
   const storedPhoneNumber = localStorage.getItem('phoneNumber');
+  const location = useLocation();
 
   // Fetch user language and favorites from Firestore
   const fetchUserData = async () => {
@@ -121,10 +122,12 @@ const Library: React.FC = () => {
   };
 
   useEffect(() => {
+    console.log("location changed");
     fetchUserData();
-  }, []);
+  }, [location])
 
   useEffect(() => {
+    console.log("refreshed");
     loadAndFilterTutorials();
   }, [userLanguage, searchQuery, favorites]);
 
