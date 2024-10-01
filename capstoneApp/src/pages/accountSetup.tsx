@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { IonPage, IonHeader, IonToolbar, IonTitle, IonContent, IonButton, IonItem, IonLabel, IonInput, IonGrid, IonRow, IonCol, IonBackButton, IonButtons, IonText } from '@ionic/react';
+import { IonPage, IonHeader, IonToolbar, IonTitle, IonContent, IonButton, IonItem, IonLabel, IonInput, IonGrid, IonRow, IonCol, IonBackButton, IonButtons, IonText, IonCheckbox, IonModal } from '@ionic/react';
 import { useHistory } from 'react-router-dom';
 import { doc, setDoc } from 'firebase/firestore';
 import { db } from './firebaseConfig';
@@ -7,10 +7,12 @@ import { db } from './firebaseConfig';
 const AccountSetup: React.FC = () => {
   const history = useHistory();
 
-  // State to store selected language, postal code, and flat/unit number
+  // State to store selected language, postal code, flat/unit number, and T&C checkbox
   const [language, setLanguage] = useState<string | null>(null);
   const [postalCode, setPostalCode] = useState<string>('');
   const [flatNo, setFlatNo] = useState<string>('');
+  const [acceptedTerms, setAcceptedTerms] = useState<boolean>(false);  // New state for T&C acceptance
+  const [showModal, setShowModal] = useState<boolean>(false);  // State to control the modal visibility
   const storedPhoneNumber = localStorage.getItem('phoneNumber');
 
   // Error state for form validation and Firebase errors
@@ -35,22 +37,18 @@ const AccountSetup: React.FC = () => {
       setErrorMessage('A postal code can only contain digits');
       return;
     }
-    if (postalCode.length != 6) {
+    if (postalCode.length !== 6) {
       setErrorMessage('A postal code is only 6 digits long');
       return;
     }
     if (!flatNo.trim()) {
-      console.log(flatNo.trim());
-      console.log(flatNo);
       setErrorMessage('Please enter your flat/unit number.');
       return;
     }
-
-    // Check if storedPhoneNumber is available
-    // if (!storedPhoneNumber) {
-    //   setErrorMessage('Phone number is missing. Please try again.');
-    //   return;
-    // }
+    if (!acceptedTerms) {  // Check if the user has accepted the T&Cs
+      setErrorMessage('Please accept the Terms & Conditions.');
+      return;
+    }
 
     // Clear any error messages
     setErrorMessage('');
@@ -82,7 +80,7 @@ const AccountSetup: React.FC = () => {
       <IonHeader>
         <IonToolbar>
           <IonButtons slot="start">
-            <IonBackButton defaultHref="/register" />
+            <IonBackButton defaultHref="/tabs/register" />
           </IonButtons>
           <IonTitle>Select Language & Address</IonTitle>
         </IonToolbar>
@@ -144,7 +142,8 @@ const AccountSetup: React.FC = () => {
           </IonRow>
         </IonGrid>
 
-        <IonItem>
+        {/* Postal Code and Flat No input fields */}
+        <IonItem style={{ paddingRight: '16px' }}>
           <IonInput
             value={postalCode}
             onIonInput={e => setPostalCode(e.detail.value!)}
@@ -152,7 +151,7 @@ const AccountSetup: React.FC = () => {
           />
         </IonItem>
 
-        <IonItem>
+        <IonItem style={{ paddingRight: '16px' }}>
           <IonInput
             value={flatNo}
             onIonInput={e => setFlatNo(e.detail.value!)}
@@ -160,9 +159,53 @@ const AccountSetup: React.FC = () => {
           />
         </IonItem>
 
+        {/* T&C Checkbox and link */}
+        <IonItem lines="none">
+          <IonCheckbox
+            slot="start"
+            checked={acceptedTerms}
+            onIonChange={e => setAcceptedTerms(e.detail.checked!)}
+          />
+          <IonLabel style={{ display: 'inline', marginLeft: '0' }}>
+            I accept the{' '}
+            <a
+              href="#"
+              onClick={(e) => {
+                e.preventDefault();
+                setShowModal(true); // Show the modal when T&Cs link is clicked
+              }}
+            >
+              Terms & Conditions
+            </a>
+          </IonLabel>
+        </IonItem>
+
+        {/* Continue button */}
         <IonButton expand="block" onClick={handleContinue}>
           Continue
         </IonButton>
+
+        {/* Modal for Terms & Conditions */}
+        <IonModal isOpen={showModal} onDidDismiss={() => setShowModal(false)}>
+          <IonHeader>
+            <IonToolbar>
+              <IonTitle>Terms & Conditions</IonTitle>
+              <IonButtons slot="end">
+                <IonButton onClick={() => setShowModal(false)}>Close</IonButton>
+              </IonButtons>
+            </IonToolbar>
+          </IonHeader>
+          <IonContent>
+            {/* Embed T&Cs content from the external link */}
+            <iframe
+              src="https://www.youthbank.sg/privacypolicy"
+              title="Terms & Conditions"
+              width="100%"
+              height="100%"
+              style={{ border: 'none' }}
+            ></iframe>
+          </IonContent>
+        </IonModal>
       </IonContent>
     </IonPage>
   );

@@ -38,7 +38,7 @@ const Settings: React.FC = () => {
   const [showToast, setShowToast] = useState<{ isOpen: boolean, message: string }>({ isOpen: false, message: '' });
   const history = useHistory();
 
-  const storedPhoneNumber = localStorage.getItem('phoneNumber'); // Assumes phoneNumber is stored in localStorage
+  const storedPhoneNumber = localStorage.getItem('phoneNumber');
 
   useEffect(() => {
     const fetchData = async () => {

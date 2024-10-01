@@ -14,6 +14,10 @@ import AccoundSetup from './pages/accountSetup';
 import Library from './pages/Library';
 import History from './pages/History';
 
+/* Admin */
+import Admin from './pages/Admin';
+import Requests from './pages/Requests';
+
 /* Core CSS required for Ionic components to work properly */
 import '@ionic/react/css/core.css';
 
@@ -57,6 +61,8 @@ const App: React.FC = () => (
         <Route path="/tabs/accoutSetup" component={AccoundSetup} exact={true}/>
         <Route path="/tabs/library" component={Library} exact={true}/>
         <Route path="/tabs/history" component={History} exact={true}/>
+        <Route path="/admin" component={Admin} exact={true}/>
+        <Route path="/requests" component={Requests} exact={true}/>
         <Route exact path="/" render={() => <Redirect to="/start" />} />
       </IonRouterOutlet>
     </IonReactRouter>
