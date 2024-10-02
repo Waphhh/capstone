@@ -25,7 +25,8 @@ import { homeOutline, settingsOutline, peopleOutline, bookOutline } from 'ionico
 import { Route } from 'react-router';
 import { doc, getDoc, updateDoc } from 'firebase/firestore';
 import { useHistory } from 'react-router-dom';
-import { auth, db } from './firebaseConfig'; // Adjust the import path as needed
+import { db } from './firebaseConfig';
+
 import './footer.css'
 
 const Settings: React.FC = () => {
@@ -74,11 +75,11 @@ const Settings: React.FC = () => {
   const handleSave = async () => {
     if (storedPhoneNumber) {
       if (phoneNumber.length != 8) {
-        setShowToast({ isOpen: true, message: 'A phone number is only 8 digits long. Please try again.' });
+        setShowToast({ isOpen: true, message: 'A phone number is 8 digits long. Please try again.' });
       } else if (!(containsOnlyDigits(phoneNumber))) {
         setShowToast({ isOpen: true, message: 'A phone number can only contain numbers. Please try again.' });
       } else if (postalCode.length != 6) {
-        setShowToast({ isOpen: true, message: 'A postal code is only 6 digits long. Please try again.' });
+        setShowToast({ isOpen: true, message: 'A postal code is 6 digits long. Please try again.' });
       } else if (!(containsOnlyDigits(postalCode))) {
         setShowToast({ isOpen: true, message: 'A postal code can only contain numbers. Please try again.' });
       } else if (flatNo.length == 0) {
@@ -170,7 +171,6 @@ const Settings: React.FC = () => {
       <IonToolbar>
         <IonTabs>
           <IonRouterOutlet>
-            {/* Define your routes here */}
             <Route path="/tabs/home" exact={true} />
             <Route path="/tabs/history" exact={true} />
             <Route path="/tabs/library" exact={true} />

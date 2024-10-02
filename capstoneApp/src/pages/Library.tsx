@@ -26,6 +26,7 @@ import { updateDoc, arrayUnion, arrayRemove, doc, getDoc } from 'firebase/firest
 import { Route, useLocation } from 'react-router';
 import { homeOutline, settingsOutline, peopleOutline, bookOutline, heart, heartOutline } from 'ionicons/icons';
 import * as Papa from 'papaparse';
+
 import './footer.css'
 
 const csvFilePath = './resources.csv';
@@ -159,6 +160,16 @@ const Library: React.FC = () => {
                     </IonCardHeader>
                     <IonCardContent>
                       <p>{tutorial.Content}</p>
+                      <center>
+                        <iframe
+                            title="YouTube Video Player"
+                            width="100%"
+                            height="100%"
+                            src={tutorial.Link.replace('watch?v=', 'embed/')} // Convert link to embed link
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                            allowFullScreen
+                        ></iframe>
+                      </center>
                       <IonButton href={tutorial.Link} target="_blank" style={{ margin: '0px', borderRadius: '30px', overflow: 'hidden' }}>Go learn</IonButton>
                       <IonButton onClick={() => removeFromFavorites(tutorial)} style={{ borderRadius: '30px', overflow: 'hidden' }}>
                         <IonIcon icon={heart} /> Unfavorite
@@ -179,6 +190,16 @@ const Library: React.FC = () => {
                     </IonCardHeader>
                     <IonCardContent>
                       <p>{tutorial.Content}</p>
+                      <center>
+                        <iframe
+                            title="YouTube Video Player"
+                            width="100%"
+                            height="100%"
+                            src={tutorial.Link.replace('watch?v=', 'embed/')} // Convert link to embed link
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                            allowFullScreen
+                        ></iframe>
+                      </center>
                       <IonButton href={tutorial.Link} target="_blank" style={{ margin: '0px', borderRadius: '30px', overflow: 'hidden' }}>Go learn</IonButton>
                       <IonButton onClick={() => addToFavorites(tutorial)} style={{ borderRadius: '30px', overflow: 'hidden' }}>
                         <IonIcon icon={favorites.some(fav => fav.Title === tutorial.Title) ? heart : heartOutline} />
@@ -206,24 +227,28 @@ const Library: React.FC = () => {
 
           <IonTabBar slot="bottom">
             <IonTabButton tab="home" href="/tabs/home">
-              <IonIcon icon={homeOutline} />
+              <IonIcon icon={homeOutline} style={{ fontSize: '28px' }} />
               <IonLabel>Home</IonLabel>
             </IonTabButton>
+
             <IonTabButton tab="history" href="/tabs/history">
-              <IonIcon icon={peopleOutline} />
+              <IonIcon icon={peopleOutline} style={{ fontSize: '28px' }} />
               <IonLabel>History</IonLabel>
             </IonTabButton>
+
             <IonTabButton tab="library" href="/tabs/library">
-              <IonIcon icon={bookOutline} />
+              <IonIcon icon={bookOutline} style={{ fontSize: '28px' }} />
               <IonLabel>Library</IonLabel>
             </IonTabButton>
+
             <IonTabButton tab="settings" href="/tabs/settings">
-              <IonIcon icon={settingsOutline} />
+              <IonIcon icon={settingsOutline} style={{ fontSize: '28px' }} />
               <IonLabel>Settings</IonLabel>
             </IonTabButton>
           </IonTabBar>
         </IonTabs>
       </IonToolbar>
+
     </IonPage>
   );
 };

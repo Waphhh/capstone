@@ -11,7 +11,6 @@ import {
   IonRow,
   IonCol,
   IonIcon,
-  useIonRouter,
   IonTabs,
   IonRouterOutlet,
   IonTabBar,
@@ -20,14 +19,14 @@ import {
   IonText,
   IonRouterLink
 } from '@ionic/react';
-import { db } from './firebaseConfig'; // Ensure Firebase is initialized
+import { db } from './firebaseConfig';
 import { Route } from 'react-router';
 import { homeOutline, settingsOutline, peopleOutline, bookOutline } from 'ionicons/icons';
 import { doc, getDoc } from 'firebase/firestore';
+
 import './footer.css'
 
-const Library: React.FC = () => {
-  const router = useIonRouter();
+const History: React.FC = () => {
 
   const [userHistory, setUserHistory] = useState<any[]>([]);
   const storedPhoneNumber = localStorage.getItem('phoneNumber');
@@ -121,7 +120,6 @@ const Library: React.FC = () => {
       <IonToolbar>
         <IonTabs>
           <IonRouterOutlet>
-            {/* Define your routes here */}
             <Route path="/tabs/home" exact={true} />
             <Route path="/tabs/history" exact={true} />
             <Route path="/tabs/library" exact={true} />
@@ -151,8 +149,9 @@ const Library: React.FC = () => {
           </IonTabBar>
         </IonTabs>
       </IonToolbar>
+      
     </IonPage>
   );
 };
 
-export default Library;
+export default History;

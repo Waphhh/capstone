@@ -13,6 +13,7 @@ const Admin: React.FC = () => {
       const result = await signInWithPopup(auth, provider);
       const credential = GoogleAuthProvider.credentialFromResult(result);
       const token = credential?.accessToken;
+      console.log(token);
       const user = result.user;
       console.log("Google Auth Token:", token);
       console.log("Authenticated User:", user);

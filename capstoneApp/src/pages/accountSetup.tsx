@@ -38,7 +38,7 @@ const AccountSetup: React.FC = () => {
       return;
     }
     if (postalCode.length !== 6) {
-      setErrorMessage('A postal code is only 6 digits long');
+      setErrorMessage('A postal code is 6 digits long');
       return;
     }
     if (!flatNo.trim()) {

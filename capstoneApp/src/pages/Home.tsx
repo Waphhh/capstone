@@ -1,11 +1,12 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { IonPage, IonCard, IonCardContent, IonButton, IonGrid, IonRow, IonCol, IonHeader, IonTitle, IonToolbar, IonAlert, IonContent, IonDatetime, IonFab, IonFabButton, IonIcon, IonLabel, IonModal, IonRouterOutlet, IonTabBar, IonTabButton, IonTabs, IonToast, useIonRouter, IonFooter } from '@ionic/react';
-import './HomeIteration.css';  
+import { IonPage, IonCard, IonCardContent, IonButton, IonGrid, IonRow, IonCol, IonHeader, IonTitle, IonToolbar, IonAlert, IonContent, IonDatetime, IonFab, IonFabButton, IonIcon, IonLabel, IonModal, IonRouterOutlet, IonTabBar, IonTabButton, IonTabs, IonToast, useIonRouter } from '@ionic/react';
 import { doc, getDoc, updateDoc } from 'firebase/firestore';  
-import { ref, deleteObject, getDownloadURL, uploadBytes } from 'firebase/storage';  // Import getDownloadURL
+import { ref, deleteObject, getDownloadURL, uploadBytes } from 'firebase/storage';
 import { storage, db } from './firebaseConfig';  
-import { addOutline, stopCircleOutline, homeOutline, peopleOutline, bookOutline, settingsOutline } from 'ionicons/icons';
+import { addOutline, stopCircleOutline, homeOutline, settingsOutline, peopleOutline, bookOutline  } from 'ionicons/icons';
 import { Route } from 'react-router';
+
+import './HomeIteration.css';  
 
 const formatDate = (dateString: string) => {
   const date = new Date(dateString);
@@ -18,8 +19,7 @@ const formatDate = (dateString: string) => {
   };
 };
 
-const RequestCard: React.FC = () => {
-  const router = useIonRouter();
+const Home: React.FC = () => {
 
   const [requests, setRequests] = useState<any[]>([]);
   const [showAlert, setShowAlert] = useState(false);
@@ -246,7 +246,7 @@ const RequestCard: React.FC = () => {
   }, []);
 
   return (
-    <IonPage style={{ backgroundColor: 'white' }}>
+    <IonPage>
       <IonHeader>
         <IonToolbar color="danger">
           <IonTitle>Home</IonTitle>
@@ -370,43 +370,42 @@ const RequestCard: React.FC = () => {
         </audio>
       )}
 
-      <IonFooter>
-        <IonToolbar>
-          <IonTabs>
-            <IonRouterOutlet>
-              <Route path="/tabs/home" exact={true} />
-              <Route path="/tabs/history" exact={true} />
-              <Route path="/tabs/library" exact={true} />
-              <Route path="/tabs/settings" exact={true} />
-            </IonRouterOutlet>
+      <IonToolbar>
+        <IonTabs>
+          <IonRouterOutlet>
+            <Route path="/tabs/home" exact={true} />
+            <Route path="/tabs/history" exact={true} />
+            <Route path="/tabs/library" exact={true} />
+            <Route path="/tabs/settings" exact={true} />
+          </IonRouterOutlet>
 
-            <IonTabBar slot="bottom">
-              <IonTabButton tab="home" href="/tabs/home">
-                <IonIcon icon={homeOutline} style={{ fontSize: '28px' }} />
-                <IonLabel>Home</IonLabel>
-              </IonTabButton>
+          <IonTabBar slot="bottom">
+            <IonTabButton tab="home" href="/tabs/home">
+              <IonIcon icon={homeOutline} style={{ fontSize: '28px' }} />
+              <IonLabel>Home</IonLabel>
+            </IonTabButton>
 
-              <IonTabButton tab="history" href="/tabs/history">
-                <IonIcon icon={peopleOutline} style={{ fontSize: '28px' }} />
-                <IonLabel>History</IonLabel>
-              </IonTabButton>
+            <IonTabButton tab="history" href="/tabs/history">
+              <IonIcon icon={peopleOutline} style={{ fontSize: '28px' }} />
+              <IonLabel>History</IonLabel>
+            </IonTabButton>
 
-              <IonTabButton tab="library" href="/tabs/library">
-                <IonIcon icon={bookOutline} style={{ fontSize: '28px' }} />
-                <IonLabel>Library</IonLabel>
-              </IonTabButton>
+            <IonTabButton tab="library" href="/tabs/library">
+              <IonIcon icon={bookOutline} style={{ fontSize: '28px' }} />
+              <IonLabel>Library</IonLabel>
+            </IonTabButton>
 
-              <IonTabButton tab="settings" href="/tabs/settings">
-                <IonIcon icon={settingsOutline} style={{ fontSize: '28px' }} />
-                <IonLabel>Settings</IonLabel>
-              </IonTabButton>
-            </IonTabBar>
-          </IonTabs>
-        </IonToolbar>
-      </IonFooter>
+            <IonTabButton tab="settings" href="/tabs/settings">
+              <IonIcon icon={settingsOutline} style={{ fontSize: '28px' }} />
+              <IonLabel>Settings</IonLabel>
+            </IonTabButton>
+          </IonTabBar>
+        </IonTabs>
+      </IonToolbar>
+
     </IonPage>
 
   );
 };
 
-export default RequestCard;
+export default Home;
