@@ -12,7 +12,8 @@ import Settings from './pages/Settings';
 import Register from './pages/Register';
 import AccoundSetup from './pages/accountSetup';
 import Library from './pages/Library';
-import History from './pages/History';
+import ElderlyRequests from './pages/ElderlyRequests';
+import MakeRequest from './pages/MakeRequest';
 
 /* Admin */
 import Admin from './pages/Admin';
@@ -58,9 +59,10 @@ const App: React.FC = () => (
         <Route path="/tabs/register" component={Register} exact={true}/>
         <Route path="/tabs/accoutSetup" component={AccoundSetup} exact={true}/>
         <Route path="/tabs/home" component={Home} exact={true}/>
-        <Route path="/tabs/history" component={History} exact={true}/>
         <Route path="/tabs/library" component={Library} exact={true}/>
         <Route path="/tabs/settings" component={Settings} exact={true}/>
+        <Route path="/tabs/elderlyrequests" component={ElderlyRequests} exact={true}/>
+        <Route path="/tabs/makerequest" component={MakeRequest} exact={true}/>
         <Route path="/admin" component={Admin} exact={true}/>
         <Route path="/requests" component={Requests} exact={true}/>
         <Route exact path="/" render={() => <Redirect to="/start" />} />

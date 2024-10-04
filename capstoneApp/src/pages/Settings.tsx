@@ -27,8 +27,6 @@ import { doc, getDoc, updateDoc } from 'firebase/firestore';
 import { useHistory } from 'react-router-dom';
 import { db } from './firebaseConfig';
 
-import './footer.css'
-
 const Settings: React.FC = () => {
 
   const [phoneNumber, setPhoneNumber] = useState<string>('');
@@ -172,7 +170,7 @@ const Settings: React.FC = () => {
         <IonTabs>
           <IonRouterOutlet>
             <Route path="/tabs/home" exact={true} />
-            <Route path="/tabs/history" exact={true} />
+            <Route path="/tabs/elderlyrequests" exact={true} />
             <Route path="/tabs/library" exact={true} />
             <Route path="/tabs/settings" exact={true} />
           </IonRouterOutlet>
@@ -183,9 +181,9 @@ const Settings: React.FC = () => {
               <IonLabel>Home</IonLabel>
             </IonTabButton>
 
-            <IonTabButton tab="history" href="/tabs/history">
+            <IonTabButton tab="history" href="/tabs/elderlyrequests">
               <IonIcon icon={peopleOutline} style={{ fontSize: '28px' }} />
-              <IonLabel>History</IonLabel>
+              <IonLabel>Requests</IonLabel>
             </IonTabButton>
 
             <IonTabButton tab="library" href="/tabs/library">

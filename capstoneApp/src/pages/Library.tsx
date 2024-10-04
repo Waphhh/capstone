@@ -26,8 +26,8 @@ import { updateDoc, arrayUnion, arrayRemove, doc, getDoc } from 'firebase/firest
 import { Route, useLocation } from 'react-router';
 import { homeOutline, settingsOutline, peopleOutline, bookOutline, heart, heartOutline } from 'ionicons/icons';
 import * as Papa from 'papaparse';
+import { LazyLoadComponent } from 'react-lazy-load-image-component';
 
-import './footer.css'
 
 const csvFilePath = './resources.csv';
 
@@ -160,16 +160,18 @@ const Library: React.FC = () => {
                     </IonCardHeader>
                     <IonCardContent>
                       <p>{tutorial.Content}</p>
-                      <center>
-                        <iframe
-                            title="YouTube Video Player"
-                            width="100%"
-                            height="100%"
-                            src={tutorial.Link.replace('watch?v=', 'embed/')} // Convert link to embed link
-                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                            allowFullScreen
-                        ></iframe>
-                      </center>
+                      <LazyLoadComponent>
+                        <center>
+                          <iframe
+                              title="YouTube Video Player"
+                              width="100%"
+                              height="100%"
+                              src={tutorial.Link.replace('watch?v=', 'embed/')} // Convert link to embed link
+                              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                              allowFullScreen
+                          ></iframe>
+                        </center>
+                      </LazyLoadComponent>
                       <IonButton href={tutorial.Link} target="_blank" style={{ margin: '0px', borderRadius: '30px', overflow: 'hidden' }}>Go learn</IonButton>
                       <IonButton onClick={() => removeFromFavorites(tutorial)} style={{ borderRadius: '30px', overflow: 'hidden' }}>
                         <IonIcon icon={heart} /> Unfavorite
@@ -190,16 +192,18 @@ const Library: React.FC = () => {
                     </IonCardHeader>
                     <IonCardContent>
                       <p>{tutorial.Content}</p>
-                      <center>
-                        <iframe
-                            title="YouTube Video Player"
-                            width="100%"
-                            height="100%"
-                            src={tutorial.Link.replace('watch?v=', 'embed/')} // Convert link to embed link
-                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                            allowFullScreen
-                        ></iframe>
-                      </center>
+                      <LazyLoadComponent>
+                        <center>
+                          <iframe
+                              title="YouTube Video Player"
+                              width="100%"
+                              height="100%"
+                              src={tutorial.Link.replace('watch?v=', 'embed/')} // Convert link to embed link
+                              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                              allowFullScreen
+                          ></iframe>
+                        </center>
+                      </LazyLoadComponent>
                       <IonButton href={tutorial.Link} target="_blank" style={{ margin: '0px', borderRadius: '30px', overflow: 'hidden' }}>Go learn</IonButton>
                       <IonButton onClick={() => addToFavorites(tutorial)} style={{ borderRadius: '30px', overflow: 'hidden' }}>
                         <IonIcon icon={favorites.some(fav => fav.Title === tutorial.Title) ? heart : heartOutline} />
@@ -220,7 +224,7 @@ const Library: React.FC = () => {
         <IonTabs>
           <IonRouterOutlet>
             <Route path="/tabs/home" exact={true} />
-            <Route path="/tabs/history" exact={true} />
+            <Route path="/tabs/elderlyrequests" exact={true} />
             <Route path="/tabs/library" exact={true} />
             <Route path="/tabs/settings" exact={true} />
           </IonRouterOutlet>
@@ -231,9 +235,9 @@ const Library: React.FC = () => {
               <IonLabel>Home</IonLabel>
             </IonTabButton>
 
-            <IonTabButton tab="history" href="/tabs/history">
+            <IonTabButton tab="history" href="/tabs/elderlyrequests">
               <IonIcon icon={peopleOutline} style={{ fontSize: '28px' }} />
-              <IonLabel>History</IonLabel>
+              <IonLabel>Requests</IonLabel>
             </IonTabButton>
 
             <IonTabButton tab="library" href="/tabs/library">
