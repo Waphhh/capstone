@@ -27,6 +27,8 @@ import TabsToolbar from './TabsToolbar';
 const csvFilePath = './resources.csv';
 
 const Library: React.FC = () => {
+
+  const [loading, setLoading] = useState<boolean>(true);
   const [userLanguage, setUserLanguage] = useState<string | null>(null);
   const [filteredTutorials, setFilteredTutorials] = useState<any[]>([]);
   const [favorites, setFavorites] = useState<any[]>([]);
@@ -126,6 +128,12 @@ const Library: React.FC = () => {
     console.log("refreshed");
     loadAndFilterTutorials();
   }, [userLanguage, searchQuery, favorites]);
+
+  useEffect(() => {
+    setLoading(false)
+  }, [storedPhoneNumber]);
+
+  if (loading) return <p>Loading...</p>;
 
   return (
     <IonPage>

@@ -1,4 +1,4 @@
-import React, { useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { IonPage, IonCard, IonCardContent, IonGrid, IonRow, IonCol, IonHeader, IonTitle, IonToolbar, IonContent, IonButton } from '@ionic/react';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Autoplay } from 'swiper/modules';
@@ -9,8 +9,15 @@ import 'swiper/css/pagination';
 import './Home.css';
 
 const Home: React.FC = () => {
+  const [loading, setLoading] = useState<boolean>(true);
   const recorded = ["Recommended Item 1", "Recommended Item 2", "Recommended Item 3"];
+
+  const storedPhoneNumber = localStorage.getItem('phoneNumber');
   
+  useEffect(() => {
+    setLoading(false)
+  }, [storedPhoneNumber]);
+
   // Create a ref to get access to the Swiper instance
   const swiperRef = useRef<any>(null);
 
@@ -20,6 +27,8 @@ const Home: React.FC = () => {
       swiperRef.current.slideNext();  // Directly call slideNext() on swiperRef
     }
   };
+
+  if (loading) return <p>Loading...</p>;
 
   return (
     <IonPage>

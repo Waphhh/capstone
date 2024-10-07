@@ -33,6 +33,7 @@ import './ElderlyRequests.css';
 
 const ElderlyRequests: React.FC = () => {
 
+  const [loading, setLoading] = useState<boolean>(true);
   const [userHistory, setUserHistory] = useState<any[]>([]);
   const storedPhoneNumber = localStorage.getItem('phoneNumber');
 
@@ -260,6 +261,12 @@ const ElderlyRequests: React.FC = () => {
     fetchHistory();
     fetchOngoingRequests();
   }, []);
+
+  useEffect(() => {
+    setLoading(false)
+  }, [storedPhoneNumber]);
+
+  if (loading) return <p>Loading...</p>;
 
   return (
     <IonPage>
