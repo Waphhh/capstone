@@ -12,10 +12,6 @@ import {
   IonRow,
   IonCol,
   IonIcon,
-  IonTabs,
-  IonRouterOutlet,
-  IonTabBar,
-  IonTabButton,
   IonLabel,
   IonRouterLink,
   IonButton,
@@ -28,10 +24,10 @@ import {
   IonList
 } from '@ionic/react';
 import { db, storage } from './firebaseConfig';
-import { Route } from 'react-router';
-import { homeOutline, settingsOutline, peopleOutline, bookOutline, add, closeOutline } from 'ionicons/icons';
+import { add, closeOutline } from 'ionicons/icons';
 import { doc, getDoc, updateDoc } from 'firebase/firestore';
 import { ref, getDownloadURL, deleteObject } from 'firebase/storage';
+import TabsToolbar from './TabsToolbar';
 
 import './ElderlyRequests.css';
 
@@ -404,45 +400,12 @@ const ElderlyRequests: React.FC = () => {
         </audio>
       )}
 
-      <IonToolbar>
-        <IonTabs>
-          <IonRouterOutlet>
-            <Route path="/tabs/home" exact={true} />
-            <Route path="/tabs/elderlyrequests" exact={true} />
-            <Route path="/tabs/library" exact={true} />
-            <Route path="/tabs/settings" exact={true} />
-          </IonRouterOutlet>
-
-          <IonTabBar slot="bottom">
-            <IonTabButton tab="home" href="/tabs/home">
-              <IonIcon icon={homeOutline} style={{ fontSize: '28px' }} />
-              <IonLabel>Home</IonLabel>
-            </IonTabButton>
-
-            <IonTabButton tab="history" href="/tabs/elderlyrequests">
-              <IonIcon icon={peopleOutline} style={{ fontSize: '28px' }} />
-              <IonLabel>Requests</IonLabel>
-            </IonTabButton>
-
-            <IonTabButton tab="library" href="/tabs/library">
-              <IonIcon icon={bookOutline} style={{ fontSize: '28px' }} />
-              <IonLabel>Library</IonLabel>
-            </IonTabButton>
-
-            <IonTabButton tab="settings" href="/tabs/settings">
-              <IonIcon icon={settingsOutline} style={{ fontSize: '28px' }} />
-              <IonLabel>Settings</IonLabel>
-            </IonTabButton>
-          </IonTabBar>
-        </IonTabs>
-      </IonToolbar>
-
       <IonModal isOpen={isNewRequestModalOpen} onDidDismiss={closeNewRequestModal}>
         <IonHeader>
           <IonToolbar color="danger">
             <IonTitle>New Request</IonTitle>
-            <IonButtons slot="end">
-              <IonButton onClick={closeNewRequestModal}>Close</IonButton>
+            <IonButtons slot="end" onClick={closeNewRequestModal}>
+              <IonIcon icon={closeOutline} style={{ fontSize: '42px' }} />
             </IonButtons>
           </IonToolbar>
         </IonHeader>
@@ -469,6 +432,8 @@ const ElderlyRequests: React.FC = () => {
           </IonButton>
         </IonContent>
       </IonModal>
+
+      <TabsToolbar />
 
     </IonPage>
   );

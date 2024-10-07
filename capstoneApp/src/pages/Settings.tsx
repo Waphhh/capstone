@@ -14,24 +14,18 @@ import {
   IonGrid,
   IonRow,
   IonCol,
-  IonToast,
-  IonIcon,
-  IonTabs,
-  IonRouterOutlet,
-  IonTabBar,
-  IonTabButton
+  IonToast
 } from '@ionic/react';
-import { homeOutline, settingsOutline, peopleOutline, bookOutline } from 'ionicons/icons';
-import { Route } from 'react-router';
 import { doc, getDoc, updateDoc } from 'firebase/firestore';
 import { useHistory } from 'react-router-dom';
 import { db } from './firebaseConfig';
+import TabsToolbar from './TabsToolbar';
 
 const Settings: React.FC = () => {
 
   const [phoneNumber, setPhoneNumber] = useState<string>('');
   const [postalCode, setPostalCode] = useState<string>('');
-  const [flatNo, setFlatNo] = useState<string>(''); // Changed from unitNo to flatNo
+  const [flatNo, setFlatNo] = useState<string>('');
   const [language, setLanguage] = useState<string>('English');
   const [loading, setLoading] = useState<boolean>(true);
   const [showToast, setShowToast] = useState<{ isOpen: boolean, message: string }>({ isOpen: false, message: '' });
@@ -130,10 +124,10 @@ const Settings: React.FC = () => {
                 />
               </IonItem>
               <IonItem style={{ paddingRight: '16px' }}>
-                <IonLabel position="floating" style={{marginBottom: '15px'}}>Flat/Unit number</IonLabel> {/* Changed from Unit Number to Flat Number */}
+                <IonLabel position="floating" style={{marginBottom: '15px'}}>Flat/Unit number</IonLabel>
                 <IonInput
-                  value={flatNo} // Changed from unitNo to flatNo
-                  onIonInput={(e) => setFlatNo(e.detail.value!)} // Changed from unitNo to flatNo
+                  value={flatNo}
+                  onIonInput={(e) => setFlatNo(e.detail.value!)}
                 />
               </IonItem>
               <IonItem style={{ paddingRight: '16px' }}>
@@ -156,7 +150,6 @@ const Settings: React.FC = () => {
           </IonRow>
         </IonGrid>
 
-        {/* Toast Notification */}
         <IonToast
           isOpen={showToast.isOpen}
           onDidDismiss={() => setShowToast({ ...showToast, isOpen: false })}
@@ -166,38 +159,7 @@ const Settings: React.FC = () => {
         />
       </IonContent>
 
-      <IonToolbar>
-        <IonTabs>
-          <IonRouterOutlet>
-            <Route path="/tabs/home" exact={true} />
-            <Route path="/tabs/elderlyrequests" exact={true} />
-            <Route path="/tabs/library" exact={true} />
-            <Route path="/tabs/settings" exact={true} />
-          </IonRouterOutlet>
-
-          <IonTabBar slot="bottom">
-            <IonTabButton tab="home" href="/tabs/home">
-              <IonIcon icon={homeOutline} style={{ fontSize: '28px' }} />
-              <IonLabel>Home</IonLabel>
-            </IonTabButton>
-
-            <IonTabButton tab="history" href="/tabs/elderlyrequests">
-              <IonIcon icon={peopleOutline} style={{ fontSize: '28px' }} />
-              <IonLabel>Requests</IonLabel>
-            </IonTabButton>
-
-            <IonTabButton tab="library" href="/tabs/library">
-              <IonIcon icon={bookOutline} style={{ fontSize: '28px' }} />
-              <IonLabel>Library</IonLabel>
-            </IonTabButton>
-
-            <IonTabButton tab="settings" href="/tabs/settings">
-              <IonIcon icon={settingsOutline} style={{ fontSize: '28px' }} />
-              <IonLabel>Settings</IonLabel>
-            </IonTabButton>
-          </IonTabBar>
-        </IonTabs>
-      </IonToolbar>
+      <TabsToolbar />
 
     </IonPage>
   );

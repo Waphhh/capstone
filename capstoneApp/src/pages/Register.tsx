@@ -15,6 +15,7 @@ import {
   IonText
 } from '@ionic/react';
 import { useHistory } from 'react-router-dom';
+
 import './Register.css';
 
 const Register: React.FC = () => {
@@ -97,8 +98,7 @@ const Register: React.FC = () => {
         )}
 
         <div className="welcomeText">
-          <h1>Sign up with phone number</h1>
-          <h5>Please key in your phone number</h5>
+          <h1>Sign up with your phone number by entering it below</h1>
         </div>
 
         <IonGrid>
@@ -128,7 +128,7 @@ const Register: React.FC = () => {
 
           <IonRow>
             <IonCol>
-              <IonButton expand="block" fill="outline" color="secondary" onClick={register1}>
+              <IonButton expand="block" fill="outline" color="secondary" onClick={register1} style={{ fontSize: '28px', height: '70px' }}>
                 Register
               </IonButton>
             </IonCol>

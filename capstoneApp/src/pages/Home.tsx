@@ -1,9 +1,8 @@
 import React, { useRef } from 'react';
-import { IonPage, IonCard, IonCardContent, IonGrid, IonRow, IonCol, IonHeader, IonTitle, IonToolbar, IonLabel, IonTabs, IonRouterOutlet, IonTabBar, IonTabButton, IonIcon, IonContent, IonButton } from '@ionic/react';
-import { homeOutline, settingsOutline, peopleOutline, bookOutline } from 'ionicons/icons';
-import { Route } from 'react-router';
+import { IonPage, IonCard, IonCardContent, IonGrid, IonRow, IonCol, IonHeader, IonTitle, IonToolbar, IonContent, IonButton } from '@ionic/react';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Autoplay } from 'swiper/modules';
+import TabsToolbar from './TabsToolbar';
 
 import 'swiper/css';
 import 'swiper/css/pagination';
@@ -31,7 +30,6 @@ const Home: React.FC = () => {
       </IonHeader>
 
       <IonContent style={{ textAlign: 'center' }}>
-        {/* Top section for swipeable recommended items using Swiper.js */}
         <IonGrid className='content-border'>
           <IonRow>
             <IonCol size="12">
@@ -49,7 +47,6 @@ const Home: React.FC = () => {
           >
             {recorded.map((item, index) => (
               <SwiperSlide key={index}>
-                {/* The full IonCard will be clickable */}
                 <IonCard button={true} onClick={handleSlideClick}>
                   <IonCardContent>
                     <h3>{item}</h3>
@@ -60,7 +57,6 @@ const Home: React.FC = () => {
           </Swiper>
         </IonGrid>
 
-        {/* New section for volunteer help request */}
         <IonRow style={{ textAlign: 'center', marginTop: '20px'}} className='content-border'>
           <IonCol size="12">
             <h2>Library not helpful enough, go request for volunteer help</h2>
@@ -70,39 +66,8 @@ const Home: React.FC = () => {
         
       </IonContent>
 
-      <IonToolbar>
-        <IonTabs>
-          <IonRouterOutlet>
-            <Route path="/tabs/home" exact={true} />
-            <Route path="/tabs/elderlyrequests" exact={true} />
-            <Route path="/tabs/library" exact={true} />
-            <Route path="/tabs/settings" exact={true} />
-          </IonRouterOutlet>
+      <TabsToolbar />
 
-          <IonTabBar slot="bottom">
-            <IonTabButton tab="home" href="/tabs/home">
-              <IonIcon icon={homeOutline} style={{ fontSize: '28px' }} />
-              <IonLabel>Home</IonLabel>
-            </IonTabButton>
-
-            <IonTabButton tab="history" href="/tabs/elderlyrequests">
-              <IonIcon icon={peopleOutline} style={{ fontSize: '28px' }} />
-              <IonLabel>Requests</IonLabel>
-            </IonTabButton>
-
-            <IonTabButton tab="library" href="/tabs/library">
-              <IonIcon icon={bookOutline} style={{ fontSize: '28px' }} />
-              <IonLabel>Library</IonLabel>
-            </IonTabButton>
-
-            <IonTabButton tab="settings" href="/tabs/settings">
-              <IonIcon icon={settingsOutline} style={{ fontSize: '28px' }} />
-              <IonLabel>Settings</IonLabel>
-            </IonTabButton>
-          </IonTabBar>
-        </IonTabs>
-      </IonToolbar>
-      
     </IonPage>
   );
 };

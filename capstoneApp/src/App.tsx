@@ -5,7 +5,6 @@ import {
   setupIonicReact
 } from '@ionic/react';
 import { IonReactRouter } from '@ionic/react-router';
-import Start from './pages/Start';
 import Login from './pages/Login';
 import Home from './pages/Home';
 import Settings from './pages/Settings';
@@ -54,7 +53,6 @@ const App: React.FC = () => (
   <IonApp>
     <IonReactRouter>
       <IonRouterOutlet>
-        <Route path="/start" component={Start} exact={true} />
         <Route path="/login" component={Login} exact={true} />
         <Route path="/tabs/register" component={Register} exact={true}/>
         <Route path="/tabs/accoutSetup" component={AccoundSetup} exact={true}/>
@@ -65,7 +63,7 @@ const App: React.FC = () => (
         <Route path="/tabs/makerequest" component={MakeRequest} exact={true}/>
         <Route path="/admin" component={Admin} exact={true}/>
         <Route path="/requests" component={Requests} exact={true}/>
-        <Route exact path="/" render={() => <Redirect to="/start" />} />
+        <Route exact path="/" render={() => <Redirect to="/login" />} />
       </IonRouterOutlet>
     </IonReactRouter>
   </IonApp>

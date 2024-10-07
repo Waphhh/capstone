@@ -13,21 +13,16 @@ import {
   IonRow,
   IonCol,
   IonIcon,
-  IonTabs,
-  IonRouterOutlet,
-  IonTabBar,
-  IonTabButton,
-  IonLabel,
   IonSearchbar,
   IonButton,
 } from '@ionic/react';
 import { db } from './firebaseConfig';
 import { updateDoc, arrayUnion, arrayRemove, doc, getDoc } from 'firebase/firestore';
-import { Route, useLocation } from 'react-router';
-import { homeOutline, settingsOutline, peopleOutline, bookOutline, heart, heartOutline } from 'ionicons/icons';
+import { useLocation } from 'react-router';
+import { heart, heartOutline } from 'ionicons/icons';
 import * as Papa from 'papaparse';
 import { LazyLoadComponent } from 'react-lazy-load-image-component';
-
+import TabsToolbar from './TabsToolbar';
 
 const csvFilePath = './resources.csv';
 
@@ -150,7 +145,6 @@ const Library: React.FC = () => {
       <IonContent className="ion-padding">
         <IonGrid>
           <IonRow>
-            {/* Display favorited tutorials */}
             {favorites.length > 0 && (
               <IonCol size="12">
                 {favorites.map((tutorial, index) => (
@@ -166,7 +160,7 @@ const Library: React.FC = () => {
                               title="YouTube Video Player"
                               width="100%"
                               height="100%"
-                              src={tutorial.Link.replace('watch?v=', 'embed/')} // Convert link to embed link
+                              src={tutorial.Link.replace('watch?v=', 'embed/')}
                               allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                               allowFullScreen
                           ></iframe>
@@ -182,7 +176,6 @@ const Library: React.FC = () => {
               </IonCol>
             )}
 
-            {/* Display filtered tutorials, excluding favorited ones */}
             {filteredTutorials.length > 0 ? (
               filteredTutorials.map((tutorial, index) => (
                 <IonCol size="12" size-md="6" key={index}>
@@ -198,7 +191,7 @@ const Library: React.FC = () => {
                               title="YouTube Video Player"
                               width="100%"
                               height="100%"
-                              src={tutorial.Link.replace('watch?v=', 'embed/')} // Convert link to embed link
+                              src={tutorial.Link.replace('watch?v=', 'embed/')}
                               allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                               allowFullScreen
                           ></iframe>
@@ -220,38 +213,7 @@ const Library: React.FC = () => {
         </IonGrid>
       </IonContent>
 
-      <IonToolbar>
-        <IonTabs>
-          <IonRouterOutlet>
-            <Route path="/tabs/home" exact={true} />
-            <Route path="/tabs/elderlyrequests" exact={true} />
-            <Route path="/tabs/library" exact={true} />
-            <Route path="/tabs/settings" exact={true} />
-          </IonRouterOutlet>
-
-          <IonTabBar slot="bottom">
-            <IonTabButton tab="home" href="/tabs/home">
-              <IonIcon icon={homeOutline} style={{ fontSize: '28px' }} />
-              <IonLabel>Home</IonLabel>
-            </IonTabButton>
-
-            <IonTabButton tab="history" href="/tabs/elderlyrequests">
-              <IonIcon icon={peopleOutline} style={{ fontSize: '28px' }} />
-              <IonLabel>Requests</IonLabel>
-            </IonTabButton>
-
-            <IonTabButton tab="library" href="/tabs/library">
-              <IonIcon icon={bookOutline} style={{ fontSize: '28px' }} />
-              <IonLabel>Library</IonLabel>
-            </IonTabButton>
-
-            <IonTabButton tab="settings" href="/tabs/settings">
-              <IonIcon icon={settingsOutline} style={{ fontSize: '28px' }} />
-              <IonLabel>Settings</IonLabel>
-            </IonTabButton>
-          </IonTabBar>
-        </IonTabs>
-      </IonToolbar>
+      <TabsToolbar />
 
     </IonPage>
   );

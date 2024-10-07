@@ -9,7 +9,8 @@ import {
   IonButton,
   IonGrid,
   IonRow,
-  IonCol
+  IonCol,
+  IonText
 } from '@ionic/react';
 import { useHistory } from 'react-router-dom';
 
@@ -78,9 +79,9 @@ const Login: React.FC = () => {
         </IonToolbar>
       </IonHeader>
       <IonContent className="ion-padding">
+
         <div className="welcomeText">
-          <h1>Sign in with phone number</h1>
-          <h5>Please key in your phone number</h5>
+          <h1>Sign in with your phone number by entering it below</h1>
         </div>
 
         <IonGrid>
@@ -111,16 +112,19 @@ const Login: React.FC = () => {
 
           <IonRow>
             <IonCol>
-              <IonButton expand="block" color="primary" onClick={handleLogin}>
+              <IonButton expand="block" color="primary" onClick={handleLogin} style={{ fontSize: '28px', height: '70px' }}>
                 Login
               </IonButton>
             </IonCol>
           </IonRow>
           <IonRow>
-            <IonCol>
-              <IonButton expand="block" fill="outline" color="secondary" onClick={handleRegister}>
-                Register
-              </IonButton>
+            <IonCol style={{ textAlign: 'center' }}>
+              <IonText style={{ fontSize: '28px' }}>
+                Don't have an account?{' '}
+                <span style={{ color: '#3880ff', cursor: 'pointer' }} onClick={handleRegister}>
+                  Sign up
+                </span>
+              </IonText>
             </IonCol>
           </IonRow>
         </IonGrid>
