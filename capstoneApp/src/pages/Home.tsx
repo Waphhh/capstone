@@ -38,8 +38,8 @@ const Home: React.FC = () => {
         </IonToolbar>
       </IonHeader>
 
-      <IonContent style={{ textAlign: 'center' }}>
-        <IonGrid className='content-border'>
+      <IonContent style={{ textAlign: 'center' }} className='ion-padding'>
+        <IonGrid>
           <IonRow>
             <IonCol size="12">
               <h1>Hot apps</h1>
@@ -56,7 +56,7 @@ const Home: React.FC = () => {
           >
             {recorded.map((item, index) => (
               <SwiperSlide key={index}>
-                <IonCard button={true} onClick={handleSlideClick}>
+                <IonCard button={true} onClick={handleSlideClick} style={{ backgroundColor: '#d8d8d8', height: '10vh' }}>
                   <IonCardContent>
                     <h3>{item}</h3>
                   </IonCardContent>
@@ -66,7 +66,7 @@ const Home: React.FC = () => {
           </Swiper>
         </IonGrid>
 
-        <IonRow style={{ textAlign: 'center', marginTop: '20px'}} className='content-border'>
+        <IonRow style={{ textAlign: 'center' }}>
           <IonCol size="12">
             <h2>Library not helpful enough, go request for volunteer help</h2>
             <IonButton expand="full" shape='round' routerLink="elderlyrequests">Request Help</IonButton>

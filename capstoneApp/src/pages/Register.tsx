@@ -81,8 +81,8 @@ const Register: React.FC = () => {
 
   return (
     <IonPage>
-      <IonHeader>
-        <IonToolbar color="danger">
+      <IonHeader style={{ height: '10vh' }}>
+        <IonToolbar color="danger" style={{ height: '10vh', lineHeight: '10vh' }}>
           <IonButtons slot="start">
             <IonBackButton defaultHref="/" />
           </IonButtons>
@@ -117,18 +117,18 @@ const Register: React.FC = () => {
                   style={{
                     textAlign: 'center',
                     fontSize: '2em',
-                    border: '1px solid #ccc',
                     padding: '10px',
-                    borderRadius: '5px'
+                    borderRadius: '8px',
+                    background: '#e3e3e8'
                   }}
                 />
               </IonCol>
             ))}
           </IonRow>
 
-          <IonRow>
+          <IonRow style ={{paddingTop: '15px'}}>
             <IonCol>
-              <IonButton expand="block" fill="outline" color="secondary" onClick={register1} style={{ fontSize: '28px', height: '70px' }}>
+              <IonButton expand="block" fill="outline" shape="round" color="secondary" onClick={register1} style={{ fontSize: '28px', height: '50px' }}>
                 Register
               </IonButton>
             </IonCol>

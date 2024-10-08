@@ -14,15 +14,16 @@ import {
   IonGrid,
   IonRow,
   IonCol,
-  IonToast
+  IonToast,
+  IonIcon
 } from '@ionic/react';
 import { doc, getDoc, updateDoc } from 'firebase/firestore';
 import { useHistory } from 'react-router-dom';
 import { db } from './firebaseConfig';
 import TabsToolbar from './TabsToolbar';
+import { logOut } from 'ionicons/icons'; // Import the log-out icon
 
 const Settings: React.FC = () => {
-
   const [phoneNumber, setPhoneNumber] = useState<string>('');
   const [postalCode, setPostalCode] = useState<string>('');
   const [flatNo, setFlatNo] = useState<string>('');
@@ -60,22 +61,36 @@ const Settings: React.FC = () => {
     fetchData();
   }, [storedPhoneNumber]);
 
-  function containsOnlyDigits(str) {
+  function containsOnlyDigits(str: string) {
     return /^\d+$/.test(str);
   }
 
   const handleSave = async () => {
     if (storedPhoneNumber) {
-      if (phoneNumber.length != 8) {
+      const regex = /^\d+$/;
+      const flatparts = flatNo.trim().split("-");
+      if (flatparts.length !== 2) {
+        setShowToast({ isOpen: true, message: 'Please enter your unit number in the format XX-XX.'});
+        return;
+      } else if (flatNo.trim().length !== 5) {
+        setShowToast({ isOpen: true, message: 'Please enter your unit number in the format XX-XX.'});
+        return;
+      } else if (!(regex.test(flatparts[0]))) {
+        setShowToast({ isOpen: true, message: 'Please enter your unit number in the format XX-XX.'});
+        return;
+      } else if (!(regex.test(flatparts[1]))) {
+        setShowToast({ isOpen: true, message: 'Please enter your unit number in the format XX-XX.'});
+        return;
+      }  else if (phoneNumber.length !== 8) {
         setShowToast({ isOpen: true, message: 'A phone number is 8 digits long. Please try again.' });
       } else if (!(containsOnlyDigits(phoneNumber))) {
         setShowToast({ isOpen: true, message: 'A phone number can only contain numbers. Please try again.' });
-      } else if (postalCode.length != 6) {
+      } else if (postalCode.length !== 6) {
         setShowToast({ isOpen: true, message: 'A postal code is 6 digits long. Please try again.' });
       } else if (!(containsOnlyDigits(postalCode))) {
         setShowToast({ isOpen: true, message: 'A postal code can only contain numbers. Please try again.' });
-      } else if (flatNo.length == 0) {
-        setShowToast({ isOpen: true, message: 'Flat/Unit number cannot be empty. Please try again.' });
+      } else if (flatNo.length === 0) {
+        setShowToast({ isOpen: true, message: 'Unit number cannot be empty. Please try again.' });
       } else {
         try {
           const docRef = doc(db, 'users', storedPhoneNumber);
@@ -95,6 +110,13 @@ const Settings: React.FC = () => {
     }
   };
 
+  const handleLogout = () => {
+    // Clear phone number and details
+    localStorage.removeItem('phoneNumber');
+    // Add any other data cleanup as needed
+    history.push('/'); // Navigate to the home page
+  };
+
   if (loading) return <p>Loading...</p>;
 
   return (
@@ -110,21 +132,21 @@ const Settings: React.FC = () => {
           <IonRow>
             <IonCol>
               <IonItem style={{ paddingRight: '16px' }}>
-                <IonLabel position="floating" style={{marginBottom: '15px' }}>Phone Number</IonLabel>
+                <IonLabel position="floating" style={{ marginBottom: '15px' }}>Phone Number</IonLabel>
                 <IonInput
                   value={phoneNumber}
                   onIonInput={(e) => setPhoneNumber(e.detail.value!)}
                 />
               </IonItem>
-              <IonItem style={{ paddingRight: '16px' }}> 
-                <IonLabel position="floating" style={{marginBottom: '15px'}}>Postal Code</IonLabel>
+              <IonItem style={{ paddingRight: '16px' }}>
+                <IonLabel position="floating" style={{ marginBottom: '15px' }}>Postal Code</IonLabel>
                 <IonInput
                   value={postalCode}
                   onIonInput={(e) => setPostalCode(e.detail.value!)}
                 />
               </IonItem>
               <IonItem style={{ paddingRight: '16px' }}>
-                <IonLabel position="floating" style={{marginBottom: '15px'}}>Flat/Unit number</IonLabel>
+                <IonLabel position="floating" style={{ marginBottom: '15px' }}>Unit number</IonLabel>
                 <IonInput
                   value={flatNo}
                   onIonInput={(e) => setFlatNo(e.detail.value!)}
@@ -143,8 +165,18 @@ const Settings: React.FC = () => {
                   <IonSelectOption value="Malay">Bahasa Melayu</IonSelectOption>
                 </IonSelect>
               </IonItem>
-              <IonButton expand="full" onClick={handleSave} style={{ marginTop: '10px'}}>
+              <IonButton expand="full" onClick={handleSave} style={{ marginTop: '10px' }} shape='round'>
                 Save
+              </IonButton>
+              <IonButton 
+                expand="full" 
+                onClick={handleLogout} 
+                color="danger" 
+                style={{ marginTop: '10px' }} 
+                shape='round'
+              >
+                <IonIcon slot="start" icon={logOut} />
+                Logout
               </IonButton>
             </IonCol>
           </IonRow>

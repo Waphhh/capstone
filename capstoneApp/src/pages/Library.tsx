@@ -174,7 +174,7 @@ const Library: React.FC = () => {
                           ></iframe>
                         </center>
                       </LazyLoadComponent>
-                      <IonButton href={tutorial.Link} target="_blank" style={{ margin: '0px', borderRadius: '30px', overflow: 'hidden' }}>Go learn</IonButton>
+                      <IonButton href={tutorial.Link} target="_blank" style={{ margin: '0px', borderRadius: '30px', overflow: 'hidden' }}>Watch video</IonButton>
                       <IonButton onClick={() => removeFromFavorites(tutorial)} style={{ borderRadius: '30px', overflow: 'hidden' }}>
                         <IonIcon icon={heart} /> Unfavorite
                       </IonButton>
@@ -205,7 +205,7 @@ const Library: React.FC = () => {
                           ></iframe>
                         </center>
                       </LazyLoadComponent>
-                      <IonButton href={tutorial.Link} target="_blank" style={{ margin: '0px', borderRadius: '30px', overflow: 'hidden' }}>Go learn</IonButton>
+                      <IonButton href={tutorial.Link} target="_blank" style={{ margin: '0px', borderRadius: '30px', overflow: 'hidden' }}>Watch video</IonButton>
                       <IonButton onClick={() => addToFavorites(tutorial)} style={{ borderRadius: '30px', overflow: 'hidden' }}>
                         <IonIcon icon={favorites.some(fav => fav.Title === tutorial.Title) ? heart : heartOutline} />
                         {favorites.some(fav => fav.Title === tutorial.Title) ? 'Favorited' : 'Favorite'}

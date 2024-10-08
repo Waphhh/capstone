@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
-import { IonPage, IonHeader, IonToolbar, IonTitle, IonContent, IonButton, IonItem, IonLabel, IonInput, IonGrid, IonRow, IonCol, IonBackButton, IonButtons, IonText, IonCheckbox, IonModal } from '@ionic/react';
+import { IonPage, IonHeader, IonToolbar, IonTitle, IonContent, IonButton, IonItem, IonLabel, IonInput, IonGrid, IonRow, IonCol, IonBackButton, IonButtons, IonText, IonCheckbox, IonModal, IonIcon } from '@ionic/react';
 import { useHistory } from 'react-router-dom';
 import { doc, setDoc } from 'firebase/firestore';
 import { db } from './firebaseConfig';
+import { closeOutline } from 'ionicons/icons';
 
 const AccountSetup: React.FC = () => {
   const history = useHistory();
@@ -24,6 +25,25 @@ const AccountSetup: React.FC = () => {
 
   const handleContinue = async () => {
 
+    const regex = /^\d+$/;
+    const flatparts = flatNo.trim().split("-");
+    if (flatparts.length !== 2) {
+      setErrorMessage('Please enter your unit number in the format XX-XX.');
+      return;
+    }
+    if (flatNo.trim().length !== 5) {
+      setErrorMessage('Please enter your unit number in the format XX-XX.');
+      return;
+    }
+    if (!(regex.test(flatparts[0]))) {
+      setErrorMessage('Please enter your unit number in the format XX-XX.');
+      return;
+    }
+    if (!(regex.test(flatparts[1]))) {
+      setErrorMessage('Please enter your unit number in the format XX-XX.');
+      return;
+    }
+
     // Validate form fields
     if (!language) {
       setErrorMessage('Please select a language.');
@@ -42,13 +62,15 @@ const AccountSetup: React.FC = () => {
       return;
     }
     if (!flatNo.trim()) {
-      setErrorMessage('Please enter your flat/unit number.');
+      setErrorMessage('Please enter your unit number.');
       return;
     }
     if (!acceptedTerms) {  // Check if the user has accepted the T&Cs
       setErrorMessage('Please accept the Terms & Conditions.');
       return;
     }
+
+    
 
     // Clear any error messages
     setErrorMessage('');
@@ -76,14 +98,18 @@ const AccountSetup: React.FC = () => {
     }
   };
 
+  const closeTC = () => {
+    setShowModal(false);
+  }
+
   return (
     <IonPage>
-      <IonHeader>
-        <IonToolbar>
+      <IonHeader style={{ height: '10vh' }}>
+        <IonToolbar color='danger' style={{ height: '10vh', lineHeight: '10vh' }}>
           <IonButtons slot="start">
             <IonBackButton defaultHref="/tabs/register" />
           </IonButtons>
-          <IonTitle>Select Language & Address</IonTitle>
+          <IonTitle>Setup</IonTitle>
         </IonToolbar>
       </IonHeader>
       <IonContent className="ion-padding">
@@ -156,7 +182,7 @@ const AccountSetup: React.FC = () => {
           <IonInput
             value={flatNo}
             onIonInput={e => setFlatNo(e.detail.value!)}
-            placeholder="Enter your flat/unit number"
+            placeholder="Enter your /nit number"
           />
         </IonItem>
 
@@ -189,17 +215,17 @@ const AccountSetup: React.FC = () => {
         {/* Modal for Terms & Conditions */}
         <IonModal isOpen={showModal} onDidDismiss={() => setShowModal(false)}>
           <IonHeader>
-            <IonToolbar>
+            <IonToolbar color="danger">
               <IonTitle>Terms & Conditions</IonTitle>
-              <IonButtons slot="end">
-                <IonButton onClick={() => setShowModal(false)}>Close</IonButton>
+              <IonButtons slot="end" onClick={closeTC}>
+                <IonIcon icon={closeOutline} style={{ fontSize: '42px' }} />
               </IonButtons>
             </IonToolbar>
           </IonHeader>
           <IonContent>
             {/* Embed T&Cs content from the external link */}
             <iframe
-              src="https://www.youthbank.sg/privacypolicy"
+              src="/T&C.html"
               title="Terms & Conditions"
               width="100%"
               height="100%"

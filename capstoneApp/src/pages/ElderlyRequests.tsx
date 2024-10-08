@@ -19,9 +19,7 @@ import {
   IonButtons,
   IonModal,
   IonFab,
-  IonFabButton,
-  IonItem,
-  IonList
+  IonFabButton
 } from '@ionic/react';
 import { db, storage } from './firebaseConfig';
 import { add, closeOutline } from 'ionicons/icons';
@@ -48,13 +46,14 @@ const ElderlyRequests: React.FC = () => {
   const history = useHistory();
 
   const options = [
-    { id: 1, label: 'Whatsapp'},
-    { id: 2, label: 'Facebook'},
-    { id: 3, label: 'Youtube'},
-    { id: 4, label: 'Healthy365'},
-    { id: 5, label: 'Singpass'},
-    { id: 6, label: 'Grab'},
-    { id: 7, label: 'Other'},
+    { id: 1, label: 'Whatsapp', src: 'Whatsapp.png'},
+    { id: 2, label: 'Singpass', src: 'Singpass.png'},
+    { id: 3, label: 'Facebook', src: 'Facebook.png'},
+    { id: 4, label: 'Youtube', src: 'Youtube.png'},
+    { id: 5, label: 'MyTransport', src: 'MyTransport.png'},
+    { id: 6, label: 'Healthy365', src: 'Healthy365_logo.png'},
+    { id: 7, label: 'Grab', src: 'Grab.png'},
+    { id: 8, label: 'Other', src: 'Other.png'},
 
     // Add more options as needed
   ];
@@ -158,7 +157,6 @@ const ElderlyRequests: React.FC = () => {
       console.error('Error fetching ongoing requests:', error);
     }
   };
-  
 
   // Function to fetch requests from Firestore for the current user
   const fetchHistory = async () => {
@@ -417,24 +415,43 @@ const ElderlyRequests: React.FC = () => {
           </IonToolbar>
         </IonHeader>
         <IonContent style={{ textAlign: 'center' }}>
-          <h2>What do you need help learning?</h2>
-          <IonList>
+          <h3>What do you need help learning?</h3>
+          <div
+            style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(2, 1fr)', // 2 columns
+              gap: '16px', // space between items
+              justifyItems: 'center', // center items horizontally
+              alignItems: 'center', // center items vertically
+              padding: '16px'
+            }}
+          >
             {options.map(option => (
-              <IonItem
+              <div
                 key={option.id}
-                button
                 onClick={() => setSelectedOption(option.label)}
                 style={{
-                  backgroundColor: selectedOption === option.label ? 'blue' : 'transparent', // Change background color for selected option
-                  color: selectedOption === option.label ? 'blue' : 'black', // Change text color for selected option
-                  paddingRight: '16px'
+                  cursor: 'pointer',
+                  textAlign: 'center',
+                  backgroundColor: selectedOption === option.label ? '#a6a6a6' : '#d8d8d8',
+                  padding: '16px',
+                  width: '100%',
+                  height: '100%',
+                  borderRadius: '8px'
                 }}
               >
-                <IonLabel style={{ fontSize: '40px' }}>{option.label}</IonLabel>
-              </IonItem>
+                <img
+                  src={`iconassets/${option.src}`}
+                  alt={option.label}
+                  style={{ width: '80px', height: '80px', borderRadius: '8px' }} // Icon size
+                />
+                <IonLabel style={{ fontSize: '20px', display: 'block', marginTop: '8px' }}>
+                  {option.label}
+                </IonLabel>
+              </div>
             ))}
-          </IonList>
-          <IonButton expand="full" onClick={handleConfirm} disabled={!selectedOption}>
+          </div>
+          <IonButton expand="full" onClick={handleConfirm} disabled={!selectedOption} shape='round'>
             Confirm
           </IonButton>
         </IonContent>

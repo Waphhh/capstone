@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import {
   IonPage,
   IonHeader,
@@ -9,18 +9,19 @@ import {
   IonBackButton,
   IonButton,
   IonIcon,
-  IonItem,
   IonTextarea,
-  IonSelect,
-  IonSelectOption,
   IonToast,
-  IonText
+  IonText,
+  IonModal,
+  IonFabButton
 } from '@ionic/react';
-import { micOutline, calendarOutline, chatbubbleEllipsesOutline, playOutline } from 'ionicons/icons';
-import { doc, updateDoc } from 'firebase/firestore';
+import { micOutline, chatbubbleEllipsesOutline, playOutline, closeOutline, calendarOutline, stopOutline } from 'ionicons/icons';
+import { doc, increment, updateDoc } from 'firebase/firestore';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { storage, db } from './firebaseConfig';
 import { useHistory } from 'react-router-dom';
+import { LiveAudioVisualizer } from 'react-audio-visualize';
+import Calendar from './Calendar';
 
 const MakeRequest: React.FC = () => {
   const storedPhoneNumber = localStorage.getItem('phoneNumber');
@@ -36,7 +37,9 @@ const MakeRequest: React.FC = () => {
   const [audioUrl, setAudioUrl] = useState<string | null>(null);
   const [showToast, setShowToast] = useState<boolean>(false);
   const [errorMessage, setErrorMessage] = useState<string>('');
-  const [isPlaying, setIsPlaying] = useState<boolean>(false); // To track audio playback
+  const [isPlaying, setIsPlaying] = useState<boolean>(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isMediaRecorderReady, setIsMediaRecorderReady] = useState<boolean>(false); // New state to control visualizer rendering
 
   const handleRecordClick = async () => {
     setIsRecording(!isRecording);
@@ -47,16 +50,19 @@ const MakeRequest: React.FC = () => {
         const mediaRecorder = new MediaRecorder(stream);
         mediaRecorderRef.current = mediaRecorder;
         audioChunksRef.current = [];
-  
+
+        // Set state to indicate media recorder is ready
+        setIsMediaRecorderReady(true);
+
         mediaRecorder.ondataavailable = (event) => {
           audioChunksRef.current.push(event.data);
         };
-  
+
         mediaRecorder.onstop = async () => {
           const audioBlob = new Blob(audioChunksRef.current, { type: 'audio/wav' });
           setmainAudioBlob(audioBlob); // Save the audioBlob for playback
         };
-  
+
         mediaRecorder.start();
       } catch (err) {
         console.error('Error accessing microphone: ', err);
@@ -64,8 +70,9 @@ const MakeRequest: React.FC = () => {
     } else {
       if (mediaRecorderRef.current) {
         mediaRecorderRef.current.stop();
-        mediaRecorderRef.current.stream.getTracks().forEach( track => track.stop() );
+        mediaRecorderRef.current.stream.getTracks().forEach(track => track.stop());
         console.log("mic off");
+        setIsMediaRecorderReady(false); // Reset the state when recording stops
       }
     }
   };
@@ -80,14 +87,6 @@ const MakeRequest: React.FC = () => {
       audio.onended = () => setIsPlaying(false); // Reset the state once the audio finishes playing
     }
   };
-
-  // List of dates in ISO format
-  const availableDates = [
-    "2024-10-16T20:00:00",
-    "2024-10-17T10:00:00",
-    "2024-10-18T15:30:00",
-    "2024-10-19T18:45:00"
-  ];
 
   const uploadAudioToFirebase = async (audioBlob: Blob) => {
     const fileName = 'recordings/' + storedPhoneNumber + '_' + selectedDate + '.wav';
@@ -126,6 +125,11 @@ const MakeRequest: React.FC = () => {
           [`requests.${selectedDate}`]: 'Pending',
           [`remarks.${selectedDate}`]: finalRemarks
         });
+
+        const dateRef = doc(db, 'dates', 'dates');
+        await updateDoc(dateRef, {
+          [`dates.${selectedDate}`]: increment(1)
+        });
         
         if (mainAudioBlob) {
           await uploadAudioToFirebase(mainAudioBlob); // Upload audio recording
@@ -150,18 +154,38 @@ const MakeRequest: React.FC = () => {
     submitDateTimeToFirestore();
   };
 
-  // Convert the ISO date to a human-readable format
-  const formatDate = (isoDate: string) => {
-    const dateObj = new Date(isoDate);
-    return dateObj.toLocaleString('en-US', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-      hour: 'numeric',
-      minute: 'numeric',
-      hour12: true
-    });
+  const handleCalendarClick = (isoDate: string) => {
+    setSelectedDate(isoDate);
+    console.log('Calendar clicked for date:', isoDate);
   };
+
+  const closerequestpart2 = () => {
+    setIsModalOpen(false);
+  };
+
+  const handleDateSelect = () => {
+  if (selectedDate) {
+    setIsModalOpen(true);
+  } else {
+    setErrorMessage('Please select a date');
+    return;
+  }
+  }
+
+  const formattedDate = (new Date(selectedDate)).toLocaleString('en-US', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+    hour: 'numeric',
+    minute: 'numeric',
+    hour12: true
+  })
+
+  useEffect(() => {
+    if (isMediaRecorderReady) {
+      console.log('LiveAudioVisualizer should now render, mediaRecorderRef:', mediaRecorderRef.current);
+    }
+  }, [isMediaRecorderReady]); 
 
   return (
     <IonPage>
@@ -174,77 +198,93 @@ const MakeRequest: React.FC = () => {
         </IonToolbar>
       </IonHeader>
 
-      <IonContent>
+      <IonContent style={{ textAlign: 'center' }}>
+
+        <h3>Select a timing when you are available.</h3>
+
         {errorMessage && (
           <IonText color="danger" style={{ textAlign: 'center' }}>
             <b><p>{errorMessage}</p></b>
           </IonText>
         )}
 
-        <div style={{ display: 'flex', justifyContent: 'center', marginTop: '20px' }}>
-          <IonItem>
-            <IonIcon slot="start" icon={calendarOutline} />
-            <IonSelect
-              placeholder="Select a Date"
-              value={selectedDate}
-              onIonChange={e => setSelectedDate(e.detail.value)}
-            >
-              {availableDates.map((isoDate, index) => (
-                <IonSelectOption key={index} value={isoDate}>
-                  {formatDate(isoDate)} {/* Display human-readable format */}
-                </IonSelectOption>
-              ))}
-            </IonSelect>
-          </IonItem>
-        </div>
+        <Calendar handleCalendarClick={handleCalendarClick}/>
 
-        {/* Recording Button */}
-        <div style={{ display: 'flex', justifyContent: 'center', marginTop: '20px' }}>
-          <IonButton onClick={handleRecordClick} shape='round'>
-            <IonIcon slot="start" icon={micOutline} />
-            {isRecording ? "Stop Recording" : "Start Recording"}
-          </IonButton>
-        </div>
+        <IonButton onClick={handleDateSelect} style={{ marginTop: '20px' }}>Choose this date</IonButton>
 
-        {/* Display recording status if recording is active */}
-        {isRecording && (
+      </IonContent>
+
+      <IonModal isOpen={isModalOpen} onDidDismiss={() => setIsModalOpen(false)}>
+        <IonHeader>
+          <IonToolbar color="danger">
+            <IonTitle>Specify problem</IonTitle>
+            <IonButtons slot="end" onClick={closerequestpart2}>
+              <IonIcon icon={closeOutline} style={{ fontSize: '42px' }} />
+            </IonButtons>
+          </IonToolbar>
+        </IonHeader>
+
+        <IonContent style={{ textAlign: 'center' }}>
           <div style={{ textAlign: 'center', marginTop: '10px' }}>
-            <p>Recording in progress...</p>
+            <IonIcon icon={calendarOutline} style={{ fontSize: '50px'}}/>
+            <p style={{ fontSize: '24px', paddingRight: '15px', paddingLeft: '15px', marginTop: '0px' }}>Selected timing: {formattedDate}</p>
           </div>
-        )}
 
-        {/* Play Audio Button */}
-        {mainAudioBlob && (
+          {/* Recording Button */}
           <div style={{ display: 'flex', justifyContent: 'center', marginTop: '20px' }}>
-            <IonButton onClick={handleAudioPlay} disabled={isPlaying} shape='round'>
-              <IonIcon slot="start" icon={playOutline} />
-              {isPlaying ? "Playing..." : "Play Recording"}
-            </IonButton>
+            <IonFabButton onClick={handleRecordClick} style={{ borderRadius: '50%', width: '64px', height: '64px' }}>
+              <IonIcon icon={isRecording ? stopOutline : micOutline} style={{ fontSize: '48px' }} />
+            </IonFabButton>
           </div>
-        )}
 
-        {/* Remarks Section */}
-        <div style={{ padding: '20px' }}>
-          <IonItem>
-            <IonIcon slot="start" icon={chatbubbleEllipsesOutline} />
+          <div>
+            {isMediaRecorderReady && mediaRecorderRef.current && (
+              <LiveAudioVisualizer
+                mediaRecorder={mediaRecorderRef.current}
+                width={200}
+                height={75}
+              />
+            )}
+          </div>
+
+          {/* Display recording status if recording is active */}
+          {isRecording && (
+            <div style={{ textAlign: 'center', marginTop: '10px' }}>
+              <p>Recording in progress...</p>
+            </div>
+          )}
+
+          {/* Play Audio Button */}
+          {mainAudioBlob && (
+            <div style={{ display: 'flex', justifyContent: 'center', marginTop: '20px' }}>
+              <IonButton onClick={handleAudioPlay} disabled={isPlaying} shape='round'>
+                <IonIcon slot="start" icon={playOutline} />
+                {isPlaying ? "Playing..." : "Play Recording"}
+              </IonButton>
+            </div>
+          )}
+
+          {/* Remarks Section */}
+          <div style={{ padding: '20px', textAlign: 'center' }}>
+            <IonIcon icon={chatbubbleEllipsesOutline} style={{ fontSize: '50px' }}/>
             <IonTextarea
               placeholder="Type your remarks here..."
               value={remarks}
               onIonInput={e => setRemarks(e.detail.value!)}
             />
-          </IonItem>
-          <IonButton expand="block" color="primary" onClick={handleSubmit} style={{ marginTop: '10px' }} shape='round'>
-            Submit Request
-          </IonButton>
-        </div>
+            <IonButton expand="block" color="primary" onClick={handleSubmit} style={{ marginTop: '10px' }} shape='round'>
+              Submit Request
+            </IonButton>
+          </div>
 
-        <IonToast
-          isOpen={showToast}
-          message="Request submitted successfully!"
-          duration={2000}
-          onDidDismiss={() => setShowToast(false)}
-        />
-      </IonContent>
+          <IonToast
+            isOpen={showToast}
+            message="Request submitted successfully!"
+            duration={2000}
+            onDidDismiss={() => setShowToast(false)}
+          />
+        </IonContent>
+      </IonModal>
     </IonPage>
   );
 };

@@ -16,6 +16,7 @@ import { useHistory } from 'react-router-dom';
 
 const Login: React.FC = () => {
   const history = useHistory();
+  const [errorMessage, setErrorMessage] = useState<string>('');
 
   // State to hold the values of each phone number digit
   const [phoneNumber, setPhoneNumber] = useState<string[]>(new Array(8).fill(''));
@@ -61,6 +62,12 @@ const Login: React.FC = () => {
   };
 
   const handleLogin = () => {
+    if (phoneNumber.join('').length != 8) {
+      setErrorMessage('A phone number requires 8 digits');
+      return;
+    }
+
+    console.log("test");
     localStorage.setItem('phoneNumber', phoneNumber.join(''));
     history.push('/tabs/home');
   };  
@@ -73,11 +80,12 @@ const Login: React.FC = () => {
 
   return (
     <IonPage>
-      <IonHeader>
-        <IonToolbar color="danger">
+      <IonHeader style={{ height: '10vh' }}>
+        <IonToolbar color="danger" style={{ height: '10vh', lineHeight: '10vh' }}>
           <IonTitle>Login</IonTitle>
         </IonToolbar>
       </IonHeader>
+
       <IonContent className="ion-padding">
 
         <div className="welcomeText">
@@ -101,25 +109,31 @@ const Login: React.FC = () => {
                   style={{
                     textAlign: 'center',
                     fontSize: '2em',
-                    border: '1px solid #ccc',
                     padding: '10px',
-                    borderRadius: '5px'
+                    borderRadius: '8px',
+                    background: '#e3e3e8'
                   }}
                 />
               </IonCol>
             ))}
           </IonRow>
 
+          {errorMessage && (
+          <IonText color="danger">
+            <b><p>{errorMessage}</p></b>
+          </IonText>
+          )}
+
           <IonRow>
             <IonCol>
-              <IonButton expand="block" color="primary" onClick={handleLogin} style={{ fontSize: '28px', height: '70px' }}>
+              <IonButton expand="block" color="primary" shape="round" onClick={handleLogin} style={{ fontSize: '28px', height: '70px' }}>
                 Login
               </IonButton>
             </IonCol>
           </IonRow>
           <IonRow>
             <IonCol style={{ textAlign: 'center' }}>
-              <IonText style={{ fontSize: '28px' }}>
+              <IonText style={{ fontSize: '23px' }}>
                 Don't have an account?{' '}
                 <span style={{ color: '#3880ff', cursor: 'pointer' }} onClick={handleRegister}>
                   Sign up
