@@ -1,0 +1,21 @@
+.admin-container {
+  text-align: center;
+  margin-top: 20%;
+}
+
+h2 {
+  font-size: 1.5rem;
+  margin-bottom: 1rem;
+}
+
+p {
+  margin-bottom: 2rem;
+  font-size: 1.1rem;
+  color: #555;
+}
+
+.IonButton {
+  --background: #4285F4;
+  --background-activated: #357ae8;
+  --background-focused: #4285F4;
+}

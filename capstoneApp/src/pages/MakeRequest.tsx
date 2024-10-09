@@ -141,6 +141,7 @@ const MakeRequest: React.FC = () => {
         }
 
         setShowToast(true); // Show success message
+        closerequestpart2();
         history.push('/tabs/elderlyrequests');
       } catch (error) {
         console.error('Error saving date, remarks, or audio to Firestore:', error);
@@ -152,7 +153,6 @@ const MakeRequest: React.FC = () => {
     console.log("Remarks submitted: ", remarks);
     console.log("Selected Date: ", selectedDate);
     submitDateTimeToFirestore();
-    closerequestpart2();
   };
 
   const handleCalendarClick = (isoDate: string) => {
