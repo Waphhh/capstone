@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useHistory } from 'react-router-dom';
+import { useHistory, useLocation } from 'react-router-dom';
 import {
   IonPage,
   IonHeader,
@@ -44,6 +44,7 @@ const ElderlyRequests: React.FC = () => {
   const [selectedOption, setSelectedOption] = useState<string | null>(null);
 
   const history = useHistory();
+  const location = useLocation();
 
   const options = [
     { id: 1, label: 'Whatsapp', src: 'Whatsapp.png'},
@@ -258,7 +259,7 @@ const ElderlyRequests: React.FC = () => {
   useEffect(() => {
     fetchHistory();
     fetchOngoingRequests();
-  }, []);
+  }, [location]);
 
   useEffect(() => {
     setLoading(false)

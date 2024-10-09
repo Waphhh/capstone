@@ -152,6 +152,7 @@ const MakeRequest: React.FC = () => {
     console.log("Remarks submitted: ", remarks);
     console.log("Selected Date: ", selectedDate);
     submitDateTimeToFirestore();
+    closerequestpart2();
   };
 
   const handleCalendarClick = (isoDate: string) => {

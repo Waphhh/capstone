@@ -13,6 +13,8 @@ import {
   IonText
 } from '@ionic/react';
 import { useHistory } from 'react-router-dom';
+import { db } from './firebaseConfig';
+import { doc, getDoc } from 'firebase/firestore';
 
 const Login: React.FC = () => {
   const history = useHistory();
@@ -61,16 +63,30 @@ const Login: React.FC = () => {
     }
   };
 
-  const handleLogin = () => {
+  const handleLogin = async () => {
     if (phoneNumber.join('').length != 8) {
       setErrorMessage('A phone number requires 8 digits');
       return;
     }
 
-    console.log("test");
-    localStorage.setItem('phoneNumber', phoneNumber.join(''));
-    history.push('/tabs/home');
-  };  
+    const phoneNumberStr = phoneNumber.join('')
+
+    try {
+      const userDocRef = doc(db, 'users', phoneNumberStr); // Reference to the document with the phone number
+      const userDoc = await getDoc(userDocRef); // Check if the document exists
+      if (userDoc.exists()) {
+        // Phone number exists, proceed with login
+        localStorage.setItem('phoneNumber', phoneNumberStr);
+        history.push('/tabs/home');
+      } else {
+        // Phone number does not exist, set error message
+        setErrorMessage('Phone number not registered, please create an account.');
+      }
+    } catch (error) {
+      console.error("Error checking phone number:", error);
+      setErrorMessage('An error occurred. Please try again.');
+    }  
+  };
 
   const handleRegister = () => {
     console.log('Register button clicked');

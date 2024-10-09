@@ -15,11 +15,14 @@ import {
   IonIcon,
   IonSearchbar,
   IonButton,
+  IonLabel,
+  IonModal,
+  IonButtons,
 } from '@ionic/react';
 import { db } from './firebaseConfig';
 import { updateDoc, arrayUnion, arrayRemove, doc, getDoc } from 'firebase/firestore';
 import { useLocation } from 'react-router';
-import { heart, heartOutline } from 'ionicons/icons';
+import { closeOutline, heart, heartOutline } from 'ionicons/icons';
 import * as Papa from 'papaparse';
 import { LazyLoadComponent } from 'react-lazy-load-image-component';
 import TabsToolbar from './TabsToolbar';
@@ -34,7 +37,35 @@ const Library: React.FC = () => {
   const [favorites, setFavorites] = useState<any[]>([]);
   const [searchQuery, setSearchQuery] = useState<string>(''); 
   const storedPhoneNumber = localStorage.getItem('phoneNumber');
+  const [selectedOption, setSelectedOption] = useState<string | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const location = useLocation();
+
+  const firstoptions = [
+    { id: 1, label: 'Whatsapp', src: 'Whatsapp.png'},
+    { id: 2, label: 'Facebook', src: 'Facebook.png'},
+    { id: 3, label: 'Youtube', src: 'Youtube.png'},
+    { id: 4, label: 'E-payment', src: 'e-payment.png'},
+    { id: 5, label: 'Settings', src: ''},
+    { id: 6, label: 'Grab', src: 'Grab.png'},
+
+    // Add more options as needed
+  ];
+
+  const options = firstoptions.map(option => {
+    const userAgent = navigator.userAgent || navigator.vendor || window.opera;
+    // console.log(userAgent);
+    if (/iPad|iPhone|iPod/.test(userAgent) && !window.MSStream) {
+      if (option.label === "Settings") {
+        return {...option, src: 'Settings.webp'};
+      }
+    } else {
+      if (option.label === "Settings") {
+        return {...option, src: 'Settings.png'};
+      }
+    }
+    return option;
+  })
 
   // Fetch user language and favorites from Firestore
   const fetchUserData = async () => {
@@ -83,19 +114,31 @@ const Library: React.FC = () => {
     return tutorials.filter(tutorial => !favorites.some(fav => fav.Title === tutorial.Title));
   };
 
+  const filterTutorialsByOption = (tutorials: any[], option: string) => {
+    return tutorials.filter((tutorial) => tutorial.Content === option);
+  };
+
+  const filterFavoritesByOption = (favorites: any[], option: string) => {
+    return favorites.filter((favorite) => favorite.Content === option);
+  };
+
   const loadAndFilterTutorials = async () => {
     const tutorials = await fetchCSVData();
     let filtered = filterTutorialsByLanguage(tutorials, userLanguage);
-
+  
     if (searchQuery) {
       filtered = filterTutorialsBySearch(filtered, searchQuery);
     }
-
+  
+    if (selectedOption) {
+      filtered = filterTutorialsByOption(filtered, selectedOption);
+    }
+  
     // Remove already favorited tutorials from the list
     filtered = filterOutFavorited(filtered, favorites);
-
+  
     setFilteredTutorials(filtered);
-  };
+  };  
 
   // Add a tutorial to the user's favorites
   const addToFavorites = async (tutorial: any) => {
@@ -119,15 +162,24 @@ const Library: React.FC = () => {
     }
   };
 
+  const handleConfirm = () => {
+    setIsModalOpen(true);
+  }
+
+  const closeModal = () => {
+    setIsModalOpen(false);
+  }
+
   useEffect(() => {
     console.log("location changed");
     fetchUserData();
   }, [location])
 
   useEffect(() => {
-    console.log("refreshed");
+    console.log("userLanguage, searchQuery, favorites, selectedOption refresh")
     loadAndFilterTutorials();
-  }, [userLanguage, searchQuery, favorites]);
+  }, [userLanguage, searchQuery, favorites, selectedOption]);
+  
 
   useEffect(() => {
     setLoading(false)
@@ -141,85 +193,159 @@ const Library: React.FC = () => {
         <IonToolbar color="danger">
           <IonTitle>Library</IonTitle>
         </IonToolbar>
-        <IonToolbar>
-          <IonSearchbar
-            placeholder="Look for a tutorial"
-            value={searchQuery}
-            onIonInput={(e) => setSearchQuery(e.detail.value!)}
-          />
-        </IonToolbar>
       </IonHeader>
 
-      <IonContent className="ion-padding">
-        <IonGrid>
-          <IonRow>
-            {favorites.length > 0 && (
-              <IonCol size="12">
-                {favorites.map((tutorial, index) => (
-                  <IonCard key={index} style={{ backgroundColor: '#f0f0f0', borderRadius: '15px', overflow: 'hidden' }}>
-                    <IonCardHeader>
-                      <IonCardTitle>{tutorial.Title}</IonCardTitle>
-                    </IonCardHeader>
-                    <IonCardContent>
-                      <p>{tutorial.Content}</p>
-                      <LazyLoadComponent>
-                        <center>
-                          <iframe
-                              title="YouTube Video Player"
-                              width="100%"
-                              height="100%"
-                              src={tutorial.Link.replace('watch?v=', 'embed/')}
-                              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                              allowFullScreen
-                          ></iframe>
-                        </center>
-                      </LazyLoadComponent>
-                      <IonButton href={tutorial.Link} target="_blank" style={{ margin: '0px', borderRadius: '30px', overflow: 'hidden' }}>Watch video</IonButton>
-                      <IonButton onClick={() => removeFromFavorites(tutorial)} style={{ borderRadius: '30px', overflow: 'hidden' }}>
-                        <IonIcon icon={heart} /> Unfavorite
-                      </IonButton>
-                    </IonCardContent>
-                  </IonCard>
-                ))}
-              </IonCol>
-            )}
-
-            {filteredTutorials.length > 0 ? (
-              filteredTutorials.map((tutorial, index) => (
-                <IonCol size="12" size-md="6" key={index}>
-                  <IonCard style={{ backgroundColor: '#f0f0f0', borderRadius: '15px', overflow: 'hidden' }}>
-                    <IonCardHeader>
-                      <IonCardTitle>{tutorial.Title}</IonCardTitle>
-                    </IonCardHeader>
-                    <IonCardContent>
-                      <p>{tutorial.Content}</p>
-                      <LazyLoadComponent>
-                        <center>
-                          <iframe
-                              title="YouTube Video Player"
-                              width="100%"
-                              height="100%"
-                              src={tutorial.Link.replace('watch?v=', 'embed/')}
-                              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                              allowFullScreen
-                          ></iframe>
-                        </center>
-                      </LazyLoadComponent>
-                      <IonButton href={tutorial.Link} target="_blank" style={{ margin: '0px', borderRadius: '30px', overflow: 'hidden' }}>Watch video</IonButton>
-                      <IonButton onClick={() => addToFavorites(tutorial)} style={{ borderRadius: '30px', overflow: 'hidden' }}>
-                        <IonIcon icon={favorites.some(fav => fav.Title === tutorial.Title) ? heart : heartOutline} />
-                        {favorites.some(fav => fav.Title === tutorial.Title) ? 'Favorited' : 'Favorite'}
-                      </IonButton>
-                    </IonCardContent>
-                  </IonCard>
-                </IonCol>
-              ))
-            ) : (
-              <p>No tutorials available for your language or search term</p>
-            )}
-          </IonRow>
-        </IonGrid>
+      <IonContent style={{ textAlign: 'center' }}>
+        <h3>What do you want to learn?</h3>
+        <div
+          style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(2, 1fr)', // 2 columns
+            gap: '16px', // space between items
+            justifyItems: 'center', // center items horizontally
+            alignItems: 'center', // center items vertically
+            padding: '16px'
+          }}
+        >
+          {options.map(option => (
+            <div
+              key={option.id}
+              onClick={() => {
+                setSelectedOption(option.label);
+                handleConfirm();
+              }}
+              style={{
+                cursor: 'pointer',
+                textAlign: 'center',
+                backgroundColor: '#d8d8d8',
+                padding: '16px',
+                width: '100%',
+                height: '100%',
+                borderRadius: '8px'
+              }}
+            >
+              <img
+                src={`iconassets/${option.src}`}
+                alt={option.label}
+                style={{ width: '80px', height: '80px', borderRadius: '8px' }} // Icon size
+              />
+              <IonLabel style={{ fontSize: '20px', display: 'block', marginTop: '8px' }}>
+                {option.label}
+              </IonLabel>
+            </div>
+          ))}
+        </div>
       </IonContent>
+
+      <IonModal isOpen={isModalOpen} onDidDismiss={closeModal}>
+        <IonHeader>
+          <IonToolbar color="danger">
+            <IonTitle>{selectedOption} Library</IonTitle>
+            <IonButtons slot="end" onClick={closeModal}>
+              <IonIcon icon={closeOutline} style={{ fontSize: '42px' }} />
+            </IonButtons>
+          </IonToolbar>
+          <IonToolbar>
+            <IonSearchbar
+              placeholder="Look for a tutorial"
+              value={searchQuery}
+              onIonInput={(e) => setSearchQuery(e.detail.value!)}
+            />
+          </IonToolbar>
+        </IonHeader>
+        <IonContent className="ion-padding">
+          <IonGrid>
+            <IonRow>
+              {favorites.length > 0 && selectedOption && (
+                <IonCol size="12">
+                  {filterFavoritesByOption(favorites, selectedOption).map((tutorial, index) => (
+                    <IonCard key={index} style={{ backgroundColor: '#f0f0f0', borderRadius: '15px', overflow: 'hidden' }}>
+                      <IonCardHeader>
+                        <IonCardTitle>{tutorial.Title}</IonCardTitle>
+                      </IonCardHeader>
+                      <IonCardContent>
+                        <p>{tutorial.Content}</p>
+                        <LazyLoadComponent>
+                          <center>
+                            {tutorial.Comments === 'Playlist' ? (
+                              <iframe
+                                title="YouTube Playlist Player"
+                                width="100%"
+                                height="100%"
+                                src={`https://www.youtube.com/embed/videoseries?list=${tutorial.Link.split('list=')[1]}`}  // Adjust for playlist ID
+                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                allowFullScreen
+                              ></iframe>
+                            ) : (
+                              <iframe
+                                title="YouTube Video Player"
+                                width="100%"
+                                height="100%"
+                                src={tutorial.Link.replace('watch?v=', 'embed/')}  // Adjust for single video
+                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                allowFullScreen
+                              ></iframe>
+                            )}
+                          </center>
+                        </LazyLoadComponent>
+                        <IonButton href={tutorial.Link} target="_blank" style={{ margin: '0px', borderRadius: '30px', overflow: 'hidden' }}>Watch video</IonButton>
+                        <IonButton onClick={() => removeFromFavorites(tutorial)} style={{ borderRadius: '30px', overflow: 'hidden' }}>
+                          <IonIcon icon={heart} /> Unfavorite
+                        </IonButton>
+                      </IonCardContent>
+                    </IonCard>
+                  ))}
+                </IonCol>
+              )}
+
+              {filteredTutorials.length > 0 ? (
+                filteredTutorials.map((tutorial, index) => (
+                  <IonCol size="12" key={index}>
+                    <IonCard style={{ backgroundColor: '#f0f0f0', borderRadius: '15px', overflow: 'hidden' }}>
+                      <IonCardHeader>
+                        <IonCardTitle>{tutorial.Title}</IonCardTitle>
+                      </IonCardHeader>
+                      <IonCardContent>
+                        <p>{tutorial.Content}</p>
+                        <LazyLoadComponent>
+                          <center>
+                            {tutorial.Comments === 'Playlist' ? (
+                              <iframe
+                                title="YouTube Playlist Player"
+                                width="100%"
+                                height="100%"
+                                src={`https://www.youtube.com/embed/videoseries?list=${tutorial.Link.split('list=')[1]}`}  // Adjust for playlist ID
+                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                allowFullScreen
+                              ></iframe>
+                            ) : (
+                              <iframe
+                                title="YouTube Video Player"
+                                width="100%"
+                                height="100%"
+                                src={tutorial.Link.replace('watch?v=', 'embed/')}  // Adjust for single video
+                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                allowFullScreen
+                              ></iframe>
+                            )}
+                          </center>
+                        </LazyLoadComponent>
+                        <IonButton href={tutorial.Link} target="_blank" style={{ margin: '0px', borderRadius: '30px', overflow: 'hidden' }}>Watch video</IonButton>
+                        <IonButton onClick={() => addToFavorites(tutorial)} style={{ borderRadius: '30px', overflow: 'hidden' }}>
+                          <IonIcon icon={favorites.some(fav => fav.Title === tutorial.Title) ? heart : heartOutline} />
+                          {favorites.some(fav => fav.Title === tutorial.Title) ? 'Favorited' : 'Favorite'}
+                        </IonButton>
+                      </IonCardContent>
+                    </IonCard>
+                  </IonCol>
+                ))
+              ) : (
+                <p>No tutorials available for your language or search term</p>
+              )}
+            </IonRow>
+          </IonGrid>
+        </IonContent>
+      </IonModal>
 
       <TabsToolbar />
 
