@@ -1,3 +1,4 @@
 
 .DS_Store
 capstoneApp/src/pages/firebaseConfig.ts
+capstoneApp/.firebase
