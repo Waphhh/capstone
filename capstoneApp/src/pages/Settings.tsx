@@ -17,13 +17,17 @@ import {
   IonToast,
   IonIcon
 } from '@ionic/react';
+import { logOut } from 'ionicons/icons'; // Import the log-out icon
 import { doc, getDoc, updateDoc } from 'firebase/firestore';
 import { useHistory } from 'react-router-dom';
 import { db } from './firebaseConfig';
 import TabsToolbar from './TabsToolbar';
-import { logOut } from 'ionicons/icons'; // Import the log-out icon
+import { useTranslation } from 'react-i18next';
+import i18n from './i18n';
 
 const Settings: React.FC = () => {
+  const { t } = useTranslation(); // Initialize useTranslation
+
   const [phoneNumber, setPhoneNumber] = useState<string>('');
   const [postalCode, setPostalCode] = useState<string>('');
   const [flatNo, setFlatNo] = useState<string>('');
@@ -47,6 +51,7 @@ const Settings: React.FC = () => {
             setPostalCode(data.postalCode || '');
             setFlatNo(data.flatNo || ''); // Changed from unitNo to flatNo
             setLanguage(data.language || 'English');
+            i18n.changeLanguage(data.language.toLowerCase());
           } else {
             console.log('No such document!');
           }
@@ -59,7 +64,7 @@ const Settings: React.FC = () => {
     };
 
     fetchData();
-  }, [storedPhoneNumber]);
+  }, [storedPhoneNumber, i18n]);
 
   function containsOnlyDigits(str: string) {
     return /^\d+$/.test(str);
@@ -70,27 +75,27 @@ const Settings: React.FC = () => {
       const regex = /^\d+$/;
       const flatparts = flatNo.trim().split("-");
       if (flatparts.length !== 2) {
-        setShowToast({ isOpen: true, message: 'Please enter your unit number in the format XX-XX.'});
+        setShowToast({ isOpen: true, message: t('Please enter your unit number in the format XX-XX.') });
         return;
       } else if (flatNo.trim().length !== 5) {
-        setShowToast({ isOpen: true, message: 'Please enter your unit number in the format XX-XX.'});
+        setShowToast({ isOpen: true, message: t('Please enter your unit number in the format XX-XX.') });
         return;
       } else if (!(regex.test(flatparts[0]))) {
-        setShowToast({ isOpen: true, message: 'Please enter your unit number in the format XX-XX.'});
+        setShowToast({ isOpen: true, message: t('Please enter your unit number in the format XX-XX.') });
         return;
       } else if (!(regex.test(flatparts[1]))) {
-        setShowToast({ isOpen: true, message: 'Please enter your unit number in the format XX-XX.'});
+        setShowToast({ isOpen: true, message: t('Please enter your unit number in the format XX-XX.') });
         return;
       }  else if (phoneNumber.length !== 8) {
-        setShowToast({ isOpen: true, message: 'A phone number is 8 digits long. Please try again.' });
+        setShowToast({ isOpen: true, message: t('A phone number is 8 digits long. Please try again.') });
       } else if (!(containsOnlyDigits(phoneNumber))) {
-        setShowToast({ isOpen: true, message: 'A phone number can only contain numbers. Please try again.' });
+        setShowToast({ isOpen: true, message: t('A phone number can only contain numbers. Please try again.') });
       } else if (postalCode.length !== 6) {
-        setShowToast({ isOpen: true, message: 'A postal code is 6 digits long. Please try again.' });
+        setShowToast({ isOpen: true, message: t('A postal code is 6 digits long. Please try again.') });
       } else if (!(containsOnlyDigits(postalCode))) {
-        setShowToast({ isOpen: true, message: 'A postal code can only contain numbers. Please try again.' });
+        setShowToast({ isOpen: true, message: t('A postal code can only contain numbers. Please try again.') });
       } else if (flatNo.length === 0) {
-        setShowToast({ isOpen: true, message: 'Unit number cannot be empty. Please try again.' });
+        setShowToast({ isOpen: true, message: t('Unit number cannot be empty. Please try again.') });
       } else {
         try {
           const docRef = doc(db, 'users', storedPhoneNumber);
@@ -100,11 +105,11 @@ const Settings: React.FC = () => {
             flatNo,
             language,
           });
-          setShowToast({ isOpen: true, message: 'Settings updated successfully!' });
+          setShowToast({ isOpen: true, message: t('Settings updated successfully!') });
           history.push('/tabs/home');
         } catch (error) {
           console.error('Error updating settings:', error);
-          setShowToast({ isOpen: true, message: 'Error updating settings. Please try again.' });
+          setShowToast({ isOpen: true, message: t('Error updating settings. Please try again.') });
         }
       }
     }
@@ -117,13 +122,13 @@ const Settings: React.FC = () => {
     history.push('/'); // Navigate to the home page
   };
 
-  if (loading) return <p>Loading...</p>;
+  if (loading) return <p>{t("Loading...")}</p>;
 
   return (
     <IonPage>
       <IonHeader>
         <IonToolbar color="danger">
-          <IonTitle>Settings</IonTitle>
+          <IonTitle>{t("Settings")}</IonTitle>
         </IonToolbar>
       </IonHeader>
 
@@ -132,28 +137,28 @@ const Settings: React.FC = () => {
           <IonRow>
             <IonCol>
               <IonItem style={{ paddingRight: '16px' }}>
-                <IonLabel position="floating" style={{ marginBottom: '15px' }}>Phone Number</IonLabel>
+                <IonLabel position="floating" style={{ marginBottom: '15px' }}>{t("Phone Number")}</IonLabel>
                 <IonInput
                   value={phoneNumber}
                   onIonInput={(e) => setPhoneNumber(e.detail.value!)}
                 />
               </IonItem>
               <IonItem style={{ paddingRight: '16px' }}>
-                <IonLabel position="floating" style={{ marginBottom: '15px' }}>Postal Code</IonLabel>
+                <IonLabel position="floating" style={{ marginBottom: '15px' }}>{t("Postal Code")}</IonLabel>
                 <IonInput
                   value={postalCode}
                   onIonInput={(e) => setPostalCode(e.detail.value!)}
                 />
               </IonItem>
               <IonItem style={{ paddingRight: '16px' }}>
-                <IonLabel position="floating" style={{ marginBottom: '15px' }}>Unit number</IonLabel>
+                <IonLabel position="floating" style={{ marginBottom: '15px' }}>{t("Unit Number")}</IonLabel>
                 <IonInput
                   value={flatNo}
                   onIonInput={(e) => setFlatNo(e.detail.value!)}
                 />
               </IonItem>
               <IonItem style={{ paddingRight: '16px' }}>
-                <IonLabel>Language</IonLabel>
+                <IonLabel>{t("Language")}</IonLabel>
                 <IonSelect
                   value={language}
                   placeholder="Select Language"
@@ -166,7 +171,7 @@ const Settings: React.FC = () => {
                 </IonSelect>
               </IonItem>
               <IonButton expand="full" onClick={handleSave} style={{ marginTop: '10px' }} shape='round'>
-                Save
+                {t("Save")}
               </IonButton>
               <IonButton 
                 expand="full" 
@@ -176,7 +181,7 @@ const Settings: React.FC = () => {
                 shape='round'
               >
                 <IonIcon slot="start" icon={logOut} />
-                Logout
+                {t("Logout")}
               </IonButton>
             </IonCol>
           </IonRow>

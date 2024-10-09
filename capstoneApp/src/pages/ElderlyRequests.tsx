@@ -26,10 +26,13 @@ import { add, closeOutline } from 'ionicons/icons';
 import { doc, getDoc, updateDoc } from 'firebase/firestore';
 import { ref, getDownloadURL, deleteObject } from 'firebase/storage';
 import TabsToolbar from './TabsToolbar';
+import i18n from './i18n';
+import { useTranslation } from 'react-i18next';
 
 import './ElderlyRequests.css';
 
 const ElderlyRequests: React.FC = () => {
+  const { t } = useTranslation(); // Initialize useTranslation
 
   const [loading, setLoading] = useState<boolean>(true);
   const [userHistory, setUserHistory] = useState<any[]>([]);
@@ -63,7 +66,6 @@ const ElderlyRequests: React.FC = () => {
     if (selectedOption) {
       // Save the selected option to localStorage
       localStorage.setItem('selectedOption', selectedOption);
-      console.log(selectedOption);
       closeNewRequestModal();
       history.push('/tabs/makerequest');
     }
@@ -259,19 +261,41 @@ const ElderlyRequests: React.FC = () => {
   useEffect(() => {
     fetchHistory();
     fetchOngoingRequests();
+    setSelectedOption("");
   }, [location]);
 
   useEffect(() => {
-    setLoading(false)
-  }, [storedPhoneNumber]);
+    const fetchUserLanguage = async () => {
+      if (storedPhoneNumber) {
+        const userDoc = doc(db, 'users', storedPhoneNumber); // Reference to user document
+        const userSnapshot = await getDoc(userDoc); // Fetch user document
+        
+        if (userSnapshot.exists()) {
+          const userData = userSnapshot.data();
+          const language = userData.language || 'english'; // Default to 'en' if no language found
+          i18n.changeLanguage(language.toLowerCase()); // Set the language for i18next
+        }
+        
+        setLoading(false);
+      }
+    };
 
-  if (loading) return <p>Loading...</p>;
+    fetchUserLanguage();
+  }, [storedPhoneNumber, i18n]); 
+
+  useEffect(() => {
+    if (selectedOption !== null) {
+      handleConfirm();
+    }
+  }, [selectedOption]);
+
+  if (loading) return <p>{t("Loading...")}</p>;
 
   return (
     <IonPage>
       <IonHeader>
         <IonToolbar color="danger">
-          <IonTitle>Requests</IonTitle>
+          <IonTitle>{t("Requests")}</IonTitle>
         </IonToolbar>
       </IonHeader>
 
@@ -298,10 +322,10 @@ const ElderlyRequests: React.FC = () => {
 
                       <IonCol size="9" className="info-section">
                         <IonCardContent>
-                          <h2>New Request</h2>
+                          <h2>{t("New Request")}</h2>
                           <h2 className="time">{time}</h2>
                           <h3 style={{ color: statusColor }}>Status: {request.status}</h3>
-                          <h3>Remarks: {request.remarks}</h3>
+                          <h3>{request.remarks}</h3>
 
                           {/* Conditionally disable Play Recording button and change text if audioUrl is null */}
                           <IonButton
@@ -312,7 +336,7 @@ const ElderlyRequests: React.FC = () => {
                             onClick={() => playAudio(request.audioUrl)}
                             disabled={!request.audioUrl} // Disable if no audioUrl
                           >
-                            {request.audioUrl ? "Play Recording" : "No Recording"} {/* Change button text */}
+                            {request.audioUrl ? t("Play Recording") : t("No Recording")} {/* Change button text */}
                           </IonButton>
 
                           <IonButton
@@ -325,7 +349,7 @@ const ElderlyRequests: React.FC = () => {
                               setShowAlert(true);
                             }}
                           >
-                            Cancel
+                            {t("Cancel")}
                           </IonButton>
                         </IonCardContent>
                       </IonCol>
@@ -335,18 +359,18 @@ const ElderlyRequests: React.FC = () => {
               );
             })
           ) : (
-            <p>No requests</p>
+            <p>{t("No requests")}</p>
           )}
         </IonGrid>
 
         <IonButton expand="full" shape='round' onClick={() => setIsModalOpen(true)} style={{ margin: '10px' }}>
-          Show History
+          {t("Show History")}
         </IonButton>
 
         <IonModal isOpen={isModalOpen} onDidDismiss={closeModal}>
           <IonHeader>
             <IonToolbar color="danger">
-              <IonTitle>History Items</IonTitle>
+              <IonTitle>{t("History Items")}</IonTitle>
               <IonButtons slot="end" onClick={closeModal}>
                 <IonIcon icon={closeOutline} style={{ fontSize: '42px' }} />
               </IonButtons>
@@ -364,7 +388,7 @@ const ElderlyRequests: React.FC = () => {
                   </IonCard>
                 ))
               ) : (
-                <p>No history items found.</p>
+                <p>{t("No history items found.")}</p>
               )}
             </IonGrid>
           </IonContent>
@@ -380,16 +404,16 @@ const ElderlyRequests: React.FC = () => {
 
       <IonAlert
         isOpen={showAlert}
-        header="Are you sure you want to cancel this request?"
-        message="The request and recording will be permanently deleted."
+        header={t("Are you sure you want to cancel this request?")}
+        message={t("The request and recording will be permanently deleted.")}
         buttons={[
           {
-            text: "Yes, delete this request",
+            text: t("Yes, delete this request"),
             role: "confirm",
             handler: () => handleCancelRequest(selectedRequest as string)
           },
           {
-            text: "No",
+            text: t("No, do not delete"),
             role: "cancel",
             handler: () => {
               setShowAlert(false); // Close alert
@@ -409,14 +433,14 @@ const ElderlyRequests: React.FC = () => {
       <IonModal isOpen={isNewRequestModalOpen} onDidDismiss={closeNewRequestModal}>
         <IonHeader>
           <IonToolbar color="danger">
-            <IonTitle>New Request</IonTitle>
+            <IonTitle>{t("New Request")}</IonTitle>
             <IonButtons slot="end" onClick={closeNewRequestModal}>
               <IonIcon icon={closeOutline} style={{ fontSize: '42px' }} />
             </IonButtons>
           </IonToolbar>
         </IonHeader>
         <IonContent style={{ textAlign: 'center' }}>
-          <h3>What do you need help learning?</h3>
+          <h3>{t("What do you need help learning?")}</h3>
           <div
             style={{
               display: 'grid',
@@ -434,7 +458,7 @@ const ElderlyRequests: React.FC = () => {
                 style={{
                   cursor: 'pointer',
                   textAlign: 'center',
-                  backgroundColor: selectedOption === option.label ? '#a6a6a6' : '#d8d8d8',
+                  backgroundColor: '#d8d8d8',
                   padding: '16px',
                   width: '100%',
                   height: '100%',
@@ -452,9 +476,6 @@ const ElderlyRequests: React.FC = () => {
               </div>
             ))}
           </div>
-          <IonButton expand="full" onClick={handleConfirm} disabled={!selectedOption} shape='round'>
-            Confirm
-          </IonButton>
         </IonContent>
       </IonModal>
 

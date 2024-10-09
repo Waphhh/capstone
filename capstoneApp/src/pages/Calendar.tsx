@@ -55,7 +55,7 @@ const Calendar: React.FC<CalendarProps> = ({ handleCalendarClick }) => {
           <div 
             key={index} 
             className="calendar-container"
-            onClick={() => handleCalendarClick(isoDate)} // Added the onClick here
+            onClick={() => handleCalendarClick(isoDate)}
           >
             <div className="calendar-top">
               <div className="calendar-day">{new Date(isoDate).getDate()}</div>

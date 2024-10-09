@@ -26,10 +26,13 @@ import { closeOutline, heart, heartOutline } from 'ionicons/icons';
 import * as Papa from 'papaparse';
 import { LazyLoadComponent } from 'react-lazy-load-image-component';
 import TabsToolbar from './TabsToolbar';
+import i18n from './i18n';
+import { useTranslation } from 'react-i18next';
 
 const csvFilePath = './resources.csv';
 
 const Library: React.FC = () => {
+  const { t } = useTranslation(); // Initialize useTranslation
 
   const [loading, setLoading] = useState<boolean>(true);
   const [userLanguage, setUserLanguage] = useState<string | null>(null);
@@ -173,6 +176,11 @@ const Library: React.FC = () => {
   useEffect(() => {
     console.log("location changed");
     fetchUserData();
+    if (localStorage.getItem('recommendedItem') !== null) {
+      setSelectedOption(localStorage.getItem('recommendedItem'));
+      setIsModalOpen(true);
+      localStorage.removeItem('recommendedItem');
+    }
   }, [location])
 
   useEffect(() => {
@@ -180,23 +188,37 @@ const Library: React.FC = () => {
     loadAndFilterTutorials();
   }, [userLanguage, searchQuery, favorites, selectedOption]);
   
-
   useEffect(() => {
-    setLoading(false)
-  }, [storedPhoneNumber]);
+    const fetchUserLanguage = async () => {
+      if (storedPhoneNumber) {
+        const userDoc = doc(db, 'users', storedPhoneNumber); // Reference to user document
+        const userSnapshot = await getDoc(userDoc); // Fetch user document
+        
+        if (userSnapshot.exists()) {
+          const userData = userSnapshot.data();
+          const language = userData.language || 'english'; // Default to 'en' if no language found
+          i18n.changeLanguage(language.toLowerCase()); // Set the language for i18next
+        }
+        
+        setLoading(false);
+      }
+    };
 
-  if (loading) return <p>Loading...</p>;
+    fetchUserLanguage();
+  }, [storedPhoneNumber, i18n]);
+
+  if (loading) return <p>{t("Loading...")}</p>;
 
   return (
     <IonPage>
       <IonHeader>
         <IonToolbar color="danger">
-          <IonTitle>Library</IonTitle>
+          <IonTitle>{t("Library")}</IonTitle>
         </IonToolbar>
       </IonHeader>
 
       <IonContent style={{ textAlign: 'center' }}>
-        <h3>What do you want to learn?</h3>
+        <h3>{t("What do you want to learn?")}</h3>
         <div
           style={{
             display: 'grid',
@@ -288,7 +310,7 @@ const Library: React.FC = () => {
                             )}
                           </center>
                         </LazyLoadComponent>
-                        <IonButton href={tutorial.Link} target="_blank" style={{ margin: '0px', borderRadius: '30px', overflow: 'hidden' }}>Watch video</IonButton>
+                        <IonButton href={tutorial.Link} target="_blank" style={{ margin: '0px', borderRadius: '30px', overflow: 'hidden' }}>{t("Watch video")}</IonButton>
                         <IonButton onClick={() => removeFromFavorites(tutorial)} style={{ borderRadius: '30px', overflow: 'hidden' }}>
                           <IonIcon icon={heart} /> Unfavorite
                         </IonButton>
@@ -330,7 +352,7 @@ const Library: React.FC = () => {
                             )}
                           </center>
                         </LazyLoadComponent>
-                        <IonButton href={tutorial.Link} target="_blank" style={{ margin: '0px', borderRadius: '30px', overflow: 'hidden' }}>Watch video</IonButton>
+                        <IonButton href={tutorial.Link} target="_blank" style={{ margin: '0px', borderRadius: '30px', overflow: 'hidden' }}>{t("Watch video")}</IonButton>
                         <IonButton onClick={() => addToFavorites(tutorial)} style={{ borderRadius: '30px', overflow: 'hidden' }}>
                           <IonIcon icon={favorites.some(fav => fav.Title === tutorial.Title) ? heart : heartOutline} />
                           {favorites.some(fav => fav.Title === tutorial.Title) ? 'Favorited' : 'Favorite'}

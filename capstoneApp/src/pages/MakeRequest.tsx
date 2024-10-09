@@ -13,21 +13,27 @@ import {
   IonToast,
   IonText,
   IonModal,
-  IonFabButton
+  IonFabButton,
+  useIonViewWillLeave
 } from '@ionic/react';
 import { micOutline, chatbubbleEllipsesOutline, playOutline, closeOutline, calendarOutline, stopOutline } from 'ionicons/icons';
-import { doc, increment, updateDoc } from 'firebase/firestore';
+import { doc, getDoc, increment, updateDoc } from 'firebase/firestore';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { storage, db } from './firebaseConfig';
 import { useHistory } from 'react-router-dom';
 import { LiveAudioVisualizer } from 'react-audio-visualize';
 import Calendar from './Calendar';
+import i18n from './i18n';
+import { useTranslation } from 'react-i18next';
 
 const MakeRequest: React.FC = () => {
+  const { t } = useTranslation(); // Initialize useTranslation
+
   const storedPhoneNumber = localStorage.getItem('phoneNumber');
   const whatToLearn = localStorage.getItem('selectedOption');
   const history = useHistory(); // Get the history object for navigation
   
+  const [loading, setLoading] = useState<boolean>(true);
   const [remarks, setRemarks] = useState<string>("");
   const [selectedDate, setSelectedDate] = useState<string>("");
   const [isRecording, setIsRecording] = useState<boolean>(false);
@@ -104,12 +110,12 @@ const MakeRequest: React.FC = () => {
   // Submit the selected date and remarks to Firestore
   const submitDateTimeToFirestore = async () => {
     if (!selectedDate) {
-      setErrorMessage('Please select a date');
+      setErrorMessage(t('Please select a date'));
       return;
     }
 
     if (whatToLearn === 'Other' && remarks.trim() === "" && !mainAudioBlob) {
-      setErrorMessage('Remarks and voice recording cannot both be empty for "Other".');
+      setErrorMessage(t('Remarks and voice recording cannot both be empty for "Other".'));
       return; // Prevent submission
     }
 
@@ -141,8 +147,8 @@ const MakeRequest: React.FC = () => {
         }
 
         setShowToast(true); // Show success message
-        closerequestpart2();
         history.push('/tabs/elderlyrequests');
+        closerequestpart2();
       } catch (error) {
         console.error('Error saving date, remarks, or audio to Firestore:', error);
       }
@@ -165,12 +171,9 @@ const MakeRequest: React.FC = () => {
   };
 
   const handleDateSelect = () => {
-  if (selectedDate) {
-    setIsModalOpen(true);
-  } else {
-    setErrorMessage('Please select a date');
-    return;
-  }
+    if (selectedDate) {
+      setIsModalOpen(true);
+    }
   }
 
   const formattedDate = (new Date(selectedDate)).toLocaleString('en-US', {
@@ -186,22 +189,55 @@ const MakeRequest: React.FC = () => {
     if (isMediaRecorderReady) {
       console.log('LiveAudioVisualizer should now render, mediaRecorderRef:', mediaRecorderRef.current);
     }
-  }, [isMediaRecorderReady]); 
+  }, [isMediaRecorderReady]);
+
+  useEffect(() => {
+    if (selectedDate !== null) {
+      handleDateSelect();
+    }
+  }, [selectedDate]);
+
+  useEffect(() => {
+    const fetchUserLanguage = async () => {
+      if (storedPhoneNumber) {
+        const userDoc = doc(db, 'users', storedPhoneNumber); // Reference to user document
+        const userSnapshot = await getDoc(userDoc); // Fetch user document
+        
+        if (userSnapshot.exists()) {
+          const userData = userSnapshot.data();
+          const language = userData.language || 'english'; // Default to 'en' if no language found
+          i18n.changeLanguage(language.toLowerCase()); // Set the language for i18next
+        }
+        
+        setLoading(false);
+      }
+    };
+
+    fetchUserLanguage();
+  }, [storedPhoneNumber, i18n]);
+
+  useIonViewWillLeave(() => {
+    console.log("test");
+    localStorage.removeItem('selectedOption');
+    console.log(localStorage.getItem('selectedOption'))
+  });
+
+  if (loading) return <p>{t("Loading...")}</p>;
 
   return (
     <IonPage>
       <IonHeader>
         <IonToolbar color="danger">
           <IonButtons slot="start">
-            <IonBackButton defaultHref="/tabs/elderlyrequests" />
+            <IonBackButton defaultHref="/tabs/elderlyrequests"/>
           </IonButtons>
-          <IonTitle>{whatToLearn} Request</IonTitle>
+          <IonTitle>{whatToLearn} {t("Request")}</IonTitle>
         </IonToolbar>
       </IonHeader>
 
       <IonContent style={{ textAlign: 'center' }}>
 
-        <h3>Select a timing when you are available.</h3>
+        <h3>{t("Choose a time when you are free.")}</h3>
 
         {errorMessage && (
           <IonText color="danger" style={{ textAlign: 'center' }}>
@@ -211,14 +247,12 @@ const MakeRequest: React.FC = () => {
 
         <Calendar handleCalendarClick={handleCalendarClick}/>
 
-        <IonButton onClick={handleDateSelect} style={{ marginTop: '20px' }}>Choose this date</IonButton>
-
       </IonContent>
 
       <IonModal isOpen={isModalOpen} onDidDismiss={() => setIsModalOpen(false)}>
         <IonHeader>
           <IonToolbar color="danger">
-            <IonTitle>Specify problem</IonTitle>
+            <IonTitle>{t("Specify problem")}</IonTitle>
             <IonButtons slot="end" onClick={closerequestpart2}>
               <IonIcon icon={closeOutline} style={{ fontSize: '42px' }} />
             </IonButtons>
@@ -251,7 +285,7 @@ const MakeRequest: React.FC = () => {
           {/* Display recording status if recording is active */}
           {isRecording && (
             <div style={{ textAlign: 'center', marginTop: '10px' }}>
-              <p>Recording in progress...</p>
+              <p>{t("Recording in progress...")}</p>
             </div>
           )}
 
@@ -260,7 +294,7 @@ const MakeRequest: React.FC = () => {
             <div style={{ display: 'flex', justifyContent: 'center', marginTop: '20px' }}>
               <IonButton onClick={handleAudioPlay} disabled={isPlaying} shape='round'>
                 <IonIcon slot="start" icon={playOutline} />
-                {isPlaying ? "Playing..." : "Play Recording"}
+                {isPlaying ? t("Playing...") : t("Play Recording")}
               </IonButton>
             </div>
           )}
@@ -269,18 +303,18 @@ const MakeRequest: React.FC = () => {
           <div style={{ padding: '20px', textAlign: 'center' }}>
             <IonIcon icon={chatbubbleEllipsesOutline} style={{ fontSize: '50px' }}/>
             <IonTextarea
-              placeholder="Type your remarks here..."
+              placeholder={t("Type your remarks here...")}
               value={remarks}
               onIonInput={e => setRemarks(e.detail.value!)}
             />
             <IonButton expand="block" color="primary" onClick={handleSubmit} style={{ marginTop: '10px' }} shape='round'>
-              Submit Request
+              {t("Submit Request")}
             </IonButton>
           </div>
 
           <IonToast
             isOpen={showToast}
-            message="Request submitted successfully!"
+            message={t("Request submitted successfully!")}
             duration={2000}
             onDidDismiss={() => setShowToast(false)}
           />

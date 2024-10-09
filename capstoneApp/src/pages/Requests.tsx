@@ -116,7 +116,7 @@ const Requests: React.FC = () => {
     
             const hyperlinkCell = row.getCell('recordingUrl');
             hyperlinkCell.font = {
-                color: { argb: 'FF0000FF' },
+                color: { argb: 'FF8542FF' },
                 underline: true,
             };
     
