@@ -15,7 +15,8 @@ import {
   IonRow,
   IonCol,
   IonToast,
-  IonIcon
+  IonIcon,
+  IonLoading
 } from '@ionic/react';
 import { logOut } from 'ionicons/icons'; // Import the log-out icon
 import { doc, getDoc, updateDoc } from 'firebase/firestore';
@@ -34,6 +35,7 @@ const Settings: React.FC = () => {
   const [language, setLanguage] = useState<string>('English');
   const [loading, setLoading] = useState<boolean>(true);
   const [showToast, setShowToast] = useState<{ isOpen: boolean, message: string }>({ isOpen: false, message: '' });
+  const [uploading, setupLoading] = useState(false);
   const history = useHistory();
 
   const storedPhoneNumber = localStorage.getItem('phoneNumber');
@@ -72,21 +74,11 @@ const Settings: React.FC = () => {
 
   const handleSave = async () => {
     if (storedPhoneNumber) {
-      const regex = /^\d+$/;
       const flatparts = flatNo.trim().split("-");
       if (flatparts.length !== 2) {
         setShowToast({ isOpen: true, message: t('Please enter your unit number in the format XX-XX.') });
         return;
-      } else if (flatNo.trim().length !== 5) {
-        setShowToast({ isOpen: true, message: t('Please enter your unit number in the format XX-XX.') });
-        return;
-      } else if (!(regex.test(flatparts[0]))) {
-        setShowToast({ isOpen: true, message: t('Please enter your unit number in the format XX-XX.') });
-        return;
-      } else if (!(regex.test(flatparts[1]))) {
-        setShowToast({ isOpen: true, message: t('Please enter your unit number in the format XX-XX.') });
-        return;
-      }  else if (phoneNumber.length !== 8) {
+      } else if (phoneNumber.length !== 8) {
         setShowToast({ isOpen: true, message: t('A phone number is 8 digits long. Please try again.') });
       } else if (!(containsOnlyDigits(phoneNumber))) {
         setShowToast({ isOpen: true, message: t('A phone number can only contain numbers. Please try again.') });
@@ -98,6 +90,7 @@ const Settings: React.FC = () => {
         setShowToast({ isOpen: true, message: t('Unit number cannot be empty. Please try again.') });
       } else {
         try {
+          setupLoading(true);
           const docRef = doc(db, 'users', storedPhoneNumber);
           await updateDoc(docRef, {
             phoneNumber,
@@ -110,6 +103,8 @@ const Settings: React.FC = () => {
         } catch (error) {
           console.error('Error updating settings:', error);
           setShowToast({ isOpen: true, message: t('Error updating settings. Please try again.') });
+        } finally {
+          setupLoading(false);
         }
       }
     }
@@ -194,6 +189,9 @@ const Settings: React.FC = () => {
           duration={2000}
           position="bottom"
         />
+
+        <IonLoading isOpen={uploading} message={t("Updating settings...")} />
+
       </IonContent>
 
       <TabsToolbar />

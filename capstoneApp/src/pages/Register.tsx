@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import {
   IonContent,
   IonHeader,
@@ -73,11 +73,19 @@ const Register: React.FC = () => {
       return;
     }
     
-    localStorage.setItem('phoneNumber', phoneNumber.join(''));
+    localStorage.setItem('phoneNumberToRegister', phoneNumber.join(''));
     console.log('Register button clicked' + phoneNumberToRegister);
-    history.push('/tabs/accoutSetup');
+    history.push('/otp');
     // Add your register logic here
   };
+
+  useEffect(() => {
+    // Clear the OTP fields when the page is loaded
+    setPhoneNumber(new Array(8).fill(''));
+
+    // Focus the first input field when the page is loaded
+    inputRefs.current[0]?.setFocus();
+  }, []);
 
   return (
     <IonPage>

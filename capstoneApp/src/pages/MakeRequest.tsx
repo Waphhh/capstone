@@ -14,7 +14,8 @@ import {
   IonText,
   IonModal,
   IonFabButton,
-  useIonViewWillLeave
+  useIonViewWillLeave,
+  IonLoading
 } from '@ionic/react';
 import { micOutline, chatbubbleEllipsesOutline, playOutline, closeOutline, calendarOutline, stopOutline } from 'ionicons/icons';
 import { doc, getDoc, increment, updateDoc } from 'firebase/firestore';
@@ -45,7 +46,8 @@ const MakeRequest: React.FC = () => {
   const [errorMessage, setErrorMessage] = useState<string>('');
   const [isPlaying, setIsPlaying] = useState<boolean>(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [isMediaRecorderReady, setIsMediaRecorderReady] = useState<boolean>(false); // New state to control visualizer rendering
+  const [isMediaRecorderReady, setIsMediaRecorderReady] = useState<boolean>(false);
+  const [uploading, setupLoading] = useState(false);
 
   const handleRecordClick = async () => {
     setIsRecording(!isRecording);
@@ -125,6 +127,7 @@ const MakeRequest: React.FC = () => {
 
       const finalRemarks = `Option selected: ${whatToLearn}. Remarks: ${remarks.trim() === "" ? "N.A." : remarks}`;
 
+      setupLoading(true);
       try {
         const docRef = doc(db, 'users', storedPhoneNumber);
         await updateDoc(docRef, {
@@ -151,6 +154,10 @@ const MakeRequest: React.FC = () => {
         closerequestpart2();
       } catch (error) {
         console.error('Error saving date, remarks, or audio to Firestore:', error);
+      } finally {
+        setupLoading(false);
+        setmainAudioBlob(null);
+        setSelectedDate("");
       }
     }
   };
@@ -318,6 +325,9 @@ const MakeRequest: React.FC = () => {
             duration={2000}
             onDidDismiss={() => setShowToast(false)}
           />
+
+          <IonLoading isOpen={uploading} message={t("Request uploading...")} />
+
         </IonContent>
       </IonModal>
     </IonPage>

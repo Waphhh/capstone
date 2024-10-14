@@ -45,7 +45,7 @@ const Library: React.FC = () => {
   const location = useLocation();
 
   const firstoptions = [
-    { id: 1, label: 'Whatsapp', src: 'Whatsapp.png'},
+    { id: 1, label: 'WhatsApp', src: 'Whatsapp.png'},
     { id: 2, label: 'Facebook', src: 'Facebook.png'},
     { id: 3, label: 'Youtube', src: 'Youtube.png'},
     { id: 4, label: 'E-payment', src: 'e-payment.png'},

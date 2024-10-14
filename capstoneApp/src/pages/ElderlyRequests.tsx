@@ -50,16 +50,14 @@ const ElderlyRequests: React.FC = () => {
   const location = useLocation();
 
   const options = [
-    { id: 1, label: 'Whatsapp', src: 'Whatsapp.png'},
-    { id: 2, label: 'Singpass', src: 'Singpass.png'},
-    { id: 3, label: 'Facebook', src: 'Facebook.png'},
-    { id: 4, label: 'Youtube', src: 'Youtube.png'},
-    { id: 5, label: 'MyTransport', src: 'MyTransport.png'},
-    { id: 6, label: 'Healthy365', src: 'Healthy365_logo.png'},
-    { id: 7, label: 'Grab', src: 'Grab.png'},
-    { id: 8, label: 'Other', src: 'Other.png'},
+    { id: 1, label: 'WhatsApp', src: 'Whatsapp.png'},
+    { id: 2, label: 'Facebook', src: 'Facebook.png'},
+    { id: 3, label: 'Youtube', src: 'Youtube.png'},
+    { id: 4, label: 'MyTransport', src: 'MyTransport.png'},
+    { id: 5, label: 'Healthy365', src: 'Healthy365_logo.png'},
+    { id: 6, label: 'Grab', src: 'Grab.png'},
+    { id: 7, label: 'Other', src: 'Other.png'},
 
-    // Add more options as needed
   ];
 
   const handleConfirm = () => {

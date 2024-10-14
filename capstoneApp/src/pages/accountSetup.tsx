@@ -4,8 +4,12 @@ import { useHistory } from 'react-router-dom';
 import { doc, setDoc } from 'firebase/firestore';
 import { db } from './firebaseConfig';
 import { closeOutline } from 'ionicons/icons';
+import { useTranslation } from 'react-i18next';
+import i18n from './i18n';
 
 const AccountSetup: React.FC = () => {
+  const { t } = useTranslation(); // Initialize useTranslation
+
   const history = useHistory();
 
   // State to store selected language, postal code, flat/unit number, and T&C checkbox
@@ -25,21 +29,8 @@ const AccountSetup: React.FC = () => {
 
   const handleContinue = async () => {
 
-    const regex = /^\d+$/;
     const flatparts = flatNo.trim().split("-");
     if (flatparts.length !== 2) {
-      setErrorMessage('Please enter your unit number in the format XX-XX.');
-      return;
-    }
-    if (flatNo.trim().length !== 5) {
-      setErrorMessage('Please enter your unit number in the format XX-XX.');
-      return;
-    }
-    if (!(regex.test(flatparts[0]))) {
-      setErrorMessage('Please enter your unit number in the format XX-XX.');
-      return;
-    }
-    if (!(regex.test(flatparts[1]))) {
       setErrorMessage('Please enter your unit number in the format XX-XX.');
       return;
     }
@@ -128,7 +119,10 @@ const AccountSetup: React.FC = () => {
               <IonButton
                 expand="block"
                 color={language === 'English' ? 'primary' : 'light'}
-                onClick={() => setLanguage('English')}
+                onClick={() => {
+                  setLanguage('English');
+                  i18n.changeLanguage("english");
+                }}
               >
                 English
               </IonButton>
@@ -139,7 +133,10 @@ const AccountSetup: React.FC = () => {
               <IonButton
                 expand="block"
                 color={language === 'Chinese' ? 'primary' : 'light'}
-                onClick={() => setLanguage('Chinese')}
+                onClick={() => {
+                  setLanguage('Chinese');
+                  i18n.changeLanguage("chinese");
+                }}
               >
                 华语
               </IonButton>
@@ -150,7 +147,10 @@ const AccountSetup: React.FC = () => {
               <IonButton
                 expand="block"
                 color={language === 'Tamil' ? 'primary' : 'light'}
-                onClick={() => setLanguage('Tamil')}
+                onClick={() => {
+                  setLanguage('Tamil');
+                  i18n.changeLanguage("tamil");
+                }}
               >
                 தமிழ்
               </IonButton>
@@ -161,7 +161,10 @@ const AccountSetup: React.FC = () => {
               <IonButton
                 expand="block"
                 color={language === 'Malay' ? 'primary' : 'light'}
-                onClick={() => setLanguage('Malay')}
+                onClick={() => {
+                  setLanguage('Malay');
+                  i18n.changeLanguage("malay");
+                }}
               >
                 Bahasa Melayu
               </IonButton>
@@ -174,7 +177,7 @@ const AccountSetup: React.FC = () => {
           <IonInput
             value={postalCode}
             onIonInput={e => setPostalCode(e.detail.value!)}
-            placeholder="Enter your postal code"
+            placeholder={t("Enter your postal code")}
           />
         </IonItem>
 
@@ -182,7 +185,7 @@ const AccountSetup: React.FC = () => {
           <IonInput
             value={flatNo}
             onIonInput={e => setFlatNo(e.detail.value!)}
-            placeholder="Enter your /nit number"
+            placeholder={t("Enter your unit number")}
           />
         </IonItem>
 
@@ -194,7 +197,7 @@ const AccountSetup: React.FC = () => {
             onIonChange={e => setAcceptedTerms(e.detail.checked!)}
           />
           <IonLabel style={{ display: 'inline', marginLeft: '0' }}>
-            I accept the{' '}
+            {t("I accept the")}{' '}
             <a
               href="#"
               onClick={(e) => {
@@ -202,14 +205,14 @@ const AccountSetup: React.FC = () => {
                 setShowModal(true); // Show the modal when T&Cs link is clicked
               }}
             >
-              Terms & Conditions
+              {t("Terms & Conditions")}
             </a>
           </IonLabel>
         </IonItem>
 
         {/* Continue button */}
         <IonButton expand="block" onClick={handleContinue}>
-          Continue
+          {t("Continue")}
         </IonButton>
 
         {/* Modal for Terms & Conditions */}
