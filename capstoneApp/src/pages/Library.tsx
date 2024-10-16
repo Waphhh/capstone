@@ -36,6 +36,7 @@ const Library: React.FC = () => {
 
   const [loading, setLoading] = useState<boolean>(true);
   const [userLanguage, setUserLanguage] = useState<string | null>(null);
+  const [tutorials, setTutorials] = useState<any[]>([]);
   const [filteredTutorials, setFilteredTutorials] = useState<any[]>([]);
   const [favorites, setFavorites] = useState<any[]>([]);
   const [searchQuery, setSearchQuery] = useState<string>(''); 
@@ -64,7 +65,7 @@ const Library: React.FC = () => {
 
     { id: 7, label: 'PayLah!', src: 'Paylah.png', cat: 'E-payment'},
     { id: 8, label: 'PayNow', src: 'PayNow.png', cat: 'E-payment'},
-    { id: 9, label: 'Apply Pay', src: '.png', cat: 'E-payment'},
+    { id: 9, label: 'Apple Pay', src: '.png', cat: 'E-payment'},
 
     { id: 10, label: 'MyTransport', src: 'MyTransport.png', cat: 'Transportation'},
     { id: 11, label: 'Google Maps', src: '.png', cat: 'Transportation'},
@@ -131,7 +132,7 @@ const Library: React.FC = () => {
 
   // Filter out already favorited tutorials
   const filterOutFavorited = (tutorials: any[], favorites: any[]) => {
-    return tutorials.filter(tutorial => !favorites.some(fav => fav.Title === tutorial.Title));
+    return tutorials.filter(tutorial => !favorites.some(fav => fav === tutorial.Title));
   };
 
   const filterTutorialsByOption = (tutorials: any[], option: string) => {
@@ -158,6 +159,7 @@ const Library: React.FC = () => {
     filtered = filterOutFavorited(filtered, favorites);
   
     setFilteredTutorials(filtered);
+    setTutorials(tutorials);
   };  
 
   // Add a tutorial to the user's favorites
@@ -165,9 +167,9 @@ const Library: React.FC = () => {
     if (storedPhoneNumber) {
       const userDocRef = doc(db, 'users', storedPhoneNumber);
       await updateDoc(userDocRef, {
-        favorites: arrayUnion(tutorial),
+        favorites: arrayUnion(tutorial.Title),
       });
-      setFavorites([...favorites, tutorial]); // Update local favorites state
+      setFavorites([...favorites, tutorial.Title]); // Update local favorites state
     }
   };
 
@@ -176,9 +178,9 @@ const Library: React.FC = () => {
     if (storedPhoneNumber) {
       const userDocRef = doc(db, 'users', storedPhoneNumber);
       await updateDoc(userDocRef, {
-        favorites: arrayRemove(tutorial),
+        favorites: arrayRemove(tutorial.Title),
       });
-      setFavorites(favorites.filter((fav) => fav.Title !== tutorial.Title)); // Update local favorites state
+      setFavorites(favorites.filter((fav) => fav !== tutorial.Title)); // Update local favorites state
     }
   };
 
@@ -385,42 +387,44 @@ const Library: React.FC = () => {
             <IonRow>
               {favorites.length > 0 && selectedOption && (
                 <IonCol size="12">
-                  {filterFavoritesByOption(favorites, selectedOption).map((tutorial, index) => (
-                    <IonCard key={index} style={{ backgroundColor: '#f0f0f0', borderRadius: '15px', overflow: 'hidden' }}>
-                      <IonCardHeader>
-                        <IonCardTitle>{tutorial.Title}</IonCardTitle>
-                      </IonCardHeader>
-                      <IonCardContent>
-                        <p>{tutorial.Content}</p>
-                        <LazyLoadComponent>
-                          <center>
-                            {tutorial.Comments === 'Playlist' ? (
-                              <iframe
-                                title="YouTube Playlist Player"
-                                width="100%"
-                                height="100%"
-                                src={`https://www.youtube.com/embed/videoseries?list=${tutorial.Link.split('list=')[1]}`}  // Adjust for playlist ID
-                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                                allowFullScreen
-                              ></iframe>
-                            ) : (
-                              <iframe
-                                title="YouTube Video Player"
-                                width="100%"
-                                height="100%"
-                                src={tutorial.Link.replace('watch?v=', 'embed/')}  // Adjust for single video
-                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                                allowFullScreen
-                              ></iframe>
-                            )}
-                          </center>
-                        </LazyLoadComponent>
-                        <IonButton href={tutorial.Link} target="_blank" style={{ margin: '0px', borderRadius: '30px', overflow: 'hidden' }}>{t("Watch video")}</IonButton>
-                        <IonButton onClick={() => removeFromFavorites(tutorial)} style={{ borderRadius: '30px', overflow: 'hidden' }}>
-                          <IonIcon icon={heart} /> Unfavorite
-                        </IonButton>
-                      </IonCardContent>
-                    </IonCard>
+                  {filterFavoritesByOption(tutorials, selectedOption).map((tutorial, index) => (
+                    favorites.includes(tutorial.Title) && (  // Check if the title is in the favorites array
+                      <IonCard key={index} style={{ backgroundColor: '#f0f0f0', borderRadius: '15px', overflow: 'hidden' }}>
+                        <IonCardHeader>
+                          <IonCardTitle>{tutorial.Title}</IonCardTitle>
+                        </IonCardHeader>
+                        <IonCardContent>
+                          <p>{tutorial.Content}</p>
+                          <LazyLoadComponent>
+                            <center>
+                              {tutorial.Comments === 'Playlist' ? (
+                                <iframe
+                                  title="YouTube Playlist Player"
+                                  width="100%"
+                                  height="100%"
+                                  src={`https://www.youtube.com/embed/videoseries?list=${tutorial.Link.split('list=')[1]}`}  // Adjust for playlist ID
+                                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                  allowFullScreen
+                                ></iframe>
+                              ) : (
+                                <iframe
+                                  title="YouTube Video Player"
+                                  width="100%"
+                                  height="100%"
+                                  src={tutorial.Link.replace('watch?v=', 'embed/')}  // Adjust for single video
+                                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                  allowFullScreen
+                                ></iframe>
+                              )}
+                            </center>
+                          </LazyLoadComponent>
+                          <IonButton href={tutorial.Link} target="_blank" style={{ margin: '0px', borderRadius: '30px', overflow: 'hidden' }}>{t("Watch video")}</IonButton>
+                          <IonButton onClick={() => removeFromFavorites(tutorial)} style={{ borderRadius: '30px', overflow: 'hidden' }}>
+                            <IonIcon icon={heart} /> Unfavorite
+                          </IonButton>
+                        </IonCardContent>
+                      </IonCard>
+                    )
                   ))}
                 </IonCol>
               )}
