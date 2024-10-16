@@ -13,17 +13,53 @@ import {
   IonText
 } from '@ionic/react';
 import { useHistory } from 'react-router-dom';
+import axios from 'axios'
+import OneWaySMS from './onewaysms'
 
 const Login: React.FC = () => {
   const history = useHistory();
   const [errorMessage, setErrorMessage] = useState<string>('');
-  const temppin = "1234";
+  const [temppin, setTemppin] = useState<string>('');
 
   // State to hold the values of each phone number digit
   const [OTPString, setOTPString] = useState<string[]>(new Array(4).fill(''));
 
   // Create refs for each input box
   const inputRefs = useRef<(HTMLIonInputElement | null)[]>(new Array(4).fill(null));
+
+  const generateToken = () => {
+    const randomNum = Math.random() * 9000;
+    return (1000 + Math.floor(randomNum)).toString();
+  };
+
+  // const sendOTP = async () => {
+
+  //   console.log("OTP button pressed");
+
+  //   try {
+  //     const phoneNumber = '6586294102'; // Use actual phone number
+  //     const message = 'Your OTP code is 1234';
+  
+  //     // Make a request to the proxy server
+  //     const response = await axios.get('http://localhost:3001/send-sms', {
+  //       params: {
+  //         to: phoneNumber,
+  //         message: message
+  //       }
+  //     });
+  
+  //     console.log(response.data);
+  //   } catch (error) {
+  //     console.error('Error sending OTP:', error);
+  //   }
+  
+
+    
+  //   // sms.send(payload, handleResult);  
+  //   // sms.status('2410160005134', handleResult);
+  //   // sms.balance(handleResult);
+
+  // };
 
   const handleInputChange = (index: number, event: CustomEvent) => {
     const value = event.detail.value;
@@ -90,11 +126,18 @@ const Login: React.FC = () => {
   };
 
   useEffect(() => {
+    console.log(temppin);
+  }, [temppin]);
+
+  useEffect(() => {
     // Clear the OTP fields when the page is loaded
     setOTPString(new Array(4).fill(''));
 
     // Focus the first input field when the page is loaded
     inputRefs.current[0]?.setFocus();
+
+    setTemppin(generateToken);
+
   }, []);
 
   return (
@@ -151,6 +194,7 @@ const Login: React.FC = () => {
             </IonCol>
           </IonRow>
         </IonGrid>
+
       </IonContent>
     </IonPage>
   );

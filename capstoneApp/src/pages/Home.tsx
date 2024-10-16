@@ -7,12 +7,12 @@ import { db } from './firebaseConfig';
 import { doc, getDoc } from 'firebase/firestore';
 import TabsToolbar from './TabsToolbar';
 import i18n from './i18n';
-import { Route, useHistory } from 'react-router-dom';
+import { useHistory } from 'react-router-dom';
+import { peopleOutline, settingsOutline, libraryOutline } from 'ionicons/icons';
 
 import 'swiper/css';
 import 'swiper/css/pagination';
 import './Home.css';
-import { peopleOutline, bookOutline, settingsOutline, libraryOutline } from 'ionicons/icons';
 
 const Home: React.FC = () => {
   const { t } = useTranslation(); // Initialize useTranslation
@@ -89,21 +89,21 @@ const Home: React.FC = () => {
             <div style={{ width: '60px', height: '60px', borderRadius: '50%', display: 'flex', justifyContent: 'center', alignItems: 'center', boxShadow: '0 0 4px 2px rgba(0, 0, 0, 0.1)' }}>
               <IonIcon icon={peopleOutline} style={{ fontSize: '30px' }} />
             </div>
-            <IonLabel style={{ padding: '10px' }}>Requests</IonLabel>
+            <IonLabel style={{ padding: '10px', fontSize: '12px' }}>{t("Requests")}</IonLabel>
           </div>
 
           <div className="custom-tab" onClick={() => navigateTo('/tabs/library')}>
             <div style={{ width: '60px', height: '60px', borderRadius: '50%', display: 'flex', justifyContent: 'center', alignItems: 'center', boxShadow: '0 0 4px 2px rgba(0, 0, 0, 0.1)' }}>
               <IonIcon icon={libraryOutline} style={{ fontSize: '30px' }} />
             </div>
-            <IonLabel style={{ padding: '10px' }}>Library</IonLabel>
+            <IonLabel style={{ padding: '10px', fontSize: '12px' }}>{t("Library")}</IonLabel>
           </div>
 
           <div className="custom-tab" onClick={() => navigateTo('/tabs/settings')}>
             <div style={{ width: '60px', height: '60px', borderRadius: '50%', display: 'flex', justifyContent: 'center', alignItems: 'center', boxShadow: '0 0 4px 2px rgba(0, 0, 0, 0.1)' }}>
               <IonIcon icon={settingsOutline} style={{ fontSize: '30px' }} />
             </div>
-            <IonLabel style={{ padding: '10px' }}>Settings</IonLabel>
+            <IonLabel style={{ padding: '10px', fontSize: '12px' }}>{t("Settings")}</IonLabel>
           </div>
         </div>
 
@@ -129,7 +129,7 @@ const Home: React.FC = () => {
                     <img
                       src={`iconassets/${src}`}
                       alt={`Icon for ${label}`}
-                      style={{ width: '100px', height: '100px', marginBottom: '10px' }}
+                      style={{ width: '100px', height: '100px', marginBottom: '10px', objectFit: 'contain', backgroundColor: 'white', borderRadius: '8px', padding: '10px' }}
                     />
                     <h3 style={{ fontSize: '24px', textAlign: 'center' }}>{label}</h3>
                     <IonButton
@@ -150,7 +150,8 @@ const Home: React.FC = () => {
 
         <IonRow style={{ textAlign: 'center' }}>
           <IonCol size="12">
-            <h2>{t("The library isn't helpful enough? Request assistance from a volunteer.")}</h2>
+            <h2>{t("Cannot find what you are looking for in the video library?")}</h2>
+            <h2>{t("Request assistance from a volunteer.")}</h2>
             <IonButton expand="full" shape='round' routerLink="elderlyrequests">{t("Request Help")}</IonButton>
           </IonCol>
         </IonRow>

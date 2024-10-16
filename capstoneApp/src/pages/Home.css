@@ -1,15 +1,8 @@
-/* styles.css or your relevant CSS file */
-.content-border {
-  border: 2px solid #f00; /* Change this color to whatever you prefer */
-  border-radius: 10px; /* Optional: to give rounded corners */
-  padding: 16px; /* Add some padding */
-  margin: 16px; /* Optional: add margin if needed */
-}
-
 .custom-toolbar {
   display: flex;
   justify-content: space-around;
-  height: 16vh; /* Adjust the total height */
+  height: auto; /* Adjust the total height */
+  min-height: 16vh;
   background-color: #f5f5f5; /* Optional background color */
   border: 1px solid #e8e8e8;
   border-radius: 8px;

@@ -41,34 +41,51 @@ const Library: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState<string>(''); 
   const storedPhoneNumber = localStorage.getItem('phoneNumber');
   const [selectedOption, setSelectedOption] = useState<string | null>(null);
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isCategoriesOpen, setIsCategoriesOpen] = useState(false);
   const location = useLocation();
 
-  const firstoptions = [
-    { id: 1, label: 'WhatsApp', src: 'Whatsapp.png'},
-    { id: 2, label: 'Facebook', src: 'Facebook.png'},
-    { id: 3, label: 'Youtube', src: 'Youtube.png'},
-    { id: 4, label: 'E-payment', src: 'e-payment.png'},
-    { id: 5, label: 'Settings', src: ''},
-    { id: 6, label: 'Grab', src: 'Grab.png'},
+  const categories = [
+    { id: 1, label: 'Social Media', src: 'SocialMedia.png'},
+    { id: 2, label: 'Communication', src: 'Communication.png'},
+    { id: 3, label: 'E-payment', src: 'e-payment.png'},
+    { id: 4, label: 'Transportation', src: 'Transportation.png'},
+  ]
 
-    // Add more options as needed
+  const options = [
+    { id: 1, label: 'X', src: 'X.png', cat: 'Social Media'},
+    { id: 2, label: 'Instagram', src: 'Instagram.png', cat: 'Social Media'},
+    { id: 3, label: 'Facebook', src: 'Facebook.png', cat: 'Social Media'},
+    { id: 4, label: 'Tik Tok', src: '.png', cat: 'Social Media'}, // requires written permission to use
+
+    { id: 5, label: 'WhatsApp', src: 'Whatsapp.png', cat: 'Communication'},
+    { id: 6, label: 'Telegram', src: 'Telegram.png', cat: 'Communication'},
+
+    { id: 7, label: 'PayLah!', src: 'Paylah.png', cat: 'E-payment'},
+    { id: 8, label: 'PayNow', src: 'PayNow.png', cat: 'E-payment'},
+    { id: 9, label: 'Apply Pay', src: '.png', cat: 'E-payment'},
+
+    { id: 10, label: 'MyTransport', src: 'MyTransport.png', cat: 'Transportation'},
+    { id: 11, label: 'Google Maps', src: '.png', cat: 'Transportation'},
+    { id: 12, label: 'Grab', src: 'Grab.png', cat: 'Transportation'},
+
   ];
 
-  const options = firstoptions.map(option => {
-    const userAgent = navigator.userAgent || navigator.vendor || window.opera;
-    // console.log(userAgent);
-    if (/iPad|iPhone|iPod/.test(userAgent) && !window.MSStream) {
-      if (option.label === "Settings") {
-        return {...option, src: 'Settings.webp'};
-      }
-    } else {
-      if (option.label === "Settings") {
-        return {...option, src: 'Settings.png'};
-      }
-    }
-    return option;
-  })
+  // const options = firstoptions.map(option => {
+  //   const userAgent = navigator.userAgent || navigator.vendor || window.opera;
+  //   // console.log(userAgent);
+  //   if (/iPad|iPhone|iPod/.test(userAgent) && !window.MSStream) {
+  //     if (option.label === "Settings") {
+  //       return {...option, src: 'Settings.webp'};
+  //     }
+  //   } else {
+  //     if (option.label === "Settings") {
+  //       return {...option, src: 'Settings.png'};
+  //     }
+  //   }
+  //   return option;
+  // })
 
   // Fetch user language and favorites from Firestore
   const fetchUserData = async () => {
@@ -166,11 +183,19 @@ const Library: React.FC = () => {
   };
 
   const handleConfirm = () => {
+    setIsCategoriesOpen(true);
+  }
+
+  const handleOptionSelect = () => {
     setIsModalOpen(true);
   }
 
   const closeModal = () => {
     setIsModalOpen(false);
+  }
+
+  const closeCategories = () => {
+    setIsCategoriesOpen(false);
   }
 
   useEffect(() => {
@@ -229,15 +254,18 @@ const Library: React.FC = () => {
             padding: '16px'
           }}
         >
-          {options.map(option => (
+          {categories.map(option => (
             <div
               key={option.id}
               onClick={() => {
-                setSelectedOption(option.label);
+                setSelectedCategory(option.label);
                 handleConfirm();
               }}
               style={{
                 cursor: 'pointer',
+                display: 'flex',
+                flexDirection: 'column',
+                justifyContent: 'space-between', // Ensures icon stays at the top and text at the bottom
                 textAlign: 'center',
                 backgroundColor: '#d8d8d8',
                 padding: '16px',
@@ -249,20 +277,97 @@ const Library: React.FC = () => {
               <img
                 src={`iconassets/${option.src}`}
                 alt={option.label}
-                style={{ width: '80px', height: '80px', borderRadius: '8px' }} // Icon size
+                style={{ 
+                  width: '80px',
+                  height: '80px',
+                  objectFit: 'contain', 
+                  margin: 'auto', 
+                  padding: option.label === 'Social Media'? '0px' : '5px',
+                  backgroundColor: 'white',
+                  borderRadius: '8px'
+                }}
               />
-              <IonLabel style={{ fontSize: '20px', display: 'block', marginTop: '8px' }}>
+              <IonLabel style={{ fontSize: '16px', marginTop: '10px' }}>
                 {option.label}
               </IonLabel>
             </div>
           ))}
         </div>
+
+        <p>{t("We are not affiliated with any of the apps shown.")}</p>
       </IonContent>
+
+      <IonModal isOpen={isCategoriesOpen} onDidDismiss={closeCategories}>
+        <IonHeader>
+          <IonToolbar color="danger">
+            <IonTitle>{selectedCategory}</IonTitle>
+            <IonButtons slot="end" onClick={closeCategories}>
+              <IonIcon icon={closeOutline} style={{ fontSize: '42px' }} />
+            </IonButtons>
+          </IonToolbar>
+        </IonHeader>
+          <IonContent style={{ textAlign: 'center' }}>
+            <h3>{t("What do you want to learn?")}</h3>
+            <div
+              style={{
+                display: 'grid',
+                gridTemplateColumns: 'repeat(2, 1fr)', // 2 columns
+                gap: '16px', // space between items
+                justifyItems: 'center', // center items horizontally
+                alignItems: 'center', // center items vertically
+                padding: '16px'
+              }}
+            >
+              {options
+                .filter(option => option.cat === selectedCategory)
+                .map(option => (
+                <div
+                  key={option.id}
+                  onClick={() => {
+                    setSelectedOption(option.label);
+                    handleOptionSelect();
+                  }}
+                  style={{
+                    cursor: 'pointer',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    justifyContent: 'space-between', // Ensures icon stays at the top and text at the bottom
+                    textAlign: 'center',
+                    backgroundColor: '#d8d8d8',
+                    padding: '16px',
+                    width: '100%',
+                    height: '100%',
+                    borderRadius: '8px'
+                  }}
+                >
+                  <img
+                    src={`iconassets/${option.src}`}
+                    alt={option.label}
+                    style={{ 
+                      width: '80px',
+                      height: '80px',
+                      objectFit: 'contain', 
+                      margin: 'auto', 
+                      padding: '20px',
+                      backgroundColor: 'white',
+                      borderRadius: '8px'
+                    }}
+                  />
+                  <IonLabel style={{ fontSize: '16px', marginTop: '10px' }}>
+                    {option.label}
+                  </IonLabel>
+                </div>
+              ))}
+            </div>
+
+            <p>{t("We are not affiliated with any of the apps shown.")}</p>
+          </IonContent>
+      </IonModal>
 
       <IonModal isOpen={isModalOpen} onDidDismiss={closeModal}>
         <IonHeader>
           <IonToolbar color="danger">
-            <IonTitle>{selectedOption} Library</IonTitle>
+            <IonTitle>{selectedOption} {t("Library")}</IonTitle>
             <IonButtons slot="end" onClick={closeModal}>
               <IonIcon icon={closeOutline} style={{ fontSize: '42px' }} />
             </IonButtons>
@@ -366,6 +471,9 @@ const Library: React.FC = () => {
               )}
             </IonRow>
           </IonGrid>
+
+          <p style={{ textAlign: 'center' }}>{t("We are not affiliated with any of the apps shown.")}</p>
+
         </IonContent>
       </IonModal>
 

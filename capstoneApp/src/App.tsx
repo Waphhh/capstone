@@ -9,7 +9,7 @@ import Login from './pages/Login';
 import Home from './pages/Home';
 import Settings from './pages/Settings';
 import Register from './pages/Register';
-import AccoundSetup from './pages/accountSetup';
+import AccoundSetup from './pages/AccoundSetup';
 import Library from './pages/Library';
 import ElderlyRequests from './pages/ElderlyRequests';
 import MakeRequest from './pages/MakeRequest';

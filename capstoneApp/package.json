@@ -22,6 +22,7 @@
     "@ionic/react-router": "^8.0.0",
     "@types/react-router": "^5.1.20",
     "@types/react-router-dom": "^5.3.3",
+    "axios": "^1.7.7",
     "exceljs": "^4.4.0",
     "firebase": "^10.14.0",
     "i18next": "^23.15.2",
@@ -54,7 +55,8 @@
     "eslint-plugin-react": "^7.32.2",
     "jsdom": "^22.1.0",
     "terser": "^5.4.0",
-    "typescript": "^5.1.6",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.6.3",
     "vite": "~5.2.0",
     "vite-plugin-pwa": "^0.20.5",
     "vitest": "^0.34.6"
