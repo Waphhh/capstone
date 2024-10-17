@@ -145,6 +145,7 @@ const Library: React.FC = () => {
 
   const loadAndFilterTutorials = async () => {
     const tutorials = await fetchCSVData();
+
     let filtered = filterTutorialsByLanguage(tutorials, userLanguage);
   
     if (searchQuery) {
@@ -154,9 +155,13 @@ const Library: React.FC = () => {
     if (selectedOption) {
       filtered = filterTutorialsByOption(filtered, selectedOption);
     }
+
+    console.log(filtered);
   
     // Remove already favorited tutorials from the list
     filtered = filterOutFavorited(filtered, favorites);
+
+    console.log(filtered);
   
     setFilteredTutorials(filtered);
     setTutorials(tutorials);

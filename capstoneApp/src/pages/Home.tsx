@@ -6,6 +6,7 @@ import { useTranslation } from 'react-i18next';
 import { db } from './firebaseConfig';
 import { doc, getDoc } from 'firebase/firestore';
 import TabsToolbar from './TabsToolbar';
+import Notifications from './Notifications';
 import i18n from './i18n';
 import { useHistory } from 'react-router-dom';
 import { peopleOutline, settingsOutline, libraryOutline } from 'ionicons/icons';
@@ -72,6 +73,7 @@ const Home: React.FC = () => {
       <IonHeader>
         <IonToolbar color="danger">
           <IonTitle>{t("Home")}</IonTitle>
+          <Notifications />
         </IonToolbar>
       </IonHeader>
 

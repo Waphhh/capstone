@@ -14,11 +14,15 @@ import {
   IonBackButton,
   IonText
 } from '@ionic/react';
-import { useHistory } from 'react-router-dom';
+import { useHistory, useLocation } from 'react-router-dom';
 
 import './Register.css';
+import { doc, getDoc } from 'firebase/firestore';
+import { db } from './firebaseConfig';
 
 const Register: React.FC = () => {
+  const location = useLocation();
+
   const history = useHistory();
 
   // State to hold the values of each phone number digit
@@ -66,10 +70,24 @@ const Register: React.FC = () => {
     }
   };
 
-  const register1 = () => {
+  const register1 = async () => {
     let phoneNumberToRegister = phoneNumber.join('')
     if (phoneNumberToRegister.length != 8) {
       setErrorMessage('A phone number requires 8 digits');
+      return;
+    }
+
+    try {
+      const userDocRef = doc(db, 'users', phoneNumberToRegister); // Reference to the document with the phone number
+      const userDoc = await getDoc(userDocRef); // Check if the document exists
+      if (userDoc.exists()) {
+        // Phone number exists, proceed with login
+        setErrorMessage('Your account has already been registered, please login.');
+        return;
+      }
+    } catch (error) {
+      console.error("Error checking phone number:", error);
+      setErrorMessage('An error occurred. Please try again.');
       return;
     }
     
@@ -82,10 +100,7 @@ const Register: React.FC = () => {
   useEffect(() => {
     // Clear the OTP fields when the page is loaded
     setPhoneNumber(new Array(8).fill(''));
-
-    // Focus the first input field when the page is loaded
-    inputRefs.current[0]?.setFocus();
-  }, []);
+  }, [location]);
 
   return (
     <IonPage>

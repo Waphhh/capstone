@@ -19,11 +19,12 @@ import {
   IonButtons,
   IonModal,
   IonFab,
-  IonFabButton
+  IonFabButton,
+  IonLoading
 } from '@ionic/react';
 import { db, storage } from './firebaseConfig';
 import { add, closeOutline } from 'ionicons/icons';
-import { doc, getDoc, updateDoc } from 'firebase/firestore';
+import { doc, getDoc, increment, updateDoc } from 'firebase/firestore';
 import { ref, getDownloadURL, deleteObject } from 'firebase/storage';
 import TabsToolbar from './TabsToolbar';
 import i18n from './i18n';
@@ -45,6 +46,7 @@ const ElderlyRequests: React.FC = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isNewRequestModalOpen, setIsNewRequestModalOpen] = useState(false);
   const [selectedOption, setSelectedOption] = useState<string | null>(null);
+  const [cancelling, setCancelling] = useState(false);
 
   const history = useHistory();
   const location = useLocation();
@@ -188,6 +190,8 @@ const ElderlyRequests: React.FC = () => {
 
   const handleCancelRequest = async (requestName: string) => {
     try {
+      setCancelling(true);
+
       const docRef = doc(db, 'users', storedPhoneNumber as string);
       const docSnap = await getDoc(docRef);
   
@@ -198,6 +202,8 @@ const ElderlyRequests: React.FC = () => {
   
         // Check if the request has a recording and get its details
         const requestDetails = updatedRequests[requestName];
+
+        console.log(requestName, "aaa");
   
         // If the request has a recording, delete the audio file
         if (requestDetails && requestDetails.audioUrl) {
@@ -211,6 +217,11 @@ const ElderlyRequests: React.FC = () => {
         // Remove the request and its remarks from the user's requests
         delete updatedRequests[requestName];
         delete updatedRemarks[requestName];
+
+        const dateRef = doc(db, 'dates', 'dates');
+        await updateDoc(dateRef, {
+          [`dates.${requestName}`]: increment(-1)
+        });
   
         // Update Firestore document
         await updateDoc(docRef, { requests: updatedRequests, remarks: updatedRemarks });
@@ -222,7 +233,8 @@ const ElderlyRequests: React.FC = () => {
     } catch (error) {
       console.error('Error canceling the request and deleting the audio file:', error);
     }
-  };  
+    setCancelling(false);
+  };
 
   // Function to convert URLs in comments to clickable links
   const formatComment = (comment: string) => {
@@ -476,6 +488,8 @@ const ElderlyRequests: React.FC = () => {
           </div>
         </IonContent>
       </IonModal>
+
+      <IonLoading isOpen={cancelling} message={t("Cancelling request...")} />
 
       <TabsToolbar />
 

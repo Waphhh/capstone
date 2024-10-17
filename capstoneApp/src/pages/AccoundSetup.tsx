@@ -76,7 +76,7 @@ const AccountSetup: React.FC = () => {
         requests: {},
         history: {},
         remarks: {},
-        favorites: {},
+        favorites: [],
       });
       console.log('User data uploaded successfully');
       

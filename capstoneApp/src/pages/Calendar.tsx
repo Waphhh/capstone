@@ -17,15 +17,26 @@ const Calendar: React.FC<CalendarProps> = ({ handleCalendarClick }) => {
         const docRef = doc(db, 'dates', 'dates');
         const docSnap = await getDoc(docRef);
         if (docSnap.exists()) {
+          const limit = 2; // Define the limit
+  
           const dates = docSnap.data().dates || {};
-          const temparray = Object.keys(dates).map(key => key);
+          const temparray = [];
+  
+          // Iterate over the dates object
+          for (let key in dates) {
+            if (dates[key] < limit) { // Check if the value is greater than the limit
+              temparray.push(key); // Add the key to temparray
+            }
+          }
+  
+          console.log('Filtered Dates:', temparray);
   
           // Sort the available dates by earliest first
           const sortedDates = temparray.sort((a, b) => {
-            return new Date(a) - new Date(b);
+            return new Date(a) - new Date(b); // Sort by date
           });
   
-          setAvailableDates(sortedDates);
+          setAvailableDates(sortedDates); // Update the state with sorted dates
         }
       } else {
         console.log('Phone number not found in localStorage');
@@ -33,7 +44,8 @@ const Calendar: React.FC<CalendarProps> = ({ handleCalendarClick }) => {
     } catch (error) {
       console.error('Error fetching available timings:', error);
     }
-  };  
+  };
+  
 
   const formatDate = (isoDate: string) => {
     const dateObj = new Date(isoDate);

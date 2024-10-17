@@ -55,5 +55,11 @@
   "Request uploading...": "请求正在上载...",
   "Request submitted successfully!": "请求提交成功！",
   "Please select a date": "请选择一个日期",
-  "Remarks and voice recording cannot both be empty for 'Other'": "对于“其他”选项，备注和语音录制不能同时为空"
+  "Remarks and voice recording cannot both be empty for 'Other'": "对于“其他”选项，备注和语音录制不能同时为空",
+  "Notifications": "通知",
+  "Click here to view the request details": "点击此处查看请求详情",
+  "No notifications": "没通知",
+  "Upcoming request": "即将提出的请求",
+  "Your event \"": "您的活动 \"",
+  "\" is happening in 1 day.": "\" 在 1 天内会发生."
 }

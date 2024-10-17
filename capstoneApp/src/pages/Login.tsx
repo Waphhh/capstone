@@ -12,11 +12,13 @@ import {
   IonCol,
   IonText
 } from '@ionic/react';
-import { useHistory } from 'react-router-dom';
+import { useHistory, useLocation } from 'react-router-dom';
 import { db } from './firebaseConfig';
 import { doc, getDoc } from 'firebase/firestore';
 
 const Login: React.FC = () => {
+  const location = useLocation();
+
   const history = useHistory();
   const [errorMessage, setErrorMessage] = useState<string>('');
 
@@ -97,10 +99,7 @@ const Login: React.FC = () => {
   useEffect(() => {
     // Clear the OTP fields when the page is loaded
     setPhoneNumber(new Array(8).fill(''));
-
-    // Focus the first input field when the page is loaded
-    inputRefs.current[0]?.setFocus();
-  }, []);
+  }, [location]);
 
   return (
     <IonPage>
