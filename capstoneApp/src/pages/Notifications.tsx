@@ -1,9 +1,21 @@
 import React, { useState, useEffect } from 'react';
-import { IonIcon, IonModal, IonList, IonItem, IonLabel, IonButton, IonRouterLink, IonButtons, IonHeader, IonTitle, IonToolbar } from '@ionic/react';
-import { notificationsOutline, closeOutline } from 'ionicons/icons';
+import {
+  IonIcon,
+  IonModal,
+  IonCard,
+  IonCardHeader,
+  IonCardTitle,
+  IonCardContent,
+  IonButton,
+  IonRouterLink,
+  IonButtons,
+  IonHeader,
+  IonTitle,
+  IonToolbar,
+} from '@ionic/react';
+import { notificationsOutline, closeOutline, informationCircleOutline, warningOutline } from 'ionicons/icons';
 import { doc, getDoc } from 'firebase/firestore';
 import { db } from './firebaseConfig';
-
 import i18n from './i18n';
 import { useTranslation } from 'react-i18next';
 
@@ -14,47 +26,35 @@ const Notifications: React.FC = () => {
   const [notifications, setNotifications] = useState<any[]>([]);
   const storedPhoneNumber = localStorage.getItem('phoneNumber');
 
-  // Custom hardcoded notifications
   const customNotifications = [
     {
       id: 'custom1',
-      date: new Date("2024-09-16T10:30:00").getTime(), // Use timestamp for comparison
+      date: new Date("2024-09-16T10:30:00").getTime(),
       formattedDate: new Date("2024-09-16T10:30:00").toLocaleString('en-US', {
         weekday: 'long',
         month: 'long',
-        day: 'numeric'
+        day: 'numeric',
       }),
       title: t('System Maintenance'),
       message: t('Scheduled system maintenance is happening tomorrow.'),
       type: 'system',
+      icon: warningOutline,
     },
     {
       id: 'custom2',
-      date: new Date("2024-04-11T10:30:00").getTime(), // Use timestamp for comparison
+      date: new Date("2024-04-11T10:30:00").getTime(),
       formattedDate: new Date("2024-04-11T10:30:00").toLocaleString('en-US', {
         weekday: 'long',
         month: 'long',
-        day: 'numeric'
+        day: 'numeric',
       }),
       title: t('New Feature'),
       message: t('Check out the new feature we just added!'),
       type: 'info',
-    },
-    {
-      id: 'custom3',
-      date: new Date("2024-01-11T10:30:00").getTime(), // Use timestamp for comparison
-      formattedDate: new Date("2024-01-11T10:30:00").toLocaleString('en-US', {
-        weekday: 'long',
-        month: 'long',
-        day: 'numeric'
-      }),
-      title: t('Test feature'),
-      message: t('Check out the new feature we just added!'),
-      type: 'info',
+      icon: informationCircleOutline,
     },
   ];
 
-  // Helper function to check if a date is 1 day away
   const isOneDayAway = (date: string) => {
     const requestDate = new Date(date);
     const currentDate = new Date();
@@ -99,11 +99,12 @@ const Notifications: React.FC = () => {
                 if (isOneDayAway(key)) {
                   return {
                     id: key,
-                    date: new Date(key).getTime(), // Use timestamp for comparison
+                    date: new Date(key).getTime(),
                     formattedDate: formatDate(key),
                     title: t('Upcoming request'),
                     message: t(`Your event "`) + remarksForRequest + t(`" is happening in 1 day.`),
                     type: 'reminder',
+                    icon: notificationsOutline,
                   };
                 }
                 return null;
@@ -113,12 +114,9 @@ const Notifications: React.FC = () => {
             })
           );
 
-          const filteredNotifications = newNotifications.filter(notification => notification !== null);
+          const filteredNotifications = newNotifications.filter((notification) => notification !== null);
 
-          // Combine Firebase notifications with custom ones
           const allNotifications = [...customNotifications, ...filteredNotifications];
-
-          // Sort notifications by date (latest first)
           allNotifications.sort((a, b) => b.date - a.date);
 
           setNotifications(allNotifications);
@@ -153,28 +151,30 @@ const Notifications: React.FC = () => {
           </IonToolbar>
         </IonHeader>
 
-        <IonList style={{ height: '100%', padding: '0px' }} inset={true}>
+        <div style={{ padding: '16px', height: '100%' }}>
           {notifications.length > 0 ? (
             notifications.map((notification) => (
-              <IonItem key={notification.id} detail={false}>
-                <IonLabel>
-                  <h1>{notification.title}</h1>
-                  <h2><strong>{notification.formattedDate}</strong></h2>
+              <IonCard key={notification.id} style={{ border: 'solid 1px #d8d8d8' }}>
+                <IonCardHeader>
+                  <IonCardTitle>
+                    <strong>{notification.title}</strong>
+                  </IonCardTitle>
+                </IonCardHeader>
+                <IonCardContent>
+                  <h2 style={{ paddingBottom: '10px' }}><strong>{notification.formattedDate}</strong></h2>
                   <h2>{notification.message}</h2>
                   {notification.type === 'reminder' && (
                     <IonRouterLink href="/tabs/elderlyrequests">
-                      <h3 style={{ color: 'blue' }}>{t('Click here to view the request details')}</h3>
+                      <h2 style={{ color: 'blue' }}>{t('Click here to view the request details')}</h2>
                     </IonRouterLink>
                   )}
-                </IonLabel>
-              </IonItem>
+                </IonCardContent>
+              </IonCard>
             ))
           ) : (
-            <IonItem>
-              <IonLabel>{t('No notifications')}</IonLabel>
-            </IonItem>
+            <p>{t('No notifications')}</p>
           )}
-        </IonList>
+        </div>
       </IonModal>
     </>
   );

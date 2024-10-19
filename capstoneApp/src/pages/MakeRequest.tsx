@@ -111,6 +111,8 @@ const MakeRequest: React.FC = () => {
 
   // Submit the selected date and remarks to Firestore
   const submitDateTimeToFirestore = async () => {
+    const audioSizeLimit = 5 * 1024 * 1024; // 5 MB limit in bytes
+
     if (!selectedDate) {
       setErrorMessage(t('Please select a date'));
       return;
@@ -120,6 +122,16 @@ const MakeRequest: React.FC = () => {
       setErrorMessage(t('Remarks and voice recording cannot both be empty for "Other".'));
       return; // Prevent submission
     }
+
+    if (remarks.trim().length > 100 ) {
+      setErrorMessage(t('Please keep you remarks to below 100 characters.'));
+      return; // Prevent submission
+    }
+
+    if (mainAudioBlob && mainAudioBlob.size > audioSizeLimit) {
+      setErrorMessage(t('Audio recording exceeds the size limit of 5 MB. Please record a shorter message.'));
+      return; // Prevent submission
+    }  
 
     setErrorMessage('');
 
@@ -158,6 +170,7 @@ const MakeRequest: React.FC = () => {
         setupLoading(false);
         setmainAudioBlob(null);
         setSelectedDate("");
+        setRemarks("");
       }
     }
   };
@@ -246,12 +259,6 @@ const MakeRequest: React.FC = () => {
 
         <h3>{t("Choose a time when you are free.")}</h3>
 
-        {errorMessage && (
-          <IonText color="danger" style={{ textAlign: 'center' }}>
-            <b><p>{errorMessage}</p></b>
-          </IonText>
-        )}
-
         <Calendar handleCalendarClick={handleCalendarClick}/>
 
       </IonContent>
@@ -265,6 +272,12 @@ const MakeRequest: React.FC = () => {
             </IonButtons>
           </IonToolbar>
         </IonHeader>
+
+        {errorMessage && (
+          <IonText color="danger" style={{ textAlign: 'center' }}>
+            <b><p>{errorMessage}</p></b>
+          </IonText>
+        )}
 
         <IonContent style={{ textAlign: 'center' }}>
           <div style={{ textAlign: 'center', marginTop: '10px' }}>

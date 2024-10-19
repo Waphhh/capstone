@@ -17,7 +17,7 @@ const Calendar: React.FC<CalendarProps> = ({ handleCalendarClick }) => {
         const docRef = doc(db, 'dates', 'dates');
         const docSnap = await getDoc(docRef);
         if (docSnap.exists()) {
-          const limit = 2; // Define the limit
+          const limit = 1;
   
           const dates = docSnap.data().dates || {};
           const temparray = [];
@@ -28,8 +28,6 @@ const Calendar: React.FC<CalendarProps> = ({ handleCalendarClick }) => {
               temparray.push(key); // Add the key to temparray
             }
           }
-  
-          console.log('Filtered Dates:', temparray);
   
           // Sort the available dates by earliest first
           const sortedDates = temparray.sort((a, b) => {
