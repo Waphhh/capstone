@@ -114,7 +114,7 @@ const Settings: React.FC = () => {
     // Clear phone number and details
     localStorage.removeItem('phoneNumber');
     // Add any other data cleanup as needed
-    history.push('/'); // Navigate to the home page
+    history.push('/');
   };
 
   useEffect(() => {

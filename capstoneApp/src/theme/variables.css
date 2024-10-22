@@ -2,6 +2,9 @@
 http://ionicframework.com/docs/theming/ */
 :root {
   --ion-text-color: #050315;
+  --ion-card-color: #050315;
+  --ion-item-color: #050315;
+  --ion-tab-bar-color: #050315;
   --ion-background-color: #fbfbfe;
   --ion-color-primary: #ce3727;
   --ion-color-primary-rgb: 206, 55, 39;

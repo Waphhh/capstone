@@ -155,7 +155,7 @@ const Notifications: React.FC = () => {
         <div style={{ padding: '16px', height: '100%' }}>
           {notifications.length > 0 ? (
             notifications.map((notification) => (
-              <IonCard key={notification.id} style={{ border: 'solid 1px #d8d8d8' }}>
+              <IonCard key={notification.id} style={{ border: 'solid 1px var(--primary-200)', backgroundColor: 'var(--accent-50)' }}>
                 <IonCardHeader>
                   <IonCardTitle>
                     <strong>{notification.title}</strong>

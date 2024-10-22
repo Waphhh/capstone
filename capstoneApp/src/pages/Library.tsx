@@ -59,17 +59,17 @@ const Library: React.FC = () => {
     { id: 1, label: 'X', src: 'X.png', cat: 'Social Media'},
     { id: 2, label: 'Instagram', src: 'Instagram.png', cat: 'Social Media'},
     { id: 3, label: 'Facebook', src: 'Facebook.png', cat: 'Social Media'},
-    { id: 4, label: 'Tik Tok', src: '.png', cat: 'Social Media'}, // requires written permission to use
+    { id: 4, label: 'Tik Tok', src: 'TikTok.png', cat: 'Social Media'}, // requires written permission to use
 
     { id: 5, label: 'WhatsApp', src: 'Whatsapp.png', cat: 'Communication'},
     { id: 6, label: 'Telegram', src: 'Telegram.png', cat: 'Communication'},
 
     { id: 7, label: 'PayLah!', src: 'Paylah.png', cat: 'E-payment'},
     { id: 8, label: 'PayNow', src: 'PayNow.png', cat: 'E-payment'},
-    { id: 9, label: 'Apple Pay', src: '.png', cat: 'E-payment'},
+    { id: 9, label: 'Apple Pay', src: 'Applepay.svg', cat: 'E-payment'},
 
     { id: 10, label: 'MyTransport', src: 'MyTransport.png', cat: 'Transportation'},
-    { id: 11, label: 'Google Maps', src: '.png', cat: 'Transportation'},
+    { id: 11, label: 'Google Maps', src: 'maps.png', cat: 'Transportation'},
     { id: 12, label: 'Grab', src: 'Grab.png', cat: 'Transportation'},
 
   ];
@@ -306,7 +306,7 @@ const Library: React.FC = () => {
                 flexDirection: 'column',
                 justifyContent: 'space-between', // Ensures icon stays at the top and text at the bottom
                 textAlign: 'center',
-                backgroundColor: '#d8d8d8',
+                backgroundColor: 'var(--accent-50)',
                 padding: '16px',
                 width: '100%',
                 height: '100%',
@@ -322,11 +322,10 @@ const Library: React.FC = () => {
                   objectFit: 'contain', 
                   margin: 'auto', 
                   padding: option.label === 'Social Media'? '0px' : '5px',
-                  backgroundColor: 'white',
                   borderRadius: '8px'
                 }}
               />
-              <IonLabel style={{ fontSize: '16px', marginTop: '10px' }}>
+              <IonLabel style={{ fontSize: '16px', marginTop: '10px', fontWeight: '600' }}>
                 {option.label}
               </IonLabel>
             </div>
@@ -372,7 +371,7 @@ const Library: React.FC = () => {
                     flexDirection: 'column',
                     justifyContent: 'space-between', // Ensures icon stays at the top and text at the bottom
                     textAlign: 'center',
-                    backgroundColor: '#d8d8d8',
+                    backgroundColor: 'var(--accent-50)',
                     padding: '16px',
                     width: '100%',
                     height: '100%',
@@ -386,13 +385,10 @@ const Library: React.FC = () => {
                       width: '80px',
                       height: '80px',
                       objectFit: 'contain', 
-                      margin: 'auto', 
-                      padding: '20px',
-                      backgroundColor: 'white',
-                      borderRadius: '8px'
+                      margin: 'auto',
                     }}
                   />
-                  <IonLabel style={{ fontSize: '16px', marginTop: '10px' }}>
+                  <IonLabel style={{ fontSize: '16px', marginTop: '10px', fontWeight: '600' }}>
                     {option.label}
                   </IonLabel>
                 </div>
@@ -426,7 +422,7 @@ const Library: React.FC = () => {
                 <IonCol size="12">
                   {filterFavoritesByOption(tutorials, selectedOption).map((tutorial, index) => (
                     favorites.includes(tutorial.Title) && (  // Check if the title is in the favorites array
-                      <IonCard key={index} style={{ backgroundColor: '#f0f0f0', borderRadius: '15px', overflow: 'hidden' }}>
+                      <IonCard key={index} style={{ backgroundColor: 'var(--accent-50)', borderRadius: '15px', overflow: 'hidden' }}>
                         <IonCardHeader>
                           <IonCardTitle>{tutorial.Title}</IonCardTitle>
                         </IonCardHeader>
@@ -469,7 +465,7 @@ const Library: React.FC = () => {
               {filteredTutorials.length > 0 ? (
                 filteredTutorials.map((tutorial, index) => (
                   <IonCol size="12" key={index}>
-                    <IonCard style={{ backgroundColor: '#f0f0f0', borderRadius: '15px', overflow: 'hidden' }}>
+                    <IonCard style={{ backgroundColor: 'var(--accent-50)', borderRadius: '15px', overflow: 'hidden' }}>
                       <IonCardHeader>
                         <IonCardTitle>{tutorial.Title}</IonCardTitle>
                       </IonCardHeader>

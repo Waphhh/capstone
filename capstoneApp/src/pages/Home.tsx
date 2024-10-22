@@ -119,9 +119,9 @@ const Home: React.FC = () => {
                     <img
                       src={`iconassets/${src}`}
                       alt={`Icon for ${label}`}
-                      style={{ width: '100px', height: '100px', marginBottom: '10px', objectFit: 'contain', backgroundColor: 'white', borderRadius: '8px', padding: '10px' }}
+                      style={{ width: '100px', height: '100px', marginBottom: '20px', objectFit: 'contain' }}
                     />
-                    <h3 style={{ fontSize: '24px', textAlign: 'center', color: 'var(--text)' }}>{label}</h3>
+                    <h3 style={{ fontSize: '24px', textAlign: 'center', color: 'var(--text)', fontWeight: '600' }}>{label}</h3>
                     <IonButton
                       expand="full"
                       shape='round'

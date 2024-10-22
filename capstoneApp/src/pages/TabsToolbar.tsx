@@ -6,6 +6,8 @@ import { db } from './firebaseConfig';
 import { fetchUserLanguage } from './GetLanguage';
 import { useTranslation } from 'react-i18next';
 
+import './TabsToolbar.css';
+
 const TabsToolbar: React.FC = () => {
   const { t } = useTranslation();
 

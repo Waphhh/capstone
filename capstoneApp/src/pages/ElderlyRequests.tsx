@@ -308,7 +308,7 @@ const ElderlyRequests: React.FC = () => {
               const statusColor = request.status === "accepted" ? "green" : "red"; // Set color based on status
 
               return (
-                <IonCard key={index} className="request-card" style={{ backgroundColor: '#f0f0f0' }}>
+                <IonCard key={index} className="request-card">
                   <IonGrid>
                     <IonRow>
                       <IonCol size="3" className="date-section">
@@ -322,16 +322,16 @@ const ElderlyRequests: React.FC = () => {
 
                       <IonCol size="9" className="info-section">
                         <IonCardContent>
-                          <h2>{t("New Request")}</h2>
+                          <h2 style={{ fontWeight: 'bold' }}>{t("New Request")}</h2>
                           <h2 className="time">{time}</h2>
-                          <h3 style={{ color: statusColor }}>Status: {request.status}</h3>
+                          <h3 style={{ color: statusColor, fontWeight: 'bold' }}>Status: {request.status}</h3>
                           <h3>{request.remarks}</h3>
 
                           {/* Conditionally disable Play Recording button and change text if audioUrl is null */}
                           <IonButton
                             expand="block"
                             fill="solid"
-                            color="secondary"
+                            color="tertiary"
                             className="action-button"
                             onClick={() => playAudio(request.audioUrl)}
                             disabled={!request.audioUrl} // Disable if no audioUrl
@@ -458,7 +458,7 @@ const ElderlyRequests: React.FC = () => {
                 style={{
                   cursor: 'pointer',
                   textAlign: 'center',
-                  backgroundColor: '#d8d8d8',
+                  backgroundColor: 'var(--accent-50)',
                   padding: '16px',
                   width: '100%',
                   height: '100%',
@@ -468,9 +468,14 @@ const ElderlyRequests: React.FC = () => {
                 <img
                   src={`iconassets/${option.src}`}
                   alt={option.label}
-                  style={{ width: '80px', height: '80px', borderRadius: '8px' }} // Icon size
+                  style={{ 
+                    width: '80px',
+                    height: '80px',
+                    objectFit: 'contain', 
+                    margin: 'auto'
+                  }}                
                 />
-                <IonLabel style={{ fontSize: '20px', display: 'block', marginTop: '8px' }}>
+                <IonLabel style={{ fontSize: '20px', display: 'block', marginTop: '8px', fontWeight: '600' }}>
                   {option.label}
                 </IonLabel>
               </div>

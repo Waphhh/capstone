@@ -1,0 +1,6 @@
+/* For the active tab */
+ion-tab-button.tab-selected ion-icon {
+  background-color: var(--accent-100);
+  border-radius: 8px;
+  width: 90%;
+}

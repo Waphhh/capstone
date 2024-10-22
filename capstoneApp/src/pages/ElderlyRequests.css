@@ -4,14 +4,16 @@
   padding: 0;
   margin: 20px;
   border-radius: 10px;
+  background-color: var(--accent-50);
 }
 
 /* Left date section */
 .date-section {
-  background-color: #e0efff; /* Light blue background */
+  background-color: var(--accent-100); /* Light blue background */
   display: flex;
   justify-content: center;
   align-items: center;
+  border-radius: 8px;
 }
 
 .date-block {
@@ -36,7 +38,6 @@
 
 .info-section h3, h4 {
   margin: 0;
-  font-weight: bold;
 }
 
 .time {
@@ -44,7 +45,6 @@
   font-weight: bold;
 }
 
-/* Style for buttons */
 .action-button {
   border-radius: 20px;
 }
