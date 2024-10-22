@@ -1,2 +1,79 @@
 /* For information on how to create your own theme, please see:
 http://ionicframework.com/docs/theming/ */
+:root {
+  --ion-text-color: #050315;
+  --ion-background-color: #fbfbfe;
+  --ion-color-primary: #ce3727;
+  --ion-color-primary-rgb: 206, 55, 39;
+  --ion-color-secondary: #f2e27c;
+  --ion-color-secondary-rgb: 242, 226, 124;
+  --ion-color-tertiary: #f68c4a;
+  --ion-color-tertiary-rgb: 246, 140, 74;
+
+  /* Additional custom variables */
+  --text: #050315;
+  --background: #fbfbfe;
+  --primary: #ce3727;
+  --secondary: #f2e27c;
+  --accent: #f68c4a;
+  
+  --text-50: #ebe9fc;
+  --text-100: #d7d2f9;
+  --text-200: #afa6f2;
+  --text-300: #8779ec;
+  --text-400: #5e4ce6;
+  --text-500: #3620df;
+  --text-600: #2b19b3;
+  --text-700: #211386;
+  --text-800: #160d59;
+  --text-900: #0b062d;
+  --text-950: #050316;
+
+  --background-50: #ebebfa;
+  --background-100: #d6d6f5;
+  --background-200: #adadeb;
+  --background-300: #8585e0;
+  --background-400: #5c5cd6;
+  --background-500: #3333cc;
+  --background-600: #2929a3;
+  --background-700: #1f1f7a;
+  --background-800: #141452;
+  --background-900: #0a0a29;
+  --background-950: #050514;
+
+  --primary-50: #fbebea;
+  --primary-100: #f7d8d4;
+  --primary-200: #efb0a9;
+  --primary-300: #e7897e;
+  --primary-400: #de6254;
+  --primary-500: #d63a29;
+  --primary-600: #ab2f21;
+  --primary-700: #812318;
+  --primary-800: #561710;
+  --primary-900: #2b0c08;
+  --primary-950: #150604;
+
+  --secondary-50: #fdfae8;
+  --secondary-100: #faf5d1;
+  --secondary-200: #f6eba2;
+  --secondary-300: #f1e174;
+  --secondary-400: #edd645;
+  --secondary-500: #e8cc17;
+  --secondary-600: #baa312;
+  --secondary-700: #8b7b0e;
+  --secondary-800: #5d5209;
+  --secondary-900: #2e2905;
+  --secondary-950: #171402;
+
+  --accent-50: #fef0e7;
+  --accent-100: #fde0ce;
+  --accent-200: #fac19e;
+  --accent-300: #f8a26d;
+  --accent-400: #f6833c;
+  --accent-500: #f4640b;
+  --accent-600: #c35009;
+  --accent-700: #923c07;
+  --accent-800: #612805;
+  --accent-900: #311402;
+  --accent-950: #180a01;
+}
