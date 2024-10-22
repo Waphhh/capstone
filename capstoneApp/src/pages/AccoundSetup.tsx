@@ -61,8 +61,6 @@ const AccountSetup: React.FC = () => {
       return;
     }
 
-    
-
     // Clear any error messages
     setErrorMessage('');
 
@@ -96,7 +94,7 @@ const AccountSetup: React.FC = () => {
   return (
     <IonPage>
       <IonHeader style={{ height: '10vh' }}>
-        <IonToolbar color='danger' style={{ height: '10vh', lineHeight: '10vh' }}>
+        <IonToolbar color='primary' style={{ height: '10vh', lineHeight: '10vh' }}>
           <IonButtons slot="start">
             <IonBackButton defaultHref="/tabs/register" />
           </IonButtons>
@@ -108,7 +106,7 @@ const AccountSetup: React.FC = () => {
 
         {/* Display error message if any */}
         {errorMessage && (
-          <IonText color="danger">
+          <IonText color="primary">
             <b><p>{errorMessage}</p></b>
           </IonText>
         )}
@@ -218,7 +216,7 @@ const AccountSetup: React.FC = () => {
         {/* Modal for Terms & Conditions */}
         <IonModal isOpen={showModal} onDidDismiss={() => setShowModal(false)}>
           <IonHeader>
-            <IonToolbar color="danger">
+            <IonToolbar color="primary">
               <IonTitle>Terms & Conditions</IonTitle>
               <IonButtons slot="end" onClick={closeTC}>
                 <IonIcon icon={closeOutline} style={{ fontSize: '42px' }} />

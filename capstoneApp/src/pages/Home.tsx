@@ -4,10 +4,9 @@ import { Swiper, SwiperSlide } from 'swiper/react';
 import { Autoplay } from 'swiper/modules';
 import { useTranslation } from 'react-i18next';
 import { db } from './firebaseConfig';
-import { doc, getDoc } from 'firebase/firestore';
 import TabsToolbar from './TabsToolbar';
+import { fetchUserLanguage } from './GetLanguage';
 import Notifications from './Notifications';
-import i18n from './i18n';
 import { useHistory } from 'react-router-dom';
 import { peopleOutline, settingsOutline, libraryOutline } from 'ionicons/icons';
 
@@ -16,6 +15,8 @@ import 'swiper/css/pagination';
 import './Home.css';
 
 const Home: React.FC = () => {
+  const storedPhoneNumber = localStorage.getItem('phoneNumber');
+
   const { t } = useTranslation(); // Initialize useTranslation
   const [loading, setLoading] = useState<boolean>(true);
   const history = useHistory();
@@ -26,27 +27,6 @@ const Home: React.FC = () => {
     { id: 3, label: 'Youtube', src: 'Youtube.png'},
     { id: 4, label: 'E-payment', src: 'e-payment.png'},
   ];
-
-  const storedPhoneNumber = localStorage.getItem('phoneNumber');
-  
-  useEffect(() => {
-    const fetchUserLanguage = async () => {
-      if (storedPhoneNumber) {
-        const userDoc = doc(db, 'users', storedPhoneNumber); // Reference to user document
-        const userSnapshot = await getDoc(userDoc); // Fetch user document
-        
-        if (userSnapshot.exists()) {
-          const userData = userSnapshot.data();
-          const language = userData.language || 'english'; // Default to 'en' if no language found
-          i18n.changeLanguage(language.toLowerCase()); // Set the language for i18next
-        }
-        
-        setLoading(false);
-      }
-    };
-
-    fetchUserLanguage();
-  }, [storedPhoneNumber, i18n]); 
 
   // Create a ref to get access to the Swiper instance
   const swiperRef = useRef<any>(null);
@@ -66,12 +46,21 @@ const Home: React.FC = () => {
     history.push(path);
   };
 
+  useEffect(() => {
+    const loadUserLanguage = async () => {
+      const success = await fetchUserLanguage(db); // Call the function and await its result
+      setLoading(!success); // Set loading to true if fetching failed, false if successful
+    };
+
+    loadUserLanguage();
+  }, [db]);
+
   if (loading) return <p>{t("Loading...")}</p>;
 
   return (
     <IonPage>
       <IonHeader>
-        <IonToolbar color="danger">
+        <IonToolbar color="primary">
           <IonTitle>{t("Home")}</IonTitle>
           <Notifications />
         </IonToolbar>
@@ -79,33 +68,32 @@ const Home: React.FC = () => {
 
       <IonContent style={{ textAlign: 'center' }} className='ion-padding'>
 
-        {/* Add the GIF here */}
         <img 
-          src="./Home.gif" // Replace this with the actual path or URL to your GIF
+          src="https://raw.githubusercontent.com/Waphhh/capstone/c250ac508f5e28150149f9d405e9f348cca6363e/capstoneApp/public/Home.gif" 
           alt="Home GIF"
-          style={{ width: '100%', border: 'solid #e8e8e8 1px', padding: '0px', borderRadius: '8px'}} 
+          style={{ width: '100%', border: 'solid var(--primary-200) 1px', padding: '0px', borderRadius: '8px'}} 
         />
 
         <div className="custom-toolbar">
           <div className="custom-tab" onClick={() => navigateTo('/tabs/elderlyrequests')}>
-            <div style={{ width: '60px', height: '60px', borderRadius: '50%', display: 'flex', justifyContent: 'center', alignItems: 'center', boxShadow: '0 0 4px 2px rgba(0, 0, 0, 0.1)' }}>
-              <IonIcon icon={peopleOutline} style={{ fontSize: '30px' }} />
+            <div className="icon-circle">
+              <IonIcon icon={peopleOutline} />
             </div>
-            <IonLabel style={{ padding: '10px', fontSize: '12px' }}>{t("Requests")}</IonLabel>
+            <IonLabel>{t("Requests")}</IonLabel>
           </div>
 
           <div className="custom-tab" onClick={() => navigateTo('/tabs/library')}>
-            <div style={{ width: '60px', height: '60px', borderRadius: '50%', display: 'flex', justifyContent: 'center', alignItems: 'center', boxShadow: '0 0 4px 2px rgba(0, 0, 0, 0.1)' }}>
-              <IonIcon icon={libraryOutline} style={{ fontSize: '30px' }} />
+            <div className="icon-circle">
+              <IonIcon icon={libraryOutline} />
             </div>
-            <IonLabel style={{ padding: '10px', fontSize: '12px' }}>{t("Library")}</IonLabel>
+            <IonLabel>{t("Library")}</IonLabel>
           </div>
 
           <div className="custom-tab" onClick={() => navigateTo('/tabs/settings')}>
-            <div style={{ width: '60px', height: '60px', borderRadius: '50%', display: 'flex', justifyContent: 'center', alignItems: 'center', boxShadow: '0 0 4px 2px rgba(0, 0, 0, 0.1)' }}>
-              <IonIcon icon={settingsOutline} style={{ fontSize: '30px' }} />
+            <div className="icon-circle">
+              <IonIcon icon={settingsOutline} />
             </div>
-            <IonLabel style={{ padding: '10px', fontSize: '12px' }}>{t("Settings")}</IonLabel>
+            <IonLabel>{t("Settings")}</IonLabel>
           </div>
         </div>
 
@@ -126,14 +114,14 @@ const Home: React.FC = () => {
           >
             {recommended.map(({ id, label, src }) => (
               <SwiperSlide key={id}>
-                <IonCard button={true} onClick={handleSlideClick} style={{ backgroundColor: '#d8d8d8', height: 'auto', padding: '20px' }}>
+                <IonCard button={true} onClick={handleSlideClick} style={{ backgroundColor: 'var(--accent-50)', height: 'auto', padding: '20px' }}>
                   <IonCardContent style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
                     <img
                       src={`iconassets/${src}`}
                       alt={`Icon for ${label}`}
                       style={{ width: '100px', height: '100px', marginBottom: '10px', objectFit: 'contain', backgroundColor: 'white', borderRadius: '8px', padding: '10px' }}
                     />
-                    <h3 style={{ fontSize: '24px', textAlign: 'center' }}>{label}</h3>
+                    <h3 style={{ fontSize: '24px', textAlign: 'center', color: 'var(--text)' }}>{label}</h3>
                     <IonButton
                       expand="full"
                       shape='round'

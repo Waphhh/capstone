@@ -19,17 +19,18 @@ import {
   IonModal,
   IonButtons,
 } from '@ionic/react';
-import { db } from './firebaseConfig';
+import { db, firebaseConfig } from './firebaseConfig';
 import { updateDoc, arrayUnion, arrayRemove, doc, getDoc } from 'firebase/firestore';
 import { useLocation } from 'react-router';
 import { closeOutline, heart, heartOutline } from 'ionicons/icons';
-import * as Papa from 'papaparse';
 import { LazyLoadComponent } from 'react-lazy-load-image-component';
 import TabsToolbar from './TabsToolbar';
-import i18n from './i18n';
+import { fetchUserLanguage } from './GetLanguage';
 import { useTranslation } from 'react-i18next';
+import { gapi } from 'gapi-script';
 
-const csvFilePath = './resources.csv';
+// The google sheet live update only reaches the 200th row.
+// https://docs.google.com/spreadsheets/d/1QoWoZL4Hv_jjO19VhLIq4MjJos3Yxu6NH6i_hxYjnpw/edit?usp=sharing
 
 const Library: React.FC = () => {
   const { t } = useTranslation(); // Initialize useTranslation
@@ -73,6 +74,8 @@ const Library: React.FC = () => {
 
   ];
 
+  const { apiKey, sheetId, discoveryDocs } = firebaseConfig.googleSheets;
+
   // const options = firstoptions.map(option => {
   //   const userAgent = navigator.userAgent || navigator.vendor || window.opera;
   //   // console.log(userAgent);
@@ -89,6 +92,53 @@ const Library: React.FC = () => {
   // })
 
   // Fetch user language and favorites from Firestore
+
+  function loadGapiClient() {
+    return new Promise((resolve) => {
+      gapi.load('client', resolve);
+    });
+  }
+  
+  async function initializeGapi() {
+    await loadGapiClient();
+    await gapi.client.init({
+      apiKey: apiKey, // Use your Firebase generated API key
+      discoveryDocs: discoveryDocs,
+    });
+  }
+
+  async function fetchSheetData(sheetId, range) {
+    try {
+      const response = await gapi.client.sheets.spreadsheets.values.get({
+        spreadsheetId: sheetId,
+        range: range,
+      });
+      const rows = response.result.values; // This will return the raw data from the sheet
+  
+      if (!rows || rows.length === 0) {
+        console.log('No data found in the sheet.');
+        return [];
+      }
+  
+      // Define the object structure (keys for each field)
+      const headers = ["", "Title", "Link", "Content", "Type", "Language", "Comments", "Author", "Approved?"];
+  
+      // Map each row to an object
+      const data = rows.map(row => {
+        const rowData = {};
+        headers.forEach((header, index) => {
+          rowData[header] = row[index] || ""; // If no data for a field, set as empty string
+        });
+        return rowData;
+      });
+  
+      console.log(data); // Handle your mapped data here
+      return data;
+    } catch (error) {
+      console.error('Error fetching data from Google Sheets:', error);
+    }
+  }   
+
   const fetchUserData = async () => {
     try {
       if (storedPhoneNumber) {
@@ -104,17 +154,6 @@ const Library: React.FC = () => {
     } catch (error) {
       console.error('Error fetching user data:', error);
     }
-  };
-
-  // Fetch and parse CSV data
-  const fetchCSVData = async () => {
-    const response = await fetch(csvFilePath);
-    const csvText = await response.text();
-    const parsedData = Papa.parse(csvText, {
-      header: true,
-      skipEmptyLines: true,
-    });
-    return parsedData.data;
   };
 
   // Filter tutorials by language
@@ -144,7 +183,10 @@ const Library: React.FC = () => {
   };
 
   const loadAndFilterTutorials = async () => {
-    const tutorials = await fetchCSVData();
+    await initializeGapi();
+    const tutorials = await fetchSheetData(sheetId, "Sheet1!A2:H200");
+
+    console.log(tutorials);
 
     let filtered = filterTutorialsByLanguage(tutorials, userLanguage);
   
@@ -221,30 +263,20 @@ const Library: React.FC = () => {
   }, [userLanguage, searchQuery, favorites, selectedOption]);
   
   useEffect(() => {
-    const fetchUserLanguage = async () => {
-      if (storedPhoneNumber) {
-        const userDoc = doc(db, 'users', storedPhoneNumber); // Reference to user document
-        const userSnapshot = await getDoc(userDoc); // Fetch user document
-        
-        if (userSnapshot.exists()) {
-          const userData = userSnapshot.data();
-          const language = userData.language || 'english'; // Default to 'en' if no language found
-          i18n.changeLanguage(language.toLowerCase()); // Set the language for i18next
-        }
-        
-        setLoading(false);
-      }
+    const loadUserLanguage = async () => {
+      const success = await fetchUserLanguage(db); // Call the function and await its result
+      setLoading(!success); // Set loading to true if fetching failed, false if successful
     };
 
-    fetchUserLanguage();
-  }, [storedPhoneNumber, i18n]);
+    loadUserLanguage();
+  }, [db]);
 
   if (loading) return <p>{t("Loading...")}</p>;
 
   return (
     <IonPage>
       <IonHeader>
-        <IonToolbar color="danger">
+        <IonToolbar color="primary">
           <IonTitle>{t("Library")}</IonTitle>
         </IonToolbar>
       </IonHeader>
@@ -306,7 +338,7 @@ const Library: React.FC = () => {
 
       <IonModal isOpen={isCategoriesOpen} onDidDismiss={closeCategories}>
         <IonHeader>
-          <IonToolbar color="danger">
+          <IonToolbar color="primary">
             <IonTitle>{selectedCategory}</IonTitle>
             <IonButtons slot="end" onClick={closeCategories}>
               <IonIcon icon={closeOutline} style={{ fontSize: '42px' }} />
@@ -373,7 +405,7 @@ const Library: React.FC = () => {
 
       <IonModal isOpen={isModalOpen} onDidDismiss={closeModal}>
         <IonHeader>
-          <IonToolbar color="danger">
+          <IonToolbar color="primary">
             <IonTitle>{selectedOption} {t("Library")}</IonTitle>
             <IonButtons slot="end" onClick={closeModal}>
               <IonIcon icon={closeOutline} style={{ fontSize: '42px' }} />
@@ -476,7 +508,7 @@ const Library: React.FC = () => {
                   </IonCol>
                 ))
               ) : (
-                <p>No tutorials available for your language or search term</p>
+                <p>{t("No tutorials available for your language or search term")}</p>
               )}
             </IonRow>
           </IonGrid>

@@ -1,10 +1,10 @@
 .custom-toolbar {
   display: flex;
   justify-content: space-around;
-  height: auto; /* Adjust the total height */
+  height: auto;
   min-height: 16vh;
-  background-color: #f5f5f5; /* Optional background color */
-  border: 1px solid #e8e8e8;
+  background-color: var(--accent-50); /* Optional background color */
+  border: 1px solid var(--primary-200);
   border-radius: 8px;
 }
 
@@ -13,7 +13,27 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  width: 100%; /* Each tab takes equal width */
+  width: 100%;
   cursor: pointer;
   margin-top: 10px;
+}
+
+.custom-tab .icon-circle {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  box-shadow: 0 0 4px 2px rgba(0, 0, 0, 0.1);
+  background-color: var(--ion-color-tertiary); /* Secondary color background */
+}
+
+.custom-tab .icon-circle ion-icon {
+  font-size: 30px;
+}
+
+.custom-tab ion-label {
+  padding: 10px;
+  font-size: 12px;
 }

@@ -104,14 +104,14 @@ const Login: React.FC = () => {
   return (
     <IonPage>
       <IonHeader style={{ height: '10vh' }}>
-        <IonToolbar color="danger" style={{ height: '10vh', lineHeight: '10vh' }}>
+        <IonToolbar color="primary" style={{ height: '10vh', lineHeight: '10vh' }}>
           <IonTitle>Login</IonTitle>
         </IonToolbar>
       </IonHeader>
 
       <IonContent className="ion-padding">
 
-        <div className="welcomeText">
+        <div style={{ textAlign: 'center' }}>
           <h1>Sign in with your phone number by entering it below</h1>
         </div>
 
@@ -142,7 +142,7 @@ const Login: React.FC = () => {
           </IonRow>
 
           {errorMessage && (
-          <IonText color="danger">
+          <IonText>
             <b><p>{errorMessage}</p></b>
           </IonText>
           )}

@@ -16,8 +16,8 @@ import {
 import { notificationsOutline, closeOutline, informationCircleOutline, warningOutline } from 'ionicons/icons';
 import { doc, getDoc } from 'firebase/firestore';
 import { db } from './firebaseConfig';
-import i18n from './i18n';
 import { useTranslation } from 'react-i18next';
+import { fetchUserLanguage } from './GetLanguage';
 
 const Notifications: React.FC = () => {
   const { t } = useTranslation();
@@ -86,9 +86,6 @@ const Notifications: React.FC = () => {
           const userRequests = userData.requests || {};
           const userRemarks = userData.remarks || {};
 
-          const language = userData.language || 'english';
-          i18n.changeLanguage(language.toLowerCase());
-
           const newNotifications = await Promise.all(
             Object.keys(userRequests).map(async (key) => {
               const requestData = userRequests[key];
@@ -135,6 +132,10 @@ const Notifications: React.FC = () => {
     fetchOngoingRequests();
   }, [storedPhoneNumber]);
 
+  useEffect(() => {
+    fetchUserLanguage(db);
+  }, [db]);
+
   return (
     <>
       <IonButton fill="clear" onClick={() => setShowModal(true)} slot="end">
@@ -143,7 +144,7 @@ const Notifications: React.FC = () => {
 
       <IonModal isOpen={showModal} onDidDismiss={() => setShowModal(false)}>
         <IonHeader>
-          <IonToolbar color="danger">
+          <IonToolbar color="primary">
             <IonTitle>{t('Notifications')}</IonTitle>
             <IonButtons slot="end" onClick={() => setShowModal(false)}>
               <IonIcon icon={closeOutline} style={{ fontSize: '42px' }} />

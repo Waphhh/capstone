@@ -24,7 +24,7 @@ import { useHistory } from 'react-router-dom';
 import { db } from './firebaseConfig';
 import TabsToolbar from './TabsToolbar';
 import { useTranslation } from 'react-i18next';
-import i18n from './i18n';
+import { fetchUserLanguage } from './GetLanguage';
 
 const Settings: React.FC = () => {
   const { t } = useTranslation(); // Initialize useTranslation
@@ -41,6 +41,7 @@ const Settings: React.FC = () => {
   const storedPhoneNumber = localStorage.getItem('phoneNumber');
 
   useEffect(() => {
+    
     const fetchData = async () => {
       if (storedPhoneNumber) {
         try {
@@ -53,7 +54,6 @@ const Settings: React.FC = () => {
             setPostalCode(data.postalCode || '');
             setFlatNo(data.flatNo || ''); // Changed from unitNo to flatNo
             setLanguage(data.language || 'English');
-            i18n.changeLanguage(data.language.toLowerCase());
           } else {
             console.log('No such document!');
           }
@@ -66,7 +66,7 @@ const Settings: React.FC = () => {
     };
 
     fetchData();
-  }, [storedPhoneNumber, i18n]);
+  }, [storedPhoneNumber]);
 
   function containsOnlyDigits(str: string) {
     return /^\d+$/.test(str);
@@ -117,12 +117,21 @@ const Settings: React.FC = () => {
     history.push('/'); // Navigate to the home page
   };
 
+  useEffect(() => {
+    const loadUserLanguage = async () => {
+      const success = await fetchUserLanguage(db); // Call the function and await its result
+      setLoading(!success); // Set loading to true if fetching failed, false if successful
+    };
+
+    loadUserLanguage();
+  }, [db]);
+
   if (loading) return <p>{t("Loading...")}</p>;
 
   return (
     <IonPage>
       <IonHeader>
-        <IonToolbar color="danger">
+        <IonToolbar color="primary">
           <IonTitle>{t("Settings")}</IonTitle>
         </IonToolbar>
       </IonHeader>
@@ -165,13 +174,13 @@ const Settings: React.FC = () => {
                   <IonSelectOption value="Malay">Bahasa Melayu</IonSelectOption>
                 </IonSelect>
               </IonItem>
-              <IonButton expand="full" onClick={handleSave} style={{ marginTop: '10px' }} shape='round'>
+              <IonButton expand="full" shape='round' color='tertiary' onClick={handleSave} style={{ marginTop: '10px' }}>
                 {t("Save")}
               </IonButton>
               <IonButton 
                 expand="full" 
                 onClick={handleLogout} 
-                color="danger" 
+                color="primary"
                 style={{ marginTop: '10px' }} 
                 shape='round'
               >

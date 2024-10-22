@@ -16,7 +16,6 @@ import {
 } from '@ionic/react';
 import { useHistory, useLocation } from 'react-router-dom';
 
-import './Register.css';
 import { doc, getDoc } from 'firebase/firestore';
 import { db } from './firebaseConfig';
 
@@ -105,7 +104,7 @@ const Register: React.FC = () => {
   return (
     <IonPage>
       <IonHeader style={{ height: '10vh' }}>
-        <IonToolbar color="danger" style={{ height: '10vh', lineHeight: '10vh' }}>
+        <IonToolbar color="primary" style={{ height: '10vh', lineHeight: '10vh' }}>
           <IonButtons slot="start">
             <IonBackButton defaultHref="/" />
           </IonButtons>
@@ -114,13 +113,14 @@ const Register: React.FC = () => {
       </IonHeader>
 
       <IonContent className="ion-padding">
+
         {errorMessage && (
-          <IonText color="danger">
+          <IonText>
             <b><p>{errorMessage}</p></b>
           </IonText>
         )}
 
-        <div className="welcomeText">
+        <div style={{ textAlign: 'center' }}>
           <h1>Sign up with your phone number by entering it below</h1>
         </div>
 
@@ -151,7 +151,7 @@ const Register: React.FC = () => {
 
           <IonRow style ={{paddingTop: '15px'}}>
             <IonCol>
-              <IonButton expand="block" fill="outline" shape="round" color="secondary" onClick={register1} style={{ fontSize: '28px', height: '50px' }}>
+              <IonButton expand="block" shape="round" color="primary" onClick={register1} style={{ fontSize: '28px', height: '50px' }}>
                 Register
               </IonButton>
             </IonCol>

@@ -18,14 +18,14 @@ import {
   IonLoading
 } from '@ionic/react';
 import { micOutline, chatbubbleEllipsesOutline, playOutline, closeOutline, calendarOutline, stopOutline } from 'ionicons/icons';
-import { doc, getDoc, increment, updateDoc } from 'firebase/firestore';
+import { doc, increment, updateDoc } from 'firebase/firestore';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { storage, db } from './firebaseConfig';
 import { useHistory } from 'react-router-dom';
 import { LiveAudioVisualizer } from 'react-audio-visualize';
 import Calendar from './Calendar';
-import i18n from './i18n';
 import { useTranslation } from 'react-i18next';
+import { fetchUserLanguage } from './GetLanguage';
 
 const MakeRequest: React.FC = () => {
   const { t } = useTranslation(); // Initialize useTranslation
@@ -217,37 +217,27 @@ const MakeRequest: React.FC = () => {
     }
   }, [selectedDate]);
 
-  useEffect(() => {
-    const fetchUserLanguage = async () => {
-      if (storedPhoneNumber) {
-        const userDoc = doc(db, 'users', storedPhoneNumber); // Reference to user document
-        const userSnapshot = await getDoc(userDoc); // Fetch user document
-        
-        if (userSnapshot.exists()) {
-          const userData = userSnapshot.data();
-          const language = userData.language || 'english'; // Default to 'en' if no language found
-          i18n.changeLanguage(language.toLowerCase()); // Set the language for i18next
-        }
-        
-        setLoading(false);
-      }
-    };
-
-    fetchUserLanguage();
-  }, [storedPhoneNumber, i18n]);
-
   useIonViewWillLeave(() => {
     console.log("test");
     localStorage.removeItem('selectedOption');
     console.log(localStorage.getItem('selectedOption'))
   });
 
+  useEffect(() => {
+    const loadUserLanguage = async () => {
+      const success = await fetchUserLanguage(db); // Call the function and await its result
+      setLoading(!success); // Set loading to true if fetching failed, false if successful
+    };
+
+    loadUserLanguage();
+  }, [db]);
+
   if (loading) return <p>{t("Loading...")}</p>;
 
   return (
     <IonPage>
       <IonHeader>
-        <IonToolbar color="danger">
+        <IonToolbar color="primary">
           <IonButtons slot="start">
             <IonBackButton defaultHref="/tabs/elderlyrequests"/>
           </IonButtons>
@@ -265,7 +255,7 @@ const MakeRequest: React.FC = () => {
 
       <IonModal isOpen={isModalOpen} onDidDismiss={() => setIsModalOpen(false)}>
         <IonHeader>
-          <IonToolbar color="danger">
+          <IonToolbar color="primary">
             <IonTitle>{t("Specify problem")}</IonTitle>
             <IonButtons slot="end" onClick={closerequestpart2}>
               <IonIcon icon={closeOutline} style={{ fontSize: '42px' }} />
@@ -274,7 +264,7 @@ const MakeRequest: React.FC = () => {
         </IonHeader>
 
         {errorMessage && (
-          <IonText color="danger" style={{ textAlign: 'center' }}>
+          <IonText color="primary" style={{ textAlign: 'center' }}>
             <b><p>{errorMessage}</p></b>
           </IonText>
         )}

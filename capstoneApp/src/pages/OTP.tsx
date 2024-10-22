@@ -13,8 +13,8 @@ import {
   IonText
 } from '@ionic/react';
 import { useHistory } from 'react-router-dom';
-import axios from 'axios'
-import OneWaySMS from './onewaysms'
+// import axios from 'axios'
+// import OneWaySMS from './onewaysms'
 
 const Login: React.FC = () => {
   const history = useHistory();
@@ -52,8 +52,6 @@ const Login: React.FC = () => {
   //   } catch (error) {
   //     console.error('Error sending OTP:', error);
   //   }
-  
-
     
   //   // sms.send(payload, handleResult);  
   //   // sms.status('2410160005134', handleResult);
@@ -143,7 +141,7 @@ const Login: React.FC = () => {
   return (
     <IonPage>
       <IonHeader style={{ height: '10vh' }}>
-        <IonToolbar color="danger" style={{ height: '10vh', lineHeight: '10vh' }}>
+        <IonToolbar color="primary" style={{ height: '10vh', lineHeight: '10vh' }}>
           <IonTitle>Verification</IonTitle>
         </IonToolbar>
       </IonHeader>
@@ -181,7 +179,7 @@ const Login: React.FC = () => {
           </IonRow>
 
           {errorMessage && (
-          <IonText color="danger">
+          <IonText>
             <b><p>{errorMessage}</p></b>
           </IonText>
           )}

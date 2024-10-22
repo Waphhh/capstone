@@ -27,10 +27,10 @@ import { add, closeOutline } from 'ionicons/icons';
 import { doc, getDoc, increment, updateDoc } from 'firebase/firestore';
 import { ref, getDownloadURL, deleteObject } from 'firebase/storage';
 import TabsToolbar from './TabsToolbar';
-import i18n from './i18n';
 import { useTranslation } from 'react-i18next';
 
 import './ElderlyRequests.css';
+import { fetchUserLanguage } from './GetLanguage';
 
 const ElderlyRequests: React.FC = () => {
   const { t } = useTranslation(); // Initialize useTranslation
@@ -275,36 +275,26 @@ const ElderlyRequests: React.FC = () => {
   }, [location]);
 
   useEffect(() => {
-    const fetchUserLanguage = async () => {
-      if (storedPhoneNumber) {
-        const userDoc = doc(db, 'users', storedPhoneNumber); // Reference to user document
-        const userSnapshot = await getDoc(userDoc); // Fetch user document
-        
-        if (userSnapshot.exists()) {
-          const userData = userSnapshot.data();
-          const language = userData.language || 'english'; // Default to 'en' if no language found
-          i18n.changeLanguage(language.toLowerCase()); // Set the language for i18next
-        }
-        
-        setLoading(false);
-      }
-    };
-
-    fetchUserLanguage();
-  }, [storedPhoneNumber, i18n]); 
-
-  useEffect(() => {
     if (selectedOption !== null) {
       handleConfirm();
     }
   }, [selectedOption]);
+
+  useEffect(() => {
+    const loadUserLanguage = async () => {
+      const success = await fetchUserLanguage(db); // Call the function and await its result
+      setLoading(!success); // Set loading to true if fetching failed, false if successful
+    };
+
+    loadUserLanguage();
+  }, [db]);
 
   if (loading) return <p>{t("Loading...")}</p>;
 
   return (
     <IonPage>
       <IonHeader>
-        <IonToolbar color="danger">
+        <IonToolbar color="primary">
           <IonTitle>{t("Requests")}</IonTitle>
         </IonToolbar>
       </IonHeader>
@@ -352,7 +342,7 @@ const ElderlyRequests: React.FC = () => {
                           <IonButton
                             expand="block"
                             fill="outline"
-                            color="danger"
+                            color="primary"
                             className="action-button"
                             onClick={() => {
                               setSelectedRequest(request.name);
@@ -379,7 +369,7 @@ const ElderlyRequests: React.FC = () => {
 
         <IonModal isOpen={isModalOpen} onDidDismiss={closeModal}>
           <IonHeader>
-            <IonToolbar color="danger">
+            <IonToolbar color="primary">
               <IonTitle>{t("History Items")}</IonTitle>
               <IonButtons slot="end" onClick={closeModal}>
                 <IonIcon icon={closeOutline} style={{ fontSize: '42px' }} />
@@ -442,7 +432,7 @@ const ElderlyRequests: React.FC = () => {
 
       <IonModal isOpen={isNewRequestModalOpen} onDidDismiss={closeNewRequestModal}>
         <IonHeader>
-          <IonToolbar color="danger">
+          <IonToolbar color="primary">
             <IonTitle>{t("New Request")}</IonTitle>
             <IonButtons slot="end" onClick={closeNewRequestModal}>
               <IonIcon icon={closeOutline} style={{ fontSize: '42px' }} />
