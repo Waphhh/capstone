@@ -115,6 +115,7 @@ const AccountSetup: React.FC = () => {
           <IonRow>
             <IonCol>
               <IonButton
+                style={{ fontSize: 'var(--global-font-size)', height: 'auto' }}  // Use CSS variable for font size
                 expand="block"
                 color={language === 'English' ? 'primary' : 'light'}
                 onClick={() => {
@@ -129,20 +130,7 @@ const AccountSetup: React.FC = () => {
           <IonRow>
             <IonCol>
               <IonButton
-                expand="block"
-                color={language === 'Chinese' ? 'primary' : 'light'}
-                onClick={() => {
-                  setLanguage('Chinese');
-                  i18n.changeLanguage("chinese");
-                }}
-              >
-                华语
-              </IonButton>
-            </IonCol>
-          </IonRow>
-          <IonRow>
-            <IonCol>
-              <IonButton
+                style={{ fontSize: 'var(--global-font-size)', height: 'auto' }}  // Use CSS variable for font size
                 expand="block"
                 color={language === 'Tamil' ? 'primary' : 'light'}
                 onClick={() => {
@@ -157,6 +145,7 @@ const AccountSetup: React.FC = () => {
           <IonRow>
             <IonCol>
               <IonButton
+                style={{ fontSize: 'var(--global-font-size)', height: 'auto' }}  // Use CSS variable for font size
                 expand="block"
                 color={language === 'Malay' ? 'primary' : 'light'}
                 onClick={() => {
@@ -170,9 +159,25 @@ const AccountSetup: React.FC = () => {
           </IonRow>
         </IonGrid>
 
-        {/* Postal Code and Flat No input fields */}
+        <IonRow>
+          <IonCol>
+            <IonButton
+              style={{ fontSize: 'var(--global-font-size)', height: 'auto' }}
+              expand="block"
+              color={language === 'Chinese' ? 'primary' : 'light'}
+              onClick={() => {
+                setLanguage('Chinese');
+                i18n.changeLanguage("chinese");
+              }}
+            >
+              华语
+            </IonButton>
+          </IonCol>
+        </IonRow>
+        {/* Add similar font size styling to other buttons, inputs, etc. */}
         <IonItem style={{ paddingRight: '16px' }}>
           <IonInput
+            style={{ fontSize: 'var(--global-font-size)' }}
             value={postalCode}
             onIonInput={e => setPostalCode(e.detail.value!)}
             placeholder={t("Enter your postal code")}
@@ -181,26 +186,27 @@ const AccountSetup: React.FC = () => {
 
         <IonItem style={{ paddingRight: '16px' }}>
           <IonInput
+            style={{ fontSize: 'var(--global-font-size)' }}
             value={flatNo}
             onIonInput={e => setFlatNo(e.detail.value!)}
             placeholder={t("Enter your unit number")}
           />
         </IonItem>
 
-        {/* T&C Checkbox and link */}
         <IonItem lines="none">
           <IonCheckbox
             slot="start"
             checked={acceptedTerms}
             onIonChange={e => setAcceptedTerms(e.detail.checked!)}
           />
-          <IonLabel style={{ display: 'inline', marginLeft: '0' }}>
+          <IonLabel style={{ display: 'inline', marginLeft: '0', fontSize: 'var(--global-font-size)' }}>
             {t("I accept the")}{' '}
             <a
               href="#"
+              style={{ fontSize: 'var(--global-font-size)' }}
               onClick={(e) => {
                 e.preventDefault();
-                setShowModal(true); // Show the modal when T&Cs link is clicked
+                setShowModal(true);
               }}
             >
               {t("Terms & Conditions")}

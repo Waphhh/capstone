@@ -1,6 +1,8 @@
 /* For information on how to create your own theme, please see:
 http://ionicframework.com/docs/theming/ */
 :root {
+  --global-font-size: 20px; /* Define a global font size variable */
+
   --ion-text-color: #050315;
   --ion-card-color: #050315;
   --ion-item-color: #050315;

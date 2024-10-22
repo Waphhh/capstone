@@ -141,32 +141,54 @@ const Settings: React.FC = () => {
           <IonRow>
             <IonCol>
               <IonItem style={{ paddingRight: '16px' }}>
-                <IonLabel position="floating" style={{ marginBottom: '15px' }}>{t("Phone Number")}</IonLabel>
+                <IonLabel 
+                  position="floating" 
+                  style={{ marginBottom: '15px', fontSize: 'var(--global-font-size)' }}  // Apply global font size
+                >
+                  {t("Phone Number")}
+                </IonLabel>
                 <IonInput
                   value={phoneNumber}
                   onIonInput={(e) => setPhoneNumber(e.detail.value!)}
+                  style={{ fontSize: 'var(--global-font-size)' }}  // Apply global font size to input
                 />
               </IonItem>
+
               <IonItem style={{ paddingRight: '16px' }}>
-                <IonLabel position="floating" style={{ marginBottom: '15px' }}>{t("Postal Code")}</IonLabel>
+                <IonLabel 
+                  position="floating" 
+                  style={{ marginBottom: '15px', fontSize: 'var(--global-font-size)' }}  // Apply global font size
+                >
+                  {t("Postal Code")}
+                </IonLabel>
                 <IonInput
                   value={postalCode}
                   onIonInput={(e) => setPostalCode(e.detail.value!)}
+                  style={{ fontSize: 'var(--global-font-size)' }}  // Apply global font size to input
                 />
               </IonItem>
+
               <IonItem style={{ paddingRight: '16px' }}>
-                <IonLabel position="floating" style={{ marginBottom: '15px' }}>{t("Unit Number")}</IonLabel>
+                <IonLabel 
+                  position="floating" 
+                  style={{ marginBottom: '15px', fontSize: 'var(--global-font-size)' }}  // Apply global font size
+                >
+                  {t("Unit Number")}
+                </IonLabel>
                 <IonInput
                   value={flatNo}
                   onIonInput={(e) => setFlatNo(e.detail.value!)}
+                  style={{ fontSize: 'var(--global-font-size)' }}  // Apply global font size to input
                 />
               </IonItem>
+
               <IonItem style={{ paddingRight: '16px' }}>
-                <IonLabel>{t("Language")}</IonLabel>
+                <IonLabel style={{ fontSize: 'var(--global-font-size)' }}>{t("Language")}</IonLabel>
                 <IonSelect
                   value={language}
                   placeholder="Select Language"
                   onIonChange={(e) => setLanguage(e.detail.value!)}
+                  style={{ fontSize: 'var(--global-font-size)' }}  // Apply global font size to select
                 >
                   <IonSelectOption value="English">English</IonSelectOption>
                   <IonSelectOption value="Chinese">华语</IonSelectOption>
@@ -174,14 +196,22 @@ const Settings: React.FC = () => {
                   <IonSelectOption value="Malay">Bahasa Melayu</IonSelectOption>
                 </IonSelect>
               </IonItem>
-              <IonButton expand="full" shape='round' color='tertiary' onClick={handleSave} style={{ marginTop: '10px' }}>
+
+              <IonButton 
+                expand="full" 
+                shape='round' 
+                color='tertiary' 
+                onClick={handleSave} 
+                style={{ marginTop: '10px' }}  // Apply global font size to button
+              >
                 {t("Save")}
               </IonButton>
+
               <IonButton 
                 expand="full" 
                 onClick={handleLogout} 
                 color="primary"
-                style={{ marginTop: '10px' }} 
+                style={{ marginTop: '10px' }}  // Apply global font size to button
                 shape='round'
               >
                 <IonIcon slot="start" icon={logOut} />
