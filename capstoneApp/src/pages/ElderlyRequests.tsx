@@ -20,7 +20,8 @@ import {
   IonModal,
   IonFab,
   IonFabButton,
-  IonLoading
+  IonLoading,
+  IonToast
 } from '@ionic/react';
 import { db, storage } from './firebaseConfig';
 import { add, closeOutline } from 'ionicons/icons';
@@ -31,6 +32,8 @@ import { useTranslation } from 'react-i18next';
 
 import './ElderlyRequests.css';
 import { fetchUserLanguage } from './GetLanguage';
+import Calendar from './Calendar';
+import ContentSeparator from './ContentSeparator';
 
 const ElderlyRequests: React.FC = () => {
   const { t } = useTranslation(); // Initialize useTranslation
@@ -40,13 +43,17 @@ const ElderlyRequests: React.FC = () => {
   const storedPhoneNumber = localStorage.getItem('phoneNumber');
 
   const [requests, setRequests] = useState<any[]>([]);
+  const [completedRequests, setCompletedRequests] = useState<any>({});
   const [showAlert, setShowAlert] = useState(false);
   const [selectedRequest, setSelectedRequest] = useState<string | null>(null);
   const [audioUrl, setAudioUrl] = useState<string | null>(null);
-  const [isModalOpen, setIsModalOpen] = useState(false);
   const [isNewRequestModalOpen, setIsNewRequestModalOpen] = useState(false);
   const [selectedOption, setSelectedOption] = useState<string | null>(null);
   const [cancelling, setCancelling] = useState(false);
+  const [remakeRequestDate, setRemakeRequestDate] = useState<string | null>(null);
+  const [showToast, setShowToast] = useState<boolean>(false);
+  const [isRemakeModalOpen, setIsRemakeModalOpen] = useState(false);
+  const [uploading, setupLoading] = useState(false);
 
   const history = useHistory();
   const location = useLocation();
@@ -69,14 +76,14 @@ const ElderlyRequests: React.FC = () => {
       closeNewRequestModal();
       history.push('/tabs/makerequest');
     }
-  };  
-
-  const closeModal = () => {
-    setIsModalOpen(false);
   };
 
   const closeNewRequestModal = () => {
     setIsNewRequestModalOpen(false);
+  };
+
+  const closeRemakeModal = () => {
+    setIsRemakeModalOpen(false);
   };
 
   const formatDate = (dateString: string) => {
@@ -101,55 +108,62 @@ const ElderlyRequests: React.FC = () => {
           const userRequests = userData.requests || {};
           const userRemarks = userData.remarks || {}; // Fetch the remarks field
   
-          // Fetch requests and filter out completed ones
-          const requestsArray = await Promise.all(
+          const ongoingRequestsArray: React.SetStateAction<any[]> = [];
+          const completedRequestsDict: { [isoDate: string]: any } = {}; // Dictionary for completed requests
+  
+          // Fetch requests and handle them based on their status
+          await Promise.all(
             Object.keys(userRequests).map(async (key) => {
               const requestData = userRequests[key];
-              console.log(key);
+              const remarksForRequest = userRemarks[key];
   
-              // Check if the request status is not completed
-              if (requestData !== 'Completed') {
+              if (requestData === 'Completed') {
+                // Add completed request to the dictionary with ISO date as key
+                completedRequestsDict[key] = {
+                  status: requestData,
+                  remarks: remarksForRequest // Add remarks to the completed request
+                };
+              } else {
                 const fileName = `recordings/${storedPhoneNumber}_${key}.wav`;
                 const audioRef = ref(storage, fileName);
-                
+  
                 try {
                   // Attempt to get the download URL, if it exists
                   const audioUrl = await getDownloadURL(audioRef);
-                  const remarksForRequest = userRemarks[key]
   
-                  return {
+                  // Add ongoing request with audio URL
+                  ongoingRequestsArray.push({
                     name: key,
                     status: requestData,
                     audioUrl, // Store the audio URL for playing
                     remarks: remarksForRequest // Add remarks to the request
-                  };
+                  });
                 } catch (error) {
                   if (error.code === 'storage/object-not-found') {
                     console.log(`No recording found for request: ${key}`);
-                    const remarksForRequest = userRemarks[key]
   
-                    // Return request without audioUrl if no recording is found
-                    return {
+                    // Add ongoing request without audio URL if no recording is found
+                    ongoingRequestsArray.push({
                       name: key,
                       status: requestData,
                       audioUrl: null, // No audio URL
                       remarks: remarksForRequest // Add remarks to the request
-                    };
+                    });
                   } else {
                     console.error('Error fetching audio URL:', error);
                   }
                 }
               }
-  
-              // Return null for completed requests
-              return null;
             })
           );
   
-          // Filter out null values from the array
-          const filteredRequests = requestsArray.filter(request => request !== null);
-          filteredRequests.sort((a, b) => new Date(a.name) - new Date(b.name));
-          setRequests(filteredRequests); // Set the requests array with audio URLs and remarks
+          // Sort the ongoing requests by date
+          ongoingRequestsArray.sort((a, b) => new Date(a.name) - new Date(b.name));
+          setRequests(ongoingRequestsArray); // Set the ongoing requests array
+  
+          // Set the completed requests dictionary without sorting
+          setCompletedRequests(completedRequestsDict); // Set the completed requests dictionary
+          console.log(completedRequestsDict);
         } else {
           console.log('No such document!');
         }
@@ -176,6 +190,7 @@ const ElderlyRequests: React.FC = () => {
             comment: history[key],
           }));
 
+          requestsArray.sort((a, b) => new Date(b.key) - new Date(a.key));
           setUserHistory(requestsArray);
         } else {
           console.log("No such document!");
@@ -186,6 +201,51 @@ const ElderlyRequests: React.FC = () => {
     } catch (error) {
       console.error('Error fetching ongoing requests:', error);
     }
+  };
+
+  const remakeRequest = async (pastRequest: string) => {
+    setRemakeRequestDate(pastRequest);
+    setIsRemakeModalOpen(true);
+  }
+
+  const handleCalendarClick = async (isoDate: string) => {
+    console.log('Calendar clicked for date:', isoDate);
+
+    console.log(completedRequests);
+
+    if (remakeRequestDate) {
+      console.log(completedRequests[remakeRequestDate]);
+      const finalRemarks = completedRequests[remakeRequestDate].remarks + ` (Remake request, past request date is ${remakeRequestDate})`;
+      console.log(finalRemarks);
+
+      if (storedPhoneNumber && isoDate) {
+
+        setupLoading(true);
+        try {
+          const docRef = doc(db, 'users', storedPhoneNumber);
+          await updateDoc(docRef, {
+            [`requests.${isoDate}`]: 'Pending',
+            [`remarks.${isoDate}`]: finalRemarks
+          });
+  
+          const dateRef = doc(db, 'dates', 'dates');
+          await updateDoc(dateRef, {
+            [`dates.${isoDate}`]: increment(1)
+          });
+  
+          setShowToast(true); // Show success message
+          closeRemakeModal();
+        } catch (error) {
+          console.error('Error saving date, remarks, or audio to Firestore:', error);
+        } finally {
+          setupLoading(false);
+        }
+      }
+
+    } else {
+      console.error("No past request selected.")
+    }
+    
   };
 
   const handleCancelRequest = async (requestName: string) => {
@@ -202,8 +262,6 @@ const ElderlyRequests: React.FC = () => {
   
         // Check if the request has a recording and get its details
         const requestDetails = updatedRequests[requestName];
-
-        console.log(requestName, "aaa");
   
         // If the request has a recording, delete the audio file
         if (requestDetails && requestDetails.audioUrl) {
@@ -273,6 +331,10 @@ const ElderlyRequests: React.FC = () => {
     fetchOngoingRequests();
     setSelectedOption("");
   }, [location]);
+
+  useEffect(() => {
+    fetchOngoingRequests();
+  }, [uploading]);
 
   useEffect(() => {
     if (selectedOption !== null) {
@@ -363,35 +425,48 @@ const ElderlyRequests: React.FC = () => {
           )}
         </IonGrid>
 
-        <IonButton expand="full" shape='round' onClick={() => setIsModalOpen(true)} style={{ margin: '10px' }}>
-          {t("Show History")}
-        </IonButton>
+        <ContentSeparator text={t("History")} />
 
-        <IonModal isOpen={isModalOpen} onDidDismiss={closeModal}>
+        <IonGrid>
+          {userHistory.length > 0 ? (
+            userHistory.map((item, index) => (
+              <IonCard key={index} style={{ backgroundColor: 'var(--accent-50)' }}>
+                <IonCardContent style={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+                  <div>
+                    <h4>{item.historyItem}</h4>
+                    <p>{formatComment(item.comment)}</p>
+                  </div>
+                  <div style={{ textAlign: 'right' }}>
+                    <IonButton shape='round' onClick={() => remakeRequest(item.historyItem)}>
+                      Re-request
+                    </IonButton>
+                  </div>
+                </IonCardContent>
+              </IonCard>
+            ))
+          ) : (
+            <p>{t("No history items found.")}</p>
+          )}
+        </IonGrid>
+
+        <IonModal isOpen={isRemakeModalOpen} onDidDismiss={closeRemakeModal}>
           <IonHeader>
             <IonToolbar color="primary">
-              <IonTitle>{t("History Items")}</IonTitle>
-              <IonButtons slot="end" onClick={closeModal}>
+              <IonTitle>{t("Remake previous request")}</IonTitle>
+              <IonButtons slot="end" onClick={closeRemakeModal}>
                 <IonIcon icon={closeOutline} style={{ fontSize: '42px' }} />
               </IonButtons>
             </IonToolbar>
           </IonHeader>
-          <IonContent>
-            <IonGrid>
-              {userHistory.length > 0 ? (
-                userHistory.map((item, index) => (
-                  <IonCard key={index}>
-                    <IonCardContent>
-                      <h4>{item.historyItem}</h4>
-                      <p>{formatComment(item.comment)}</p>
-                    </IonCardContent>
-                  </IonCard>
-                ))
-              ) : (
-                <p>{t("No history items found.")}</p>
-              )}
-            </IonGrid>
+
+          <IonContent style={{ textAlign: 'center' }}>
+
+          <h3>{t("Choose a time when you are free.")}</h3>
+
+          <Calendar handleCalendarClick={handleCalendarClick}/>
+
           </IonContent>
+
         </IonModal>
 
         <IonFab vertical="bottom" horizontal="center" slot="fixed">
@@ -485,6 +560,15 @@ const ElderlyRequests: React.FC = () => {
       </IonModal>
 
       <IonLoading isOpen={cancelling} message={t("Cancelling request...")} />
+
+      <IonToast
+        isOpen={showToast}
+        message={t("Request submitted successfully!")}
+        duration={2000}
+        onDidDismiss={() => setShowToast(false)}
+      />
+
+      <IonLoading isOpen={uploading} message={t("Request uploading...")} />
 
       <TabsToolbar />
 

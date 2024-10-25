@@ -2,7 +2,6 @@
 .request-card {
   display: flex;
   padding: 0;
-  margin: 20px;
   border-radius: 10px;
   background-color: var(--accent-50);
 }
@@ -33,7 +32,7 @@
 
 /* Right info section */
 .info-section {
-  padding: 10px;
+  padding: 2px;
 }
 
 .info-section h3, h4 {
