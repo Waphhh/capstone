@@ -8,7 +8,6 @@ import { IonReactRouter } from '@ionic/react-router';
 import Login from './pages/Login';
 import Home from './pages/Home';
 import Settings from './pages/Settings';
-import Register from './pages/Register';
 import AccoundSetup from './pages/AccoundSetup';
 import Library from './pages/Library';
 import ElderlyRequests from './pages/ElderlyRequests';
@@ -56,7 +55,6 @@ const App: React.FC = () => (
       <IonRouterOutlet>
         <Route path="/login" component={Login} exact={true}/>
         <Route path="/otp" component={OTP} exact={true}/>
-        <Route path="/tabs/register" component={Register} exact={true}/>
         <Route path="/tabs/accountsetup" component={AccoundSetup} exact={true}/>
         <Route path="/tabs/home" component={Home} exact={true}/>
         <Route path="/tabs/library" component={Library} exact={true}/>

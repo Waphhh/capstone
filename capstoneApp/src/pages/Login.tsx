@@ -82,7 +82,8 @@ const Login: React.FC = () => {
         history.push('/otp');
       } else {
         // Phone number does not exist, set error message
-        setErrorMessage('Phone number not registered, please create an account.');
+        localStorage.setItem('phoneNumberToRegister', phoneNumberStr);
+        history.push('/otp');
       }
     } catch (error) {
       console.error("Error checking phone number:", error);
@@ -90,14 +91,9 @@ const Login: React.FC = () => {
     }  
   };
 
-  const handleRegister = () => {
-    console.log('Register button clicked');
-    history.push('/tabs/register');
-    // Add your register logic here
-  };
-
   useEffect(() => {
     // Clear the OTP fields when the page is loaded
+    localStorage.clear();
     setPhoneNumber(new Array(8).fill(''));
   }, [location]);
 
@@ -154,17 +150,9 @@ const Login: React.FC = () => {
               </IonButton>
             </IonCol>
           </IonRow>
-          <IonRow>
-            <IonCol style={{ textAlign: 'center' }}>
-              <IonText style={{ fontSize: '23px' }}>
-                Don't have an account?{' '}
-                <span style={{ color: '#3880ff', cursor: 'pointer' }} onClick={handleRegister}>
-                  Sign up
-                </span>
-              </IonText>
-            </IonCol>
-          </IonRow>
+
         </IonGrid>
+
       </IonContent>
     </IonPage>
   );

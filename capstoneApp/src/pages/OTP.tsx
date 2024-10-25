@@ -10,16 +10,18 @@ import {
   IonGrid,
   IonRow,
   IonCol,
-  IonText
+  IonText,
+  IonAlert,  // Import IonAlert for the OTP pop-up
 } from '@ionic/react';
-import { useHistory } from 'react-router-dom';
-// import axios from 'axios'
-// import OneWaySMS from './onewaysms'
+import { useHistory, useLocation } from 'react-router-dom';
 
 const Login: React.FC = () => {
   const history = useHistory();
+  const location = useLocation();
+
   const [errorMessage, setErrorMessage] = useState<string>('');
   const [temppin, setTemppin] = useState<string>('');
+  const [showOTPAlert, setShowOTPAlert] = useState<boolean>(false);  // State to show the alert
 
   // State to hold the values of each phone number digit
   const [OTPString, setOTPString] = useState<string[]>(new Array(4).fill(''));
@@ -31,33 +33,6 @@ const Login: React.FC = () => {
     const randomNum = Math.random() * 9000;
     return (1000 + Math.floor(randomNum)).toString();
   };
-
-  // const sendOTP = async () => {
-
-  //   console.log("OTP button pressed");
-
-  //   try {
-  //     const phoneNumber = '6586294102'; // Use actual phone number
-  //     const message = 'Your OTP code is 1234';
-  
-  //     // Make a request to the proxy server
-  //     const response = await axios.get('http://localhost:3001/send-sms', {
-  //       params: {
-  //         to: phoneNumber,
-  //         message: message
-  //       }
-  //     });
-  
-  //     console.log(response.data);
-  //   } catch (error) {
-  //     console.error('Error sending OTP:', error);
-  //   }
-    
-  //   // sms.send(payload, handleResult);  
-  //   // sms.status('2410160005134', handleResult);
-  //   // sms.balance(handleResult);
-
-  // };
 
   const handleInputChange = (index: number, event: CustomEvent) => {
     const value = event.detail.value;
@@ -79,17 +54,12 @@ const Login: React.FC = () => {
     if (event.key === 'Backspace') {
       event.preventDefault(); // Prevent default backspace behavior
 
-      // Handle clearing the current input box
       const updatedOTP = [...OTPString];
       if (OTPString[index] !== '') {
-        // Clear the current input if it's not already empty
         updatedOTP[index] = '';
         setOTPString(updatedOTP);
       } else if (index > 0) {
-        // If the current input is already empty, move back to the previous input
         inputRefs.current[index - 1]?.setFocus();
-
-        // Clear the previous input
         updatedOTP[index - 1] = '';
         setOTPString(updatedOTP);
       }
@@ -97,19 +67,18 @@ const Login: React.FC = () => {
   };
 
   const handleVerification = async () => {
-    if (OTPString.join('').length != 4) {
+    if (OTPString.join('').length !== 4) {
       setErrorMessage('The OTP code is 4 digits long');
       return;
     }
 
-    const OTPstr = OTPString.join('')
+    const OTPstr = OTPString.join('');
 
     if (OTPstr !== temppin) {
       setErrorMessage('The OTP pin entered is invalid');
       return;
     } else {
       const phoneNumber = localStorage.getItem('phoneNumberToLogin');
-      console.log(phoneNumber);
       if (phoneNumber) {
         history.push('/tabs/home');
         localStorage.removeItem('phoneNumberToLogin');
@@ -128,15 +97,16 @@ const Login: React.FC = () => {
   }, [temppin]);
 
   useEffect(() => {
-    // Clear the OTP fields when the page is loaded
-    setOTPString(new Array(4).fill(''));
 
-    // Focus the first input field when the page is loaded
-    inputRefs.current[0]?.setFocus();
+    if (location.pathname === "/otp") {
+      setOTPString(new Array(4).fill(''));
+      inputRefs.current[0]?.setFocus();
+      const token = generateToken();
+      setTemppin(token);
+      setShowOTPAlert(true);  // Show OTP alert when page loads
+    }
 
-    setTemppin(generateToken);
-
-  }, []);
+  }, [location]);
 
   return (
     <IonPage>
@@ -192,6 +162,15 @@ const Login: React.FC = () => {
             </IonCol>
           </IonRow>
         </IonGrid>
+
+        {/* OTP Pop-up Alert */}
+        <IonAlert
+          isOpen={showOTPAlert}
+          onDidDismiss={() => setShowOTPAlert(false)}
+          header={'Your OTP Code'}
+          message={`The OTP code is: ${temppin}`}
+          buttons={['OK']}
+        />
 
       </IonContent>
     </IonPage>
