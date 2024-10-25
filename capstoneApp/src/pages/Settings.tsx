@@ -112,7 +112,7 @@ const Settings: React.FC = () => {
 
   const handleLogout = () => {
     // Clear phone number and details
-    localStorage.removeItem('phoneNumber');
+    localStorage.clear();
     // Add any other data cleanup as needed
     history.push('/');
   };
