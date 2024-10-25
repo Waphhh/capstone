@@ -8,7 +8,7 @@ import TabsToolbar from './TabsToolbar';
 import { fetchUserLanguage } from './GetLanguage';
 import Notifications from './Notifications';
 import { useHistory } from 'react-router-dom';
-import { peopleOutline, settingsOutline, libraryOutline } from 'ionicons/icons';
+import { peopleOutline, settingsOutline, bookOutline } from 'ionicons/icons';
 
 import 'swiper/css';
 import 'swiper/css/pagination';
@@ -84,7 +84,7 @@ const Home: React.FC = () => {
 
           <div className="custom-tab" onClick={() => navigateTo('/tabs/library')}>
             <div className="icon-circle">
-              <IonIcon icon={libraryOutline} />
+              <IonIcon icon={bookOutline} />
             </div>
             <IonLabel>{t("Library")}</IonLabel>
           </div>
