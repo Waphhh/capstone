@@ -51,14 +51,11 @@ const Requests: React.FC = () => {
             if (rowNumber === 1) return; // Skip header
 
             const phoneNumber = row.getCell(1).value?.toString();
-            const cellValue = row.getCell(6).value;
-            const recordingUrl = typeof cellValue === 'object' && 'hyperlink' in cellValue ? cellValue.hyperlink : null;
-            const requestStatus = row.getCell(7).value?.toString();
-            const comments = row.getCell(9).value?.toString();
+            const requestDate = row.getCell(6).value?.toString();
+            const requestStatus = row.getCell(8).value?.toString();
+            const comments = row.getCell(10).value?.toString();
 
-            if (phoneNumber && recordingUrl && requestStatus) {
-                const recordingFilename = recordingUrl.split('/').pop();
-                const requestDate = extractRequestDateFromFilename(recordingFilename!);
+            if (phoneNumber && requestDate && requestStatus) {
 
                 if (requestDate) {
                     const userRef = doc(db, 'users', phoneNumber);
@@ -89,6 +86,7 @@ const Requests: React.FC = () => {
             { header: 'Unit No', key: 'flatNo', width: 20 },
             { header: 'Language', key: 'language', width: 20 },
             { header: 'Request Date', key: 'requestDate', width: 25, style: { numFmt: 'mmmm d, yyyy hh:mm:ss' } },
+            { header: 'ISO Date', key: 'isoDate', width: 25 },
             { header: 'Recording URL', key: 'recordingUrl', width: 50 },
             { header: 'Request Status', key: 'requestStatus', width: 25, style: { alignment: { wrapText: true } } },
             { header: 'Remarks', key: 'remarks', width: 25, style: { alignment: { wrapText: true } } },
@@ -105,8 +103,9 @@ const Requests: React.FC = () => {
                 flatNo: item.flatNo,
                 language: item.language,
                 requestDate: item.requestDate,
+                isoDate: item.isoDate,
                 requestStatus: item.requestStatus,
-                recordingUrl: {
+                recordingUrl: item.recordingUrl === 'N.A.' ? 'N.A.' : {
                     text: 'Recording Link',
                     hyperlink: item.recordingUrl
                 },
@@ -114,11 +113,13 @@ const Requests: React.FC = () => {
                 comments: item.comments
             });
     
-            const hyperlinkCell = row.getCell('recordingUrl');
-            hyperlinkCell.font = {
-                color: { argb: 'FF8542FF' },
-                underline: true,
-            };
+            if (item.recordingUrl !== 'N.A.') {
+                const hyperlinkCell = row.getCell('recordingUrl');
+                hyperlinkCell.font = {
+                    color: { argb: 'FF8542FF' },
+                    underline: true,
+                };
+            }
     
             // Ensure that remarks are wrapped in the cell
             const remarksCell = row.getCell('remarks');
@@ -145,7 +146,7 @@ const Requests: React.FC = () => {
             link.click();
             document.body.removeChild(link);
         });
-    };    
+    };       
 
     const getRequests = async () => {
         if (user) {
@@ -153,22 +154,27 @@ const Requests: React.FC = () => {
             try {
                 const usersCollectionRef = collection(db, 'users');
                 const querySnapshot = await getDocs(usersCollectionRef);
-
+    
                 const usersData: any[] = [];
                 const storageBaseUrl = 'recordings/';
-
+    
                 for (const doc of querySnapshot.docs) {
                     const data = doc.data();
                     const { phoneNumber = '', postalCode = '', flatNo = '', language = '', requests = {}, remarks = {}, history = {} } = data;
-
+    
                     for (const [requestDate, requestStatus] of Object.entries(requests)) {
                         const formattedDate = new Date(requestDate);
                         formattedDate.setHours(formattedDate.getHours() + 8);
                         const recordingFileName = `${phoneNumber}_${requestDate}.wav`;
-
-                        const recordingRef = ref(storage, `${storageBaseUrl}${recordingFileName}`);
-                        const recordingUrl = await getDownloadURL(recordingRef);
-
+    
+                        let recordingUrl = 'N.A.'; // Default to 'N.A.'
+                        try {
+                            const recordingRef = ref(storage, `${storageBaseUrl}${recordingFileName}`);
+                            recordingUrl = await getDownloadURL(recordingRef);
+                        } catch (error) {
+                            console.warn(`Recording not found for ${recordingFileName}, setting URL to 'N.A.'`);
+                        }
+    
                         usersData.push({
                             id: doc.id,
                             phoneNumber,
@@ -176,6 +182,7 @@ const Requests: React.FC = () => {
                             flatNo,
                             language,
                             requestDate: formattedDate,
+                            isoDate: requestDate,
                             requestStatus,
                             recordingUrl,
                             remarks: remarks[requestDate],
@@ -183,7 +190,7 @@ const Requests: React.FC = () => {
                         });
                     }
                 }
-
+    
                 usersData.sort((a, b) => a.requestDate.getTime() - b.requestDate.getTime());
                 console.log(usersData);
                 downloadXLS(usersData);
@@ -196,6 +203,7 @@ const Requests: React.FC = () => {
             setShowError(true);
         }
     };
+    
 
     return (
         <IonPage>
