@@ -177,6 +177,7 @@ const AccountSetup: React.FC = () => {
         </IonGrid>
 
         <IonInput
+          mode="md"
           fill="outline"  // Set fill as outline
           label={t("Postal Code")}  // Add label directly to IonInput
           labelPlacement="floating"  // Use floating label
@@ -187,6 +188,7 @@ const AccountSetup: React.FC = () => {
         />
 
         <IonInput
+          mode="md"
           fill="outline"  // Set fill as outline
           label={t("Unit Number")}  // Add label directly to IonInput
           labelPlacement="floating"  // Use floating label

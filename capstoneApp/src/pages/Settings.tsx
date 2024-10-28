@@ -141,6 +141,7 @@ const Settings: React.FC = () => {
           <IonRow>
             <IonCol>
               <IonInput
+                mode="md"
                 fill="outline"  // Set fill as outline
                 label={t("Phone Number")}  // Add label directly to IonInput
                 labelPlacement="floating"  // Use floating label
@@ -150,6 +151,7 @@ const Settings: React.FC = () => {
               />
 
               <IonInput
+                mode="md"
                 fill="outline"  // Set fill as outline
                 label={t("Postal Code")}  // Add label directly to IonInput
                 labelPlacement="floating"  // Use floating label
@@ -159,6 +161,7 @@ const Settings: React.FC = () => {
               />
 
               <IonInput
+                mode="md"
                 fill="outline"  // Set fill as outline
                 label={t("Unit Number")}  // Add label directly to IonInput
                 labelPlacement="floating"  // Use floating label
