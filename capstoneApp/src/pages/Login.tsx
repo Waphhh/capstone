@@ -19,7 +19,6 @@ import { doc, getDoc } from 'firebase/firestore';
 
 const Login: React.FC = () => {
   const location = useLocation();
-
   const history = useHistory();
   const [errorMessage, setErrorMessage] = useState<string>('');
 
@@ -28,6 +27,17 @@ const Login: React.FC = () => {
 
   // Create refs for each input box
   const inputRefs = useRef<(HTMLIonInputElement | null)[]>(new Array(8).fill(null));
+
+  // State for language toggle
+  const [languageIndex, setLanguageIndex] = useState<number>(0);
+  
+  // Translations for the header message
+  const translations = [
+    'Sign in with your phone number by entering it below', // English
+    '通过输入您的电话号码进行登录', // Chinese
+    'Masuk dengan nombor telefon anda dengan memasukkannya di bawah', // Malay
+    'உங்கள் தொலைபேசி எண்ணை கீழே உள்ளீடு செய்து உள்நுழையவும்' // Tamil
+  ];
 
   const handleInputChange = (index: number, event: CustomEvent) => {
     const value = event.detail.value;
@@ -67,12 +77,12 @@ const Login: React.FC = () => {
   };
 
   const handleLogin = async () => {
-    if (phoneNumber.join('').length != 8) {
+    if (phoneNumber.join('').length !== 8) {
       setErrorMessage('A phone number requires 8 digits');
       return;
     }
 
-    const phoneNumberStr = phoneNumber.join('')
+    const phoneNumberStr = phoneNumber.join('');
 
     try {
       const userDocRef = doc(db, 'users', phoneNumberStr); // Reference to the document with the phone number
@@ -100,6 +110,15 @@ const Login: React.FC = () => {
     setPhoneNumber(new Array(8).fill(''));
   }, [location]);
 
+  // Interval to change language every 5 seconds
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setLanguageIndex((prevIndex) => (prevIndex + 1) % translations.length);
+    }, 5000); // Change language every 5 seconds
+
+    return () => clearInterval(interval); // Clear the interval on component unmount
+  }, []);
+
   return (
     <IonPage>
       <IonHeader style={{ height: '10vh' }}>
@@ -111,7 +130,7 @@ const Login: React.FC = () => {
       <IonContent className="ion-padding">
 
         <div style={{ textAlign: 'center' }}>
-          <h1>Sign in with your phone number by entering it below</h1>
+          <h1>{translations[languageIndex]}</h1>
         </div>
 
         <IonGrid>
