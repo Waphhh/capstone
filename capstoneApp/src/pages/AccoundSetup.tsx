@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';  // Import useRef
 import { IonPage, IonHeader, IonToolbar, IonTitle, IonContent, IonButton, IonItem, IonLabel, IonInput, IonGrid, IonRow, IonCol, IonBackButton, IonButtons, IonText, IonCheckbox, IonModal, IonIcon } from '@ionic/react';
 import { useHistory } from 'react-router-dom';
 import { doc, setDoc } from 'firebase/firestore';
@@ -8,65 +8,56 @@ import { useTranslation } from 'react-i18next';
 import i18n from './i18n';
 
 const AccountSetup: React.FC = () => {
-  const { t } = useTranslation(); // Initialize useTranslation
-
+  const { t } = useTranslation();
   const history = useHistory();
+  const contentRef = useRef<HTMLIonContentElement>(null);  // Create a ref for IonContent
 
-  // State to store selected language, postal code, flat/unit number, and T&C checkbox
   const [language, setLanguage] = useState<string | null>(null);
   const [postalCode, setPostalCode] = useState<string>('');
   const [flatNo, setFlatNo] = useState<string>('');
-  const [acceptedTerms, setAcceptedTerms] = useState<boolean>(false);  // New state for T&C acceptance
-  const [showModal, setShowModal] = useState<boolean>(false);  // State to control the modal visibility
+  const [acceptedTerms, setAcceptedTerms] = useState<boolean>(false);
+  const [showModal, setShowModal] = useState<boolean>(false);
   const storedPhoneNumber = localStorage.getItem('phoneNumber');
-
-  // Error state for form validation and Firebase errors
   const [errorMessage, setErrorMessage] = useState<string>('');
 
-  function containsOnlyDigits(str) {
+  function containsOnlyDigits(str: string) {
     return /^\d+$/.test(str);
   }
 
   const handleContinue = async () => {
-
     const flatparts = flatNo.trim().split("-");
     if (flatparts.length !== 2) {
-      setErrorMessage('Please enter your unit number in the format XX-XX.');
+      setErrorMessage(t('Please enter your unit number in the format XX-XX.'));
       return;
     }
 
-    // Validate form fields
     if (!language) {
-      setErrorMessage('Please select a language.');
+      setErrorMessage(t('Please select a language.'));
       return;
     }
     if (!postalCode.trim()) {
-      setErrorMessage('Please enter your postal code.');
+      setErrorMessage(t('Please enter your postal code.'));
       return;
     }
     if (!(containsOnlyDigits(postalCode))) {
-      setErrorMessage('A postal code can only contain digits');
+      setErrorMessage(t('A postal code can only contain digits'));
       return;
     }
     if (postalCode.length !== 6) {
-      setErrorMessage('A postal code is 6 digits long');
+      setErrorMessage(t('A postal code is 6 digits long'));
       return;
     }
     if (!flatNo.trim()) {
-      setErrorMessage('Please enter your unit number.');
+      setErrorMessage(t('Please enter your unit number.'));
       return;
     }
-    if (!acceptedTerms) {  // Check if the user has accepted the T&Cs
-      setErrorMessage('Please accept the Terms & Conditions.');
+    if (!acceptedTerms) {
+      setErrorMessage(t('Please accept the Terms & Conditions.'));
       return;
     }
 
-    // Clear any error messages
     setErrorMessage('');
 
-    // console.log(storedPhoneNumber, language, postalCode, flatNo);
-
-    // Upload user data to Firestore
     try {
       await setDoc(doc(db, "users", storedPhoneNumber), {
         phoneNumber: storedPhoneNumber,
@@ -79,11 +70,8 @@ const AccountSetup: React.FC = () => {
         favorites: [],
       });
       console.log('User data uploaded successfully');
-      
-      // Proceed to the home page if successful
       history.push('/tabs/home');
     } catch (error) {
-      // If an error occurs, display an error message and do not navigate to the home page
       setErrorMessage('Failed to register. Please try again.');
       console.error('Error uploading user data:', error);
     }
@@ -92,6 +80,13 @@ const AccountSetup: React.FC = () => {
   const closeTC = () => {
     setShowModal(false);
   }
+
+  // Effect to scroll to top when an error message is set
+  useEffect(() => {
+    if (errorMessage) {
+      contentRef.current?.scrollToTop(300);  // Scroll to top with a duration of 300ms
+    }
+  }, [errorMessage]);
 
   return (
     <IonPage>
@@ -103,10 +98,10 @@ const AccountSetup: React.FC = () => {
           <IonTitle>Setup</IonTitle>
         </IonToolbar>
       </IonHeader>
-      <IonContent className="ion-padding">
+
+      <IonContent ref={contentRef} className="ion-padding">
         <h2>Please choose a language</h2>
 
-        {/* Display error message if any */}
         {errorMessage && (
           <IonText color="primary">
             <b><p>{errorMessage}</p></b>
@@ -178,24 +173,24 @@ const AccountSetup: React.FC = () => {
 
         <IonInput
           mode="md"
-          fill="outline"  // Set fill as outline
-          label={t("Postal Code")}  // Add label directly to IonInput
-          labelPlacement="floating"  // Use floating label
+          fill="outline"
+          label={t("Postal Code")}
+          labelPlacement="floating"
           value={postalCode}
           onIonInput={(e) => setPostalCode(e.detail.value!)}
           placeholder={t("Enter your postal code")}
-          style={{ fontSize: 'var(--global-font-size)', marginBottom: '15px' }}  // Apply global font size
+          style={{ fontSize: 'var(--global-font-size)', marginBottom: '15px' }}
         />
 
         <IonInput
           mode="md"
-          fill="outline"  // Set fill as outline
-          label={t("Unit Number")}  // Add label directly to IonInput
-          labelPlacement="floating"  // Use floating label
+          fill="outline"
+          label={t("Unit Number")}
+          labelPlacement="floating"
           value={flatNo}
           onIonInput={(e) => setFlatNo(e.detail.value!)}
           placeholder={t("Enter your unit number")}
-          style={{ fontSize: 'var(--global-font-size)', marginBottom: '15px' }}  // Apply global font size
+          style={{ fontSize: 'var(--global-font-size)', marginBottom: '15px' }}
         />
 
         <IonItem lines="none">
@@ -219,12 +214,10 @@ const AccountSetup: React.FC = () => {
           </IonLabel>
         </IonItem>
 
-        {/* Continue button */}
         <IonButton expand="block" onClick={handleContinue}>
           {t("Continue")}
         </IonButton>
 
-        {/* Modal for Terms & Conditions */}
         <IonModal isOpen={showModal} onDidDismiss={() => setShowModal(false)}>
           <IonHeader>
             <IonToolbar color="primary">
@@ -235,7 +228,6 @@ const AccountSetup: React.FC = () => {
             </IonToolbar>
           </IonHeader>
           <IonContent>
-            {/* Embed T&Cs content from the external link */}
             <iframe
               src="/T&C.html"
               title="Terms & Conditions"
