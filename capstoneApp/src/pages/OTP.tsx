@@ -11,7 +11,9 @@ import {
   IonRow,
   IonCol,
   IonText,
-  IonAlert,  // Import IonAlert for the OTP pop-up
+  IonAlert,
+  IonBackButton,
+  IonButtons,  // Import IonAlert for the OTP pop-up
 } from '@ionic/react';
 import { useHistory, useLocation } from 'react-router-dom';
 
@@ -113,6 +115,9 @@ const Login: React.FC = () => {
       <IonHeader style={{ height: '10vh' }}>
         <IonToolbar color="primary" style={{ height: '10vh', lineHeight: '10vh' }}>
           <IonTitle>Verification</IonTitle>
+          <IonButtons slot="start">
+            <IonBackButton defaultHref="/"/>
+          </IonButtons>
         </IonToolbar>
       </IonHeader>
 

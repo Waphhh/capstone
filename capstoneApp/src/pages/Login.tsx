@@ -10,7 +10,8 @@ import {
   IonGrid,
   IonRow,
   IonCol,
-  IonText
+  IonText,
+  useIonViewWillEnter
 } from '@ionic/react';
 import { useHistory, useLocation } from 'react-router-dom';
 import { db } from './firebaseConfig';
@@ -91,9 +92,9 @@ const Login: React.FC = () => {
     }  
   };
 
-  useEffect(() => {
-    console.log("login useEffect");
-  }, []);
+  useIonViewWillEnter(() => {
+    localStorage.clear();
+  });
 
   useEffect(() => {
     setPhoneNumber(new Array(8).fill(''));
