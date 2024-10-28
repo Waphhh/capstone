@@ -64,6 +64,8 @@ const AccountSetup: React.FC = () => {
     // Clear any error messages
     setErrorMessage('');
 
+    // console.log(storedPhoneNumber, language, postalCode, flatNo);
+
     // Upload user data to Firestore
     try {
       await setDoc(doc(db, "users", storedPhoneNumber), {
@@ -96,7 +98,7 @@ const AccountSetup: React.FC = () => {
       <IonHeader style={{ height: '10vh' }}>
         <IonToolbar color='primary' style={{ height: '10vh', lineHeight: '10vh' }}>
           <IonButtons slot="start">
-            <IonBackButton defaultHref="/tabs/register" />
+            <IonBackButton defaultHref="/login" />
           </IonButtons>
           <IonTitle>Setup</IonTitle>
         </IonToolbar>
@@ -124,6 +126,21 @@ const AccountSetup: React.FC = () => {
                 }}
               >
                 English
+              </IonButton>
+            </IonCol>
+          </IonRow>
+          <IonRow>
+            <IonCol>
+              <IonButton
+                style={{ fontSize: 'var(--global-font-size)', height: 'auto' }}
+                expand="block"
+                color={language === 'Chinese' ? 'primary' : 'light'}
+                onClick={() => {
+                  setLanguage('Chinese');
+                  i18n.changeLanguage("chinese");
+                }}
+              >
+                华语
               </IonButton>
             </IonCol>
           </IonRow>
@@ -159,39 +176,25 @@ const AccountSetup: React.FC = () => {
           </IonRow>
         </IonGrid>
 
-        <IonRow>
-          <IonCol>
-            <IonButton
-              style={{ fontSize: 'var(--global-font-size)', height: 'auto' }}
-              expand="block"
-              color={language === 'Chinese' ? 'primary' : 'light'}
-              onClick={() => {
-                setLanguage('Chinese');
-                i18n.changeLanguage("chinese");
-              }}
-            >
-              华语
-            </IonButton>
-          </IonCol>
-        </IonRow>
-        {/* Add similar font size styling to other buttons, inputs, etc. */}
-        <IonItem style={{ paddingRight: '16px' }}>
-          <IonInput
-            style={{ fontSize: 'var(--global-font-size)' }}
-            value={postalCode}
-            onIonInput={e => setPostalCode(e.detail.value!)}
-            placeholder={t("Enter your postal code")}
-          />
-        </IonItem>
+        <IonInput
+          fill="outline"  // Set fill as outline
+          label={t("Postal Code")}  // Add label directly to IonInput
+          labelPlacement="floating"  // Use floating label
+          value={postalCode}
+          onIonInput={(e) => setPostalCode(e.detail.value!)}
+          placeholder={t("Enter your postal code")}
+          style={{ fontSize: 'var(--global-font-size)', marginBottom: '15px' }}  // Apply global font size
+        />
 
-        <IonItem style={{ paddingRight: '16px' }}>
-          <IonInput
-            style={{ fontSize: 'var(--global-font-size)' }}
-            value={flatNo}
-            onIonInput={e => setFlatNo(e.detail.value!)}
-            placeholder={t("Enter your unit number")}
-          />
-        </IonItem>
+        <IonInput
+          fill="outline"  // Set fill as outline
+          label={t("Unit Number")}  // Add label directly to IonInput
+          labelPlacement="floating"  // Use floating label
+          value={flatNo}
+          onIonInput={(e) => setFlatNo(e.detail.value!)}
+          placeholder={t("Enter your unit number")}
+          style={{ fontSize: 'var(--global-font-size)', marginBottom: '15px' }}  // Apply global font size
+        />
 
         <IonItem lines="none">
           <IonCheckbox

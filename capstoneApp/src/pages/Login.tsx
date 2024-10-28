@@ -92,8 +92,10 @@ const Login: React.FC = () => {
   };
 
   useEffect(() => {
-    // Clear the OTP fields when the page is loaded
-    localStorage.clear();
+    console.log("login useEffect");
+  }, []);
+
+  useEffect(() => {
     setPhoneNumber(new Array(8).fill(''));
   }, [location]);
 

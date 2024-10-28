@@ -140,47 +140,32 @@ const Settings: React.FC = () => {
         <IonGrid>
           <IonRow>
             <IonCol>
-              <IonItem style={{ paddingRight: '16px' }}>
-                <IonLabel 
-                  position="floating" 
-                  style={{ marginBottom: '15px', fontSize: 'var(--global-font-size)' }}  // Apply global font size
-                >
-                  {t("Phone Number")}
-                </IonLabel>
-                <IonInput
-                  value={phoneNumber}
-                  onIonInput={(e) => setPhoneNumber(e.detail.value!)}
-                  style={{ fontSize: 'var(--global-font-size)' }}  // Apply global font size to input
-                />
-              </IonItem>
+              <IonInput
+                fill="outline"  // Set fill as outline
+                label={t("Phone Number")}  // Add label directly to IonInput
+                labelPlacement="floating"  // Use floating label
+                value={phoneNumber}
+                onIonInput={(e) => setPhoneNumber(e.detail.value!)}
+                style={{ fontSize: 'var(--global-font-size)', marginBottom: '15px' }}  // Apply global font size
+              />
 
-              <IonItem style={{ paddingRight: '16px' }}>
-                <IonLabel 
-                  position="floating" 
-                  style={{ marginBottom: '15px', fontSize: 'var(--global-font-size)' }}  // Apply global font size
-                >
-                  {t("Postal Code")}
-                </IonLabel>
-                <IonInput
-                  value={postalCode}
-                  onIonInput={(e) => setPostalCode(e.detail.value!)}
-                  style={{ fontSize: 'var(--global-font-size)' }}  // Apply global font size to input
-                />
-              </IonItem>
+              <IonInput
+                fill="outline"  // Set fill as outline
+                label={t("Postal Code")}  // Add label directly to IonInput
+                labelPlacement="floating"  // Use floating label
+                value={postalCode}
+                onIonInput={(e) => setPostalCode(e.detail.value!)}
+                style={{ fontSize: 'var(--global-font-size)', marginBottom: '15px' }}  // Apply global font size
+              />
 
-              <IonItem style={{ paddingRight: '16px' }}>
-                <IonLabel 
-                  position="floating" 
-                  style={{ marginBottom: '15px', fontSize: 'var(--global-font-size)' }}  // Apply global font size
-                >
-                  {t("Unit Number")}
-                </IonLabel>
-                <IonInput
-                  value={flatNo}
-                  onIonInput={(e) => setFlatNo(e.detail.value!)}
-                  style={{ fontSize: 'var(--global-font-size)' }}  // Apply global font size to input
-                />
-              </IonItem>
+              <IonInput
+                fill="outline"  // Set fill as outline
+                label={t("Unit Number")}  // Add label directly to IonInput
+                labelPlacement="floating"  // Use floating label
+                value={flatNo}
+                onIonInput={(e) => setFlatNo(e.detail.value!)}
+                style={{ fontSize: 'var(--global-font-size)', marginBottom: '15px' }}  // Apply global font size
+              />
 
               <IonItem style={{ paddingRight: '16px' }}>
                 <IonLabel style={{ fontSize: 'var(--global-font-size)' }}>{t("Language")}</IonLabel>
