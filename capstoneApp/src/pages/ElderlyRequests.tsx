@@ -330,6 +330,12 @@ const ElderlyRequests: React.FC = () => {
     fetchHistory();
     fetchOngoingRequests();
     setSelectedOption("");
+    
+    if (localStorage.getItem("immediateRequest") !== null) {
+      setIsNewRequestModalOpen(true);
+      localStorage.removeItem("immediateRequest");
+    }
+    
   }, [location]);
 
   useEffect(() => {

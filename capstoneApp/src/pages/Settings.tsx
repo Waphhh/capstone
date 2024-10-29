@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   IonContent,
   IonHeader,
@@ -16,10 +16,14 @@ import {
   IonCol,
   IonToast,
   IonIcon,
-  IonLoading
+  IonLoading,
+  IonModal,
+  IonFab,
+  IonTextarea,
+  IonButtons
 } from '@ionic/react';
-import { logOut } from 'ionicons/icons'; // Import the log-out icon
-import { doc, getDoc, updateDoc } from 'firebase/firestore';
+import { buildOutline, closeOutline, logOut } from 'ionicons/icons'; // Import the log-out icon
+import { doc, getDoc, setDoc, updateDoc } from 'firebase/firestore';
 import { useHistory } from 'react-router-dom';
 import { db } from './firebaseConfig';
 import TabsToolbar from './TabsToolbar';
@@ -27,7 +31,8 @@ import { useTranslation } from 'react-i18next';
 import { fetchUserLanguage } from './GetLanguage';
 
 const Settings: React.FC = () => {
-  const { t } = useTranslation(); // Initialize useTranslation
+  const { t } = useTranslation();
+  const history = useHistory();
 
   const [phoneNumber, setPhoneNumber] = useState<string>('');
   const [postalCode, setPostalCode] = useState<string>('');
@@ -36,7 +41,9 @@ const Settings: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(true);
   const [showToast, setShowToast] = useState<{ isOpen: boolean, message: string }>({ isOpen: false, message: '' });
   const [uploading, setupLoading] = useState(false);
-  const history = useHistory();
+  const [showModal, setShowModal] = useState(false);
+  const [feedbackText, setFeedbackText] = useState<string>('');
+  const [submittingFeedback, setSubmittingFeedback] = useState(false); // New state for feedback loading
 
   const storedPhoneNumber = localStorage.getItem('phoneNumber');
 
@@ -113,9 +120,51 @@ const Settings: React.FC = () => {
   const handleLogout = () => {
     // Clear phone number and details
     localStorage.clear();
-    // Add any other data cleanup as needed
     history.push('/');
   };
+
+  const generateShortId = (length = 8): string => {
+    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+    let result = '';
+  
+    for (let i = 0; i < length; i++) {
+      result += chars.charAt(Math.floor(Math.random() * chars.length));
+    }
+  
+    return result;
+  };  
+
+  const handleSaveFeedback = async () => {
+    setSubmittingFeedback(true);
+    let feedbackuuid = generateShortId();
+    let userDocRef = doc(db, 'feedback', feedbackuuid);
+    let userDoc;
+  
+    try {
+      // Regenerate `feedbackuuid` until a unique ID is found
+      do {
+        userDocRef = doc(db, 'feedback', feedbackuuid);
+        userDoc = await getDoc(userDocRef);
+        
+        if (userDoc.exists()) {
+          feedbackuuid = generateShortId(); // Generate a new ID if it already exists
+        }
+      } while (userDoc.exists());
+  
+      // Proceed to use the unique feedbackuuid and save feedback text
+      await setDoc(userDocRef, { "Feedback": feedbackText });  // Storing feedback text with feedbackuuid as the document name
+      
+      setShowToast({ isOpen: true, message: t("Feedback submitted. Thank you!") });
+    } catch (error) {
+      console.error("Error submitting feedback:", error);
+      setShowToast({ isOpen: true, message: t('An error occurred. Please try again.') });
+    } finally {
+      setShowModal(false);
+      setFeedbackText('');
+      setSubmittingFeedback(false);
+    }
+  
+  };    
 
   useEffect(() => {
     const loadUserLanguage = async () => {
@@ -209,6 +258,46 @@ const Settings: React.FC = () => {
           </IonRow>
         </IonGrid>
 
+        <IonFab vertical="bottom" horizontal="end" slot="fixed">
+          <IonButton
+            color="tertiary"
+            onClick={() => setShowModal(true)}
+            style={{ display: 'flex', alignItems: 'center' }}
+            shape="round"
+          >
+            <IonIcon icon={buildOutline} style={{ marginRight: '8px' }} />
+            <span>Feedback</span>
+          </IonButton>
+        </IonFab>
+
+        <IonModal isOpen={showModal} onDidDismiss={() => setShowModal(false)}>
+          <IonHeader>
+            <IonToolbar color="primary">
+              <IonTitle>{t("Submit Feedback")}</IonTitle>
+              <IonButtons slot="end" onClick={() => setShowModal(false)}>
+                <IonIcon icon={closeOutline} style={{ fontSize: '42px' }} />
+              </IonButtons>
+            </IonToolbar>
+          </IonHeader>
+
+          <IonContent className="ion-padding">
+            <IonTextarea
+              mode="md"
+              fill="outline"
+              label="Feedback"
+              labelPlacement="floating"
+              placeholder={t("Type your feedback here...")}
+              value={feedbackText}
+              onIonInput={(e) => setFeedbackText(e.detail.value!)}
+              rows={6}
+            />
+            
+            <IonButton expand="block" color="tertiary" shape='round' onClick={handleSaveFeedback} style={{ marginTop: '20px' }}>
+              {t("Submit Feedback")}
+            </IonButton>
+          </IonContent>
+        </IonModal>
+
         <IonToast
           isOpen={showToast.isOpen}
           onDidDismiss={() => setShowToast({ ...showToast, isOpen: false })}
@@ -218,6 +307,7 @@ const Settings: React.FC = () => {
         />
 
         <IonLoading isOpen={uploading} message={t("Updating settings...")} />
+        <IonLoading isOpen={submittingFeedback} message={t("Submitting feedback...")} />
 
       </IonContent>
 

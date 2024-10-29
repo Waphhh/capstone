@@ -99,7 +99,7 @@ const Login: React.FC = () => {
     } catch (error) {
       console.error("Error checking phone number:", error);
       setErrorMessage('An error occurred. Please try again.');
-    }  
+    }
   };
 
   useIonViewWillEnter(() => {
@@ -114,7 +114,7 @@ const Login: React.FC = () => {
   useEffect(() => {
     const interval = setInterval(() => {
       setLanguageIndex((prevIndex) => (prevIndex + 1) % translations.length);
-    }, 5000); // Change language every 5 seconds
+    }, 3000);
 
     return () => clearInterval(interval); // Clear the interval on component unmount
   }, []);

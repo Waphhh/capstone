@@ -46,6 +46,11 @@ const Home: React.FC = () => {
     history.push(path);
   };
 
+  const handleRequest = () => {
+    localStorage.setItem('immediateRequest', 'true');
+    navigateTo('/tabs/elderlyrequests');
+  }
+
   useEffect(() => {
     const loadUserLanguage = async () => {
       const success = await fetchUserLanguage(db); // Call the function and await its result
@@ -75,7 +80,7 @@ const Home: React.FC = () => {
         />
 
         <div className="custom-toolbar">
-          <div className="custom-tab" onClick={() => navigateTo('/tabs/elderlyrequests')}>
+          <div className="custom-tab" onClick={() => handleRequest()}>
             <div className="icon-circle">
               <IonIcon icon={peopleOutline} />
             </div>
