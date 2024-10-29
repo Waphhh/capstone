@@ -284,7 +284,7 @@ const Settings: React.FC = () => {
             <IonTextarea
               mode="md"
               fill="outline"
-              label="Feedback"
+              label={t("Feedback")}
               labelPlacement="floating"
               placeholder={t("Type your feedback here...")}
               value={feedbackText}
