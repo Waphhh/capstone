@@ -1,0 +1,24 @@
+.translation-text {
+  height: 20vh; /* Increase height as needed */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  text-align: center;
+  font-size: 1.9em; /* Larger base font size */
+  transition: font-size 0.5s ease, opacity 0.5s ease-in-out;
+}
+
+.fade {
+  opacity: 0;
+}
+
+.fade-enter {
+  opacity: 0;
+  transition: opacity 0.5s ease-in;
+}
+
+.fade-leave {
+  opacity: 1;
+  transition: opacity 0.5s ease-out;
+}

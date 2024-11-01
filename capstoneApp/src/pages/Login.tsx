@@ -17,21 +17,17 @@ import { useHistory, useLocation } from 'react-router-dom';
 import { db } from './firebaseConfig';
 import { doc, getDoc } from 'firebase/firestore';
 
+import './Login.css';
+
 const Login: React.FC = () => {
   const location = useLocation();
   const history = useHistory();
   const [errorMessage, setErrorMessage] = useState<string>('');
-
-  // State to hold the values of each phone number digit
   const [phoneNumber, setPhoneNumber] = useState<string[]>(new Array(8).fill(''));
-
-  // Create refs for each input box
   const inputRefs = useRef<(HTMLIonInputElement | null)[]>(new Array(8).fill(null));
-
-  // State for language toggle
   const [languageIndex, setLanguageIndex] = useState<number>(0);
-  
-  // Translations for the header message
+  const [fade, setFade] = useState<boolean>(false);
+
   const translations = [
     'Sign in with your phone number by entering it below', // English
     '通过输入您的电话号码进行登录', // Chinese
@@ -41,14 +37,10 @@ const Login: React.FC = () => {
 
   const handleInputChange = (index: number, event: CustomEvent) => {
     const value = event.detail.value;
-
-    // Only allow numeric input
     if (value && /^\d$/.test(value)) {
       const updatedPhoneNumber = [...phoneNumber];
       updatedPhoneNumber[index] = value;
       setPhoneNumber(updatedPhoneNumber);
-
-      // Move focus to the next input field if it exists
       if (index < inputRefs.current.length - 1) {
         inputRefs.current[index + 1]?.setFocus();
       }
@@ -57,19 +49,13 @@ const Login: React.FC = () => {
 
   const handleKeyDown = (index: number, event: React.KeyboardEvent<HTMLIonInputElement>) => {
     if (event.key === 'Backspace') {
-      event.preventDefault(); // Prevent default backspace behavior
-
-      // Handle clearing the current input box
+      event.preventDefault();
       const updatedPhoneNumber = [...phoneNumber];
       if (phoneNumber[index] !== '') {
-        // Clear the current input if it's not already empty
         updatedPhoneNumber[index] = '';
         setPhoneNumber(updatedPhoneNumber);
       } else if (index > 0) {
-        // If the current input is already empty, move back to the previous input
         inputRefs.current[index - 1]?.setFocus();
-
-        // Clear the previous input
         updatedPhoneNumber[index - 1] = '';
         setPhoneNumber(updatedPhoneNumber);
       }
@@ -81,18 +67,15 @@ const Login: React.FC = () => {
       setErrorMessage('A phone number requires 8 digits');
       return;
     }
-
     const phoneNumberStr = phoneNumber.join('');
-
+    localStorage.setItem('otpPhone', phoneNumberStr);
     try {
-      const userDocRef = doc(db, 'users', phoneNumberStr); // Reference to the document with the phone number
-      const userDoc = await getDoc(userDocRef); // Check if the document exists
+      const userDocRef = doc(db, 'users', phoneNumberStr);
+      const userDoc = await getDoc(userDocRef);
       if (userDoc.exists()) {
-        // Phone number exists, proceed with login
         localStorage.setItem('phoneNumberToLogin', phoneNumberStr);
         history.push('/otp');
       } else {
-        // Phone number does not exist, set error message
         localStorage.setItem('phoneNumberToRegister', phoneNumberStr);
         history.push('/otp');
       }
@@ -110,13 +93,16 @@ const Login: React.FC = () => {
     setPhoneNumber(new Array(8).fill(''));
   }, [location]);
 
-  // Interval to change language every 5 seconds
   useEffect(() => {
     const interval = setInterval(() => {
-      setLanguageIndex((prevIndex) => (prevIndex + 1) % translations.length);
+      setFade(true);
+      setTimeout(() => {
+        setLanguageIndex((prevIndex) => (prevIndex + 1) % translations.length);
+        setFade(false);
+      }, 500);
     }, 3000);
 
-    return () => clearInterval(interval); // Clear the interval on component unmount
+    return () => clearInterval(interval);
   }, []);
 
   return (
@@ -128,14 +114,12 @@ const Login: React.FC = () => {
       </IonHeader>
 
       <IonContent className="ion-padding">
-
-        <div style={{ textAlign: 'center' }}>
-          <h1>{translations[languageIndex]}</h1>
+        <div className={`translation-text ${fade ? 'fade' : ''}`} 
+            style={{ fontSize: translations[languageIndex].length > 40 ? '1.6em' : '2.2em' }}>
+          {translations[languageIndex]}
         </div>
 
         <IonGrid>
-          
-          {/* 8 Input boxes for the phone number */}
           <IonRow className="ion-justify-content-center">
             {phoneNumber.map((digit, index) => (
               <IonCol size="1.5" key={index}>
@@ -172,9 +156,7 @@ const Login: React.FC = () => {
               </IonButton>
             </IonCol>
           </IonRow>
-
         </IonGrid>
-
       </IonContent>
     </IonPage>
   );
