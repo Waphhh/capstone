@@ -60,51 +60,51 @@ const Library: React.FC = () => {
   const firstTutorialSteps = [
     {
       target: '.tutorial-library',
-      content: 'Click on a category to learn more.',
+      content: t('Click on a category to learn more.'),
     },
   ];
-
+  
   const secondTutorialSteps = [
     {
       target: '.tutorial-category',
-      content: 'Click on an app you want to learn more about.',
+      content: t('Click on an app you want to learn more about.'),
     },
   ];
-
+  
   const thirdTutorialSteps = [
     {
       target: '.search-bar', // Assign a class to the search bar for targeting
-      content: 'Use this search bar to find specific tutorials.',
+      content: t('Use this search bar to find specific tutorials.'),
     },
     {
       target: '.first-tutorial-card', // Assign a class to the first tutorial card
-      content: 'This is a tutorial on how to use ElderGuide. You can play the video or mark it as a favorite.',
+      content: t('This is a tutorial on how to use ElderGuide. You can play the video or mark it as a favorite.'),
     },
     {
       target: '.video-title', // Assign a class to the first tutorial card
-      content: 'This is the title of the video.',
+      content: t('This is the title of the video.'),
     },
     {
       target: '.video-app', // Assign a class to the first tutorial card
-      content: 'This is the app that the tutorial is focused on.',
+      content: t('This is the app that the tutorial is focused on.'),
     },
     {
       target: '.video', // Assign a class to the first tutorial card
-      content: 'This is the tutorial video.',
+      content: t('This is the tutorial video.'),
     },
     {
       target: '.video-button', // Assign a class to the first tutorial card
-      content: 'Click this button to go into to youtube app to watch the video.',
+      content: t('Click this button to go into the YouTube app to watch the video.'),
     },
     {
       target: '.video-unfav', // Assign a class to the favorite button
-      content: 'Click this button to unfavorite this video.',
+      content: t('Click this button to unfavorite this video.'),
     },
     {
       target: '.video-fav', // Assign a class to the favorite button
-      content: 'Click this button to favorite this video which will bring it to the top.',
+      content: t('Click this button to favorite this video which will bring it to the top.'),
     }
-  ];
+  ];  
 
   const categories = [
     { id: 1, label: 'Social Media', src: 'SocialMedia.png'},
@@ -428,6 +428,13 @@ const Library: React.FC = () => {
                     textColor: 'var(--text)',
                   },
                 }}
+                locale={{
+                  back: t('Back'),
+                  close: t('Close'),
+                  last: t('Finish'),
+                  next: t('Next'),
+                  skip: t('Skip')
+                }}
               />
             </div>
           )}
@@ -541,6 +548,13 @@ const Library: React.FC = () => {
                   textColor: 'var(--text)',
                 },
               }}
+              locale={{
+                back: t('Back'),
+                close: t('Close'),
+                last: t('Finish'),
+                next: t('Next'),
+                skip: t('Skip')
+              }}
             />
 
           </IonContent>
@@ -636,6 +650,13 @@ const Library: React.FC = () => {
                 primaryColor: 'var(--primary-300)',
                 textColor: 'var(--text)',
               },
+            }}
+            locale={{
+              back: t('Back'),
+              close: t('Close'),
+              last: t('Finish'),
+              next: t('Next'),
+              skip: t('Skip')
             }}
           />
 

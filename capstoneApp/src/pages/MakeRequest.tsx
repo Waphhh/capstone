@@ -58,25 +58,25 @@ const MakeRequest: React.FC = () => {
   const firstTutorialSteps = [
     {
       target: '.select-time',
-      content: 'Select a timing where you are free from the below.',
+      content: t('Select a timing where you are free from the below.'),
     }
   ];
-
+  
   // Steps for the second tutorial (modal)
   const secondTutorialSteps = [
     {
       target: '.recording-button',
-      content: 'Press this button to start voice recording your request and press it again to stop the recording.',
+      content: t('Press this button to start voice recording your request and press it again to stop the recording.'),
     },
     {
       target: '.remarks-space',
-      content: 'You can use this space to type out any comments you may have.',
+      content: t('You can use this space to type out any comments you may have.'),
     },
     {
       target: '.submit-button',
-      content: 'Once you are done, press this button to submit the request.',
+      content: t('Once you are done, press this button to submit the request.'),
     }
-  ];
+  ];  
 
   const handleRecordClick = async () => {
     setIsRecording(!isRecording);
@@ -312,6 +312,13 @@ const MakeRequest: React.FC = () => {
               textColor: 'var(--text)',
             },
           }}
+          locale={{
+            back: t('Back'),
+            close: t('Close'),
+            last: t('Finish'),
+            next: t('Next'),
+            skip: t('Skip')
+          }}
         />
 
         <h3 className='select-time'>{t("Choose a time when you are free.")}</h3>
@@ -343,6 +350,13 @@ const MakeRequest: React.FC = () => {
               primaryColor: 'var(--primary-300)',
               textColor: 'var(--text)',
             },
+          }}
+          locale={{
+            back: t('Back'),
+            close: t('Close'),
+            last: t('Finish'),
+            next: t('Next'),
+            skip: t('Skip')
           }}
         />
 

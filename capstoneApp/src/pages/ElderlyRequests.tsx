@@ -68,7 +68,7 @@ const ElderlyRequests: React.FC = () => {
   const firstTutorialSteps = [
     {
       target: '.plus-button',
-      content: 'Click here to start a new request!',
+      content: t('Click here to start a new request!'),
     },
   ];
 
@@ -76,7 +76,7 @@ const ElderlyRequests: React.FC = () => {
   const secondTutorialSteps = [
     {
       target: '.modal-content',
-      content: 'Select the app you need help with.',
+      content: t('Select the app you need help with.'),
     },
   ];
 
@@ -537,6 +537,13 @@ const ElderlyRequests: React.FC = () => {
               textColor: 'var(--text)',
             },
           }}
+          locale={{
+            back: t('Back'),
+            close: t('Close'),
+            last: t('Finish'),
+            next: t('Next'),
+            skip: t('Skip')
+          }}
         />
 
         <IonFab vertical="bottom" horizontal="center" slot="fixed">
@@ -598,6 +605,13 @@ const ElderlyRequests: React.FC = () => {
               primaryColor: 'var(--primary-300)',
               textColor: 'var(--text)',
             },
+          }}
+          locale={{
+            back: t('Back'),
+            close: t('Close'),
+            last: t('Finish'),
+            next: t('Next'),
+            skip: t('Skip')
           }}
         />
 

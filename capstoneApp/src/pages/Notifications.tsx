@@ -37,11 +37,6 @@ const Notifications: React.FC = () => {
       content: t('Click here to view your notifications.'),
       placement: 'bottom',
     },
-    {
-      target: '.notification-modal', // Add a CSS class to target the notifications modal
-      content: t('Here you can see your recent notifications.'),
-      placement: 'top',
-    }
   ];
 
   const customNotifications = [
@@ -169,7 +164,6 @@ const Notifications: React.FC = () => {
 
   return (
     <>
-      {/* Joyride component for the tutorial */}
       <Joyride
         steps={steps}
         continuous
@@ -181,6 +175,13 @@ const Notifications: React.FC = () => {
             primaryColor: 'var(--primary-300)',
             textColor: 'var(--text)',
           },
+        }}
+        locale={{
+          back: t('Back'),
+          close: t('Close'),
+          last: t('Finish'),
+          next: t('Next'),
+          skip: t('Skip')
         }}
         run={showTutorial} // Controls when the tutorial runs
         callback={handleJoyrideCallback} // Set the callback

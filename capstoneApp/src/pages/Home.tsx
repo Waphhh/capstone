@@ -75,7 +75,7 @@ const Home: React.FC = () => {
       <IonContent style={{ textAlign: 'center' }} className='ion-padding'>
 
         <img 
-          src="https://raw.githubusercontent.com/Waphhh/capstone/c250ac508f5e28150149f9d405e9f348cca6363e/capstoneApp/public/Home.gif" 
+          src="https://raw.githubusercontent.com/Waphhh/capstone/200211cc0c432081dc62391b89f8184d2b5b5cc3/capstoneApp/public/Home.gif" 
           alt="Home GIF"
           style={{ width: '100%', border: 'solid var(--primary-200) 1px', padding: '0px', borderRadius: '8px'}} 
         />

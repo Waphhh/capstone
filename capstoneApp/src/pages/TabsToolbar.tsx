@@ -38,22 +38,22 @@ const TabsToolbar: React.FC = () => {
   const steps: Step[] = [
     {
       target: '.tab-home',
-      content: 'This is the Home tab, where you can access the main dashboard.',
+      content: t('This is the Home tab, where you can access the main dashboard.'),
       placement: 'top',
     },
     {
       target: '.tab-history',
-      content: 'Here you can view all your requests.',
+      content: t('Here you can view all your requests.'),
       placement: 'top',
     },
     {
       target: '.tab-library',
-      content: 'Explore resources in the Library tab.',
+      content: t('Explore resources in the Library tab.'),
       placement: 'top',
     },
     {
       target: '.tab-settings',
-      content: 'Use the Settings tab to configure your preferences.',
+      content: t('Use the Settings tab to configure your preferences.'),
       placement: 'top',
     }
   ];
@@ -82,6 +82,13 @@ const TabsToolbar: React.FC = () => {
               primaryColor: 'var(--primary-300)',
               textColor: 'var(--text)',
             },
+          }}
+          locale={{
+            back: t('Back'),
+            close: t('Close'),
+            last: t('Finish'),
+            next: t('Next'),
+            skip: t('Skip')
           }}
           run={showTutorial}
           callback={handleJoyrideCallback} // Set the callback
