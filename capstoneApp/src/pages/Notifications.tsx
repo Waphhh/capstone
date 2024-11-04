@@ -18,13 +18,31 @@ import { doc, getDoc } from 'firebase/firestore';
 import { db } from './firebaseConfig';
 import { useTranslation } from 'react-i18next';
 import { fetchUserLanguage } from './GetLanguage';
+import Joyride, { Step } from 'react-joyride';
 
 const Notifications: React.FC = () => {
   const { t } = useTranslation();
 
   const [showModal, setShowModal] = useState(false);
   const [notifications, setNotifications] = useState<any[]>([]);
+  const [showTutorial, setShowTutorial] = useState(false); // Controls when the tutorial starts
   const storedPhoneNumber = localStorage.getItem('phoneNumber');
+
+  const Tutorial = localStorage.getItem("Tutorial");
+  const tutorialCompleted = localStorage.getItem("tutorialCompletedNotifications");
+
+  const steps: Step[] = [
+    {
+      target: '.notification-bell', // Add a CSS class to target the notification bell
+      content: t('Click here to view your notifications.'),
+      placement: 'bottom',
+    },
+    {
+      target: '.notification-modal', // Add a CSS class to target the notifications modal
+      content: t('Here you can see your recent notifications.'),
+      placement: 'top',
+    }
+  ];
 
   const customNotifications = [
     {
@@ -99,7 +117,7 @@ const Notifications: React.FC = () => {
                     date: new Date(key).getTime(),
                     formattedDate: formatDate(key),
                     title: t('Upcoming request'),
-                    message: t(`Your event "`) + remarksForRequest + t(`" is happening in 1 day.`),
+                    message: `${t('Your event "')}${remarksForRequest}${t('" is happening in 1 day.')}`,
                     type: 'reminder',
                     icon: notificationsOutline,
                   };
@@ -134,15 +152,45 @@ const Notifications: React.FC = () => {
 
   useEffect(() => {
     fetchUserLanguage(db);
+
+    if (Tutorial && !tutorialCompleted) {
+      setShowTutorial(true);
+    }
+
   }, [db]);
+
+  const handleJoyrideCallback = (data) => {
+    const { status } = data;
+    if (status === 'finished' || status === 'skipped') {
+      setShowTutorial(false);
+      localStorage.setItem("tutorialCompletedNotifications", "true");
+    }
+  };
 
   return (
     <>
-      <IonButton fill="clear" onClick={() => setShowModal(true)} slot="end">
+      {/* Joyride component for the tutorial */}
+      <Joyride
+        steps={steps}
+        continuous
+        showSkipButton
+        styles={{
+          options: {
+            arrowColor: 'var(--accent-100)',
+            backgroundColor: 'var(--accent-100)',
+            primaryColor: 'var(--primary-300)',
+            textColor: 'var(--text)',
+          },
+        }}
+        run={showTutorial} // Controls when the tutorial runs
+        callback={handleJoyrideCallback} // Set the callback
+      />
+
+      <IonButton fill="clear" onClick={() => setShowModal(true)} slot="end" className="notification-bell">
         <IonIcon style={{ fontSize: '42px', color: 'white' }} icon={notificationsOutline} />
       </IonButton>
 
-      <IonModal isOpen={showModal} onDidDismiss={() => setShowModal(false)}>
+      <IonModal isOpen={showModal} onDidDismiss={() => setShowModal(false)} className="notification-modal">
         <IonHeader>
           <IonToolbar color="primary">
             <IonTitle>{t('Notifications')}</IonTitle>

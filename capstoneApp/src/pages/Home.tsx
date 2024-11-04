@@ -7,7 +7,7 @@ import { db } from './firebaseConfig';
 import TabsToolbar from './TabsToolbar';
 import { fetchUserLanguage } from './GetLanguage';
 import Notifications from './Notifications';
-import { useHistory } from 'react-router-dom';
+import { useHistory, useLocation } from 'react-router-dom';
 import { peopleOutline, settingsOutline, bookOutline } from 'ionicons/icons';
 
 import 'swiper/css';
@@ -15,10 +15,11 @@ import 'swiper/css/pagination';
 import './Home.css';
 
 const Home: React.FC = () => {
-  const storedPhoneNumber = localStorage.getItem('phoneNumber');
-
   const { t } = useTranslation(); // Initialize useTranslation
+
   const [loading, setLoading] = useState<boolean>(true);
+  const storedPhoneNumber = localStorage.getItem('phoneNumber');
+  const location = useLocation();
   const history = useHistory();
 
   const recommended = [
@@ -58,7 +59,7 @@ const Home: React.FC = () => {
     };
 
     loadUserLanguage();
-  }, [db]);
+  }, [db, location]);
 
   if (loading) return <p>{t("Loading...")}</p>;
 

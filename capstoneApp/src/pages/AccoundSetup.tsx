@@ -40,11 +40,11 @@ const AccountSetup: React.FC = () => {
       return;
     }
     if (!(containsOnlyDigits(postalCode))) {
-      setErrorMessage(t('A postal code can only contain digits'));
+      setErrorMessage(t('A postal code can only contain digits.'));
       return;
     }
     if (postalCode.length !== 6) {
-      setErrorMessage(t('A postal code is 6 digits long'));
+      setErrorMessage(t('A postal code is 6 digits long. Please try again.'));
       return;
     }
     if (!flatNo.trim()) {
@@ -70,9 +70,10 @@ const AccountSetup: React.FC = () => {
         favorites: [],
       });
       console.log('User data uploaded successfully');
+      localStorage.setItem("Tutorial", "true");
       history.push('/tabs/home');
     } catch (error) {
-      setErrorMessage('Failed to register. Please try again.');
+      setErrorMessage(t('Failed to register. Please try again.'));
       console.error('Error uploading user data:', error);
     }
   };
