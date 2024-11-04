@@ -13,13 +13,16 @@ import {
   IonText,
   IonAlert,
   IonBackButton,
-  IonButtons,  // Import IonAlert for the OTP pop-up
+  IonButtons,
+  useIonViewWillEnter
 } from '@ionic/react';
 import { useHistory, useLocation } from 'react-router-dom';
+import axios from 'axios'
 
 const Login: React.FC = () => {
   const history = useHistory();
   const location = useLocation();
+  const otpPhone = localStorage.getItem("otpPhone");
 
   const [errorMessage, setErrorMessage] = useState<string>('');
   const [temppin, setTemppin] = useState<string>('');
@@ -35,6 +38,30 @@ const Login: React.FC = () => {
     const randomNum = Math.random() * 9000;
     return (1000 + Math.floor(randomNum)).toString();
   };
+
+  const sendOTP = async (token: string) => {
+
+    console.log("OTP button pressed");
+
+    try {
+      
+      const phoneNumber = "65" + otpPhone; // Use actual phone number
+  
+      // Make a request to the proxy server
+      const response = await axios.get('', {
+        params: {
+          to: phoneNumber,
+          otp: token
+        }
+      });
+
+    } catch (error) {
+      console.error('Error sending OTP:', error);
+      setErrorMessage('Error sending OTP');
+      return;
+    }
+
+  };  
 
   const handleInputChange = (index: number, event: CustomEvent) => {
     const value = event.detail.value;
@@ -94,20 +121,21 @@ const Login: React.FC = () => {
     }
   };
 
-  useEffect(() => {
-    console.log(temppin);
-  }, [temppin]);
+  const handleResendOTP = () => {
+    sendOTP(temppin);
+  };
+
+  useIonViewWillEnter(() => {
+    const token = generateToken();
+    setTemppin(token);
+    sendOTP(token);
+  })
 
   useEffect(() => {
-
     if (location.pathname === "/otp") {
       setOTPString(new Array(4).fill(''));
       inputRefs.current[0]?.setFocus();
-      const token = generateToken();
-      setTemppin(token);
-      setShowOTPAlert(true);  // Show OTP alert when page loads
     }
-
   }, [location]);
 
   return (
@@ -124,7 +152,7 @@ const Login: React.FC = () => {
       <IonContent className="ion-padding">
 
         <div className="welcomeText">
-          <h1>Enter in the OTP pin</h1>
+          <h1>Enter the OTP pin</h1>
         </div>
 
         <IonGrid>
@@ -163,6 +191,14 @@ const Login: React.FC = () => {
             <IonCol>
               <IonButton expand="block" color="primary" shape="round" onClick={handleVerification} style={{ fontSize: '28px', height: '70px' }}>
                 Confirm
+              </IonButton>
+            </IonCol>
+          </IonRow>
+
+          <IonRow className="ion-justify-content-end">
+            <IonCol size="auto">
+              <IonButton color="tertiary" shape="round" onClick={handleResendOTP} style={{ fontSize: '16px', height: '50px' }}>
+                Resend OTP
               </IonButton>
             </IonCol>
           </IonRow>
