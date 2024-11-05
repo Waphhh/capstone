@@ -97,13 +97,9 @@ const Library: React.FC = () => {
       content: t('Click this button to go into the YouTube app to watch the video.'),
     },
     {
-      target: '.video-unfav', // Assign a class to the favorite button
-      content: t('Click this button to unfavorite this video.'),
-    },
-    {
       target: '.video-fav', // Assign a class to the favorite button
-      content: t('Click this button to favorite this video which will bring it to the top.'),
-    }
+      content: t('Click this button to favorite and unvaforite videos.'),
+    },
   ];  
 
   const categories = [
@@ -583,10 +579,10 @@ const Library: React.FC = () => {
               <IonCol size="12" className="first-tutorial-card">
                 <IonCard style={{ backgroundColor: 'var(--accent-50)', borderRadius: '15px', overflow: 'hidden' }}>
                   <IonCardHeader>
-                    <IonCardTitle className='video-title'>How to use ElderGuide</IonCardTitle>
+                    <IonCardTitle className='video-title'>Heartware Network Corporate Video</IonCardTitle>
                   </IonCardHeader>
                   <IonCardContent>
-                    <p className='video-app'>ElderGuide</p>
+                    <p className='video-app'>Heartware Network</p>
                     <LazyLoadComponent>
                       <center>
                         <iframe
@@ -594,42 +590,15 @@ const Library: React.FC = () => {
                           title="YouTube Video Player"
                           width="100%"
                           height="100%"
-                          src="https://www.youtube.com/embed/At8v_Yc044Y?si=gJ6t5Q3Eh0ukpO4z"  // Adjust for single video
+                          src="https://www.youtube.com/embed/u2z2Ax5aL4s?si=BfYDmd2VELUQbSHC"  // Adjust for single video
                           allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                           allowFullScreen
                         ></iframe>
                       </center>
                     </LazyLoadComponent>
-                    <IonButton className='video-button' href="https://www.youtube.com/embed/At8v_Yc044Y?si=gJ6t5Q3Eh0ukpO4z" target="_blank" style={{ margin: '0px', borderRadius: '30px', overflow: 'hidden' }}>{t("Watch video")}</IonButton>
-                    <IonButton className='video-unfav' style={{ borderRadius: '30px', overflow: 'hidden' }}>
-                      <IonIcon icon={heart} /> Unfavorite
-                    </IonButton>
-                  </IonCardContent>
-                </IonCard>
-              </IonCol>
-
-              <IonCol size="12" className="second-tutorial-card">
-                <IonCard style={{ backgroundColor: 'var(--accent-50)', borderRadius: '15px', overflow: 'hidden' }}>
-                  <IonCardHeader>
-                    <IonCardTitle>How to use ElderGuide</IonCardTitle>
-                  </IonCardHeader>
-                  <IonCardContent>
-                    <p>ElderGuide</p>
-                    <LazyLoadComponent>
-                      <center>
-                        <iframe
-                          title="YouTube Video Player"
-                          width="100%"
-                          height="100%"
-                          src="https://www.youtube.com/embed/At8v_Yc044Y?si=gJ6t5Q3Eh0ukpO4z"  // Adjust for single video
-                          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                          allowFullScreen
-                        ></iframe>
-                      </center>
-                    </LazyLoadComponent>
-                    <IonButton href="https://www.youtube.com/embed/At8v_Yc044Y?si=gJ6t5Q3Eh0ukpO4z" target="_blank" style={{ margin: '0px', borderRadius: '30px', overflow: 'hidden' }}>{t("Watch video")}</IonButton>
+                    <IonButton className='video-button' href="https://www.youtube.com/embed/u2z2Ax5aL4s?si=BfYDmd2VELUQbSHC" target="_blank" style={{ margin: '0px', borderRadius: '30px', overflow: 'hidden' }}>{t("Watch video")}</IonButton>
                     <IonButton className='video-fav' style={{ borderRadius: '30px', overflow: 'hidden' }}>
-                      <IonIcon icon={heartOutline} /> Favorite
+                      <IonIcon icon={heart} /> Favorite
                     </IonButton>
                   </IonCardContent>
                 </IonCard>
