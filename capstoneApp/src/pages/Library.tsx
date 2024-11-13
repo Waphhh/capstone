@@ -28,14 +28,12 @@ import TabsToolbar from './TabsToolbar';
 import { fetchUserLanguage } from './GetLanguage';
 import { useTranslation } from 'react-i18next';
 import { gapi } from 'gapi-script';
-import Joyride from 'react-joyride';
 
 // The google sheet live update only reaches the 200th row.
 // https://docs.google.com/spreadsheets/d/1QoWoZL4Hv_jjO19VhLIq4MjJos3Yxu6NH6i_hxYjnpw/edit?usp=sharing
 
 const Library: React.FC = () => {
-  const { t } = useTranslation();
-  const location = useLocation();
+  const { t } = useTranslation(); // Initialize useTranslation
 
   const [loading, setLoading] = useState<boolean>(true);
   const [userLanguage, setUserLanguage] = useState<string | null>(null);
@@ -48,59 +46,7 @@ const Library: React.FC = () => {
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isCategoriesOpen, setIsCategoriesOpen] = useState(false);
-  const [runFirstTutorial, setRunFirstTutorial] = useState(false);
-  const [runSecondTutorial, setRunSecondTutorial] = useState(false);
-  const [runThirdTutorial, setRunThirdTutorial] = useState(false);
-  const [isTutorialCategoriesOpen, setIsTutorialCategoriesOpen] = useState(false);
-  const [isTutorialVideosOpen, setIsTutorialVideosOpen] = useState(false);
-
-  const Tutorial = localStorage.getItem("Tutorial");
-  const tutorialCompleted = localStorage.getItem("tutorialCompletedLibrary");
-
-  const firstTutorialSteps = [
-    {
-      target: '.tutorial-library',
-      content: t('Click on a category to learn more.'),
-    },
-  ];
-  
-  const secondTutorialSteps = [
-    {
-      target: '.tutorial-category',
-      content: t('Click on an app you want to learn more about.'),
-    },
-  ];
-  
-  const thirdTutorialSteps = [
-    {
-      target: '.search-bar', // Assign a class to the search bar for targeting
-      content: t('Use this search bar to find specific tutorials.'),
-    },
-    {
-      target: '.first-tutorial-card', // Assign a class to the first tutorial card
-      content: t('This is a tutorial on how to use ElderGuide. You can play the video or mark it as a favorite.'),
-    },
-    {
-      target: '.video-title', // Assign a class to the first tutorial card
-      content: t('This is the title of the video.'),
-    },
-    {
-      target: '.video-app', // Assign a class to the first tutorial card
-      content: t('This is the app that the tutorial is focused on.'),
-    },
-    {
-      target: '.video', // Assign a class to the first tutorial card
-      content: t('This is the tutorial video.'),
-    },
-    {
-      target: '.video-button', // Assign a class to the first tutorial card
-      content: t('Click this button to go into the YouTube app to watch the video.'),
-    },
-    {
-      target: '.video-fav', // Assign a class to the favorite button
-      content: t('Click this button to favorite and unvaforite videos.'),
-    },
-  ];  
+  const location = useLocation();
 
   const categories = [
     { id: 1, label: 'Social Media', src: 'SocialMedia.png'},
@@ -130,7 +76,6 @@ const Library: React.FC = () => {
 
   const { apiKey, sheetId, discoveryDocs } = firebaseConfig.googleSheets;
 
-  // Fetch user language and favorites from Firestore
   function loadGapiClient() {
     return new Promise((resolve) => {
       gapi.load('client', resolve);
@@ -285,49 +230,6 @@ const Library: React.FC = () => {
     setIsCategoriesOpen(false);
   }
 
-  const closeTutorialCategories = () => {
-    setIsTutorialCategoriesOpen(false);
-  }
-
-  const closeTutorialVideos = () => {
-    setIsTutorialVideosOpen(false);
-  }
-
-  const handleJoyrideCallback = (data) => {
-    const { status } = data;
-    if (status === 'finished' || status === 'skipped') {
-      setRunFirstTutorial(false);
-      setIsTutorialCategoriesOpen(true);
-      setRunSecondTutorial(true);
-    }
-  };
-
-  const handleJoyrideCallback2 = (data) => {
-    const { status } = data;
-    if (status === 'finished' || status === 'skipped') {
-      setRunSecondTutorial(false);
-      setIsTutorialVideosOpen(true);
-      setRunThirdTutorial(true);
-    }
-  };
-
-  const handleJoyrideCallback3 = (data) => {
-    const { status, index, action } = data;
-    if (status === 'finished' || status === 'skipped') {
-      setRunThirdTutorial(false);
-      setIsTutorialVideosOpen(false);
-      setIsTutorialCategoriesOpen(false);
-      localStorage.setItem("tutorialCompletedLibrary", "true");
-    }
-
-    if (action === 'start' || action === 'next') {
-      const targetElement = document.querySelector(thirdTutorialSteps[index].target);
-      if (targetElement) {
-        targetElement.scrollIntoView({ behavior: 'smooth' });
-      }
-    }
-  };
-
   useEffect(() => {
     console.log("location changed");
     fetchUserData();
@@ -349,10 +251,6 @@ const Library: React.FC = () => {
       setLoading(!success); // Set loading to true if fetching failed, false if successful
     };
 
-    if (Tutorial && !tutorialCompleted) {
-      setRunFirstTutorial(true);
-    }
-
     loadUserLanguage();
   }, [db]);
 
@@ -367,7 +265,7 @@ const Library: React.FC = () => {
       </IonHeader>
 
       <IonContent style={{ textAlign: 'center' }}>
-        <h3 className='library-start'>{t("What do you want to learn?")}</h3>
+        <h3>{t("What do you want to learn?")}</h3>
         <div
           style={{
             display: 'grid',
@@ -378,62 +276,6 @@ const Library: React.FC = () => {
             padding: '16px'
           }}
         >
-          {Tutorial && !tutorialCompleted && (
-            <div
-              className='tutorial-library'
-              style={{
-                cursor: 'pointer',
-                display: 'flex',
-                flexDirection: 'column',
-                justifyContent: 'space-between', // Ensures icon stays at the top and text at the bottom
-                textAlign: 'center',
-                backgroundColor: 'var(--accent-50)',
-                padding: '16px',
-                width: '100%',
-                height: '100%',
-                borderRadius: '8px'
-              }}
-            >
-              <img
-                src='iconassets/Tutorial.png'
-                alt='Tutorial'
-                style={{ 
-                  width: '80px',
-                  height: '80px',
-                  objectFit: 'contain', 
-                  margin: 'auto', 
-                  padding: '5px',
-                  borderRadius: '8px'
-                }}
-              />
-              <IonLabel style={{ fontSize: '16px', marginTop: '10px', fontWeight: '600' }}>
-                Tutorial
-              </IonLabel>
-
-              <Joyride 
-                steps={firstTutorialSteps}
-                run={runFirstTutorial}
-                continuous
-                showSkipButton
-                callback={handleJoyrideCallback}
-                styles={{
-                  options: {
-                    arrowColor: 'var(--accent-100)',
-                    backgroundColor: 'var(--accent-100)',
-                    primaryColor: 'var(--primary-300)',
-                    textColor: 'var(--text)',
-                  },
-                }}
-                locale={{
-                  back: t('Back'),
-                  close: t('Close'),
-                  last: t('Finish'),
-                  next: t('Next'),
-                  skip: t('Skip')
-                }}
-              />
-            </div>
-          )}
           {categories.map(option => (
             <div
               key={option.id}
@@ -475,162 +317,6 @@ const Library: React.FC = () => {
 
         <p>{t("We are not affiliated with any of the apps shown.")}</p>
       </IonContent>
-
-      <IonModal isOpen={isTutorialCategoriesOpen} onDidDismiss={closeTutorialCategories}>
-        <IonHeader>
-          <IonToolbar color="primary">
-            <IonTitle>Tutorial</IonTitle>
-            <IonButtons slot="end" onClick={closeTutorialCategories}>
-              <IonIcon icon={closeOutline} style={{ fontSize: '42px' }} />
-            </IonButtons>
-          </IonToolbar>
-        </IonHeader>
-          <IonContent style={{ textAlign: 'center' }}>
-            <h3>{t("What do you want to learn?")}</h3>
-            <div
-              className='tutorial-category'
-              style={{
-                display: 'grid',
-                gridTemplateColumns: 'repeat(2, 1fr)', // 2 columns
-                gap: '16px', // space between items
-                justifyItems: 'center', // center items horizontally
-                alignItems: 'center', // center items vertically
-                padding: '16px'
-              }}
-            >
-              <div
-                style={{
-                  cursor: 'pointer',
-                  display: 'flex',
-                  flexDirection: 'column',
-                  justifyContent: 'space-between', // Ensures icon stays at the top and text at the bottom
-                  textAlign: 'center',
-                  backgroundColor: 'var(--accent-50)',
-                  padding: '16px',
-                  width: '100%',
-                  height: '100%',
-                  borderRadius: '8px'
-                }}
-              >
-                <img
-                  src='iconassets/Tutorial.png'
-                  alt='Tutorial'
-                  style={{ 
-                    width: '80px',
-                    height: '80px',
-                    objectFit: 'contain', 
-                    margin: 'auto', 
-                    padding: '5px',
-                    borderRadius: '8px'
-                  }}
-                />
-                <IonLabel style={{ fontSize: '16px', marginTop: '10px', fontWeight: '600' }}>
-                  Tutorial
-                </IonLabel>
-              </div>
-            </div>
-
-            <Joyride 
-              steps={secondTutorialSteps}
-              run={runSecondTutorial}
-              continuous
-              showSkipButton
-              callback={handleJoyrideCallback2}
-              styles={{
-                options: {
-                  arrowColor: 'var(--accent-100)',
-                  backgroundColor: 'var(--accent-100)',
-                  primaryColor: 'var(--primary-300)',
-                  textColor: 'var(--text)',
-                },
-              }}
-              locale={{
-                back: t('Back'),
-                close: t('Close'),
-                last: t('Finish'),
-                next: t('Next'),
-                skip: t('Skip')
-              }}
-            />
-
-          </IonContent>
-      </IonModal>
-
-      <IonModal isOpen={isTutorialVideosOpen} onDidDismiss={closeTutorialVideos}>
-        <IonHeader>
-          <IonToolbar color="primary">
-            <IonTitle>Tutorial Library</IonTitle>
-            <IonButtons slot="end" onClick={closeTutorialVideos}>
-              <IonIcon icon={closeOutline} style={{ fontSize: '42px' }} />
-            </IonButtons>
-          </IonToolbar>
-          <IonToolbar>
-            <IonSearchbar
-              placeholder="Look for a tutorial"
-              value={searchQuery}
-              onIonInput={(e) => setSearchQuery(e.detail.value!)}
-              className="search-bar"
-            />
-          </IonToolbar>
-        </IonHeader>
-        <IonContent className="ion-padding">
-          <IonGrid>
-            <IonRow>
-              <IonCol size="12" className="first-tutorial-card">
-                <IonCard style={{ backgroundColor: 'var(--accent-50)', borderRadius: '15px', overflow: 'hidden' }}>
-                  <IonCardHeader>
-                    <IonCardTitle className='video-title'>Heartware Network Corporate Video</IonCardTitle>
-                  </IonCardHeader>
-                  <IonCardContent>
-                    <p className='video-app'>Heartware Network</p>
-                    <LazyLoadComponent>
-                      <center>
-                        <iframe
-                          className='video'
-                          title="YouTube Video Player"
-                          width="100%"
-                          height="100%"
-                          src="https://www.youtube.com/embed/u2z2Ax5aL4s?si=BfYDmd2VELUQbSHC"  // Adjust for single video
-                          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                          allowFullScreen
-                        ></iframe>
-                      </center>
-                    </LazyLoadComponent>
-                    <IonButton className='video-button' href="https://www.youtube.com/embed/u2z2Ax5aL4s?si=BfYDmd2VELUQbSHC" target="_blank" style={{ margin: '0px', borderRadius: '30px', overflow: 'hidden' }}>{t("Watch video")}</IonButton>
-                    <IonButton className='video-fav' style={{ borderRadius: '30px', overflow: 'hidden' }}>
-                      <IonIcon icon={heart} /> Favorite
-                    </IonButton>
-                  </IonCardContent>
-                </IonCard>
-              </IonCol>
-            </IonRow>
-          </IonGrid>
-
-          <Joyride 
-            steps={thirdTutorialSteps}
-            run={runThirdTutorial}
-            continuous
-            showSkipButton
-            callback={handleJoyrideCallback3}
-            styles={{
-              options: {
-                arrowColor: 'var(--accent-100)',
-                backgroundColor: 'var(--accent-100)',
-                primaryColor: 'var(--primary-300)',
-                textColor: 'var(--text)',
-              },
-            }}
-            locale={{
-              back: t('Back'),
-              close: t('Close'),
-              last: t('Finish'),
-              next: t('Next'),
-              skip: t('Skip')
-            }}
-          />
-
-        </IonContent>
-      </IonModal>
 
       <IonModal isOpen={isCategoriesOpen} onDidDismiss={closeCategories}>
         <IonHeader>
@@ -801,7 +487,7 @@ const Library: React.FC = () => {
                   </IonCol>
                 ))
               ) : (
-                <p>{t("No tutorials available for your language or search term.")}</p>
+                <p>{t("No tutorials available for your language or search term")}</p>
               )}
             </IonRow>
           </IonGrid>

@@ -29,7 +29,6 @@ import { doc, getDoc, increment, updateDoc } from 'firebase/firestore';
 import { ref, getDownloadURL, deleteObject } from 'firebase/storage';
 import TabsToolbar from './TabsToolbar';
 import { useTranslation } from 'react-i18next';
-import Joyride from 'react-joyride';
 
 import './ElderlyRequests.css';
 import { fetchUserLanguage } from './GetLanguage';
@@ -58,27 +57,6 @@ const ElderlyRequests: React.FC = () => {
   const [showToast, setShowToast] = useState<boolean>(false);
   const [isRemakeModalOpen, setIsRemakeModalOpen] = useState(false);
   const [uploading, setupLoading] = useState(false);
-  const [runFirstTutorial, setRunFirstTutorial] = useState(false);
-  const [runSecondTutorial, setRunSecondTutorial] = useState(false);
-
-  const Tutorial = localStorage.getItem("Tutorial");
-  const tutorialCompleted = localStorage.getItem("tutorialCompletedRequests");
-
-  // Steps for the first tutorial
-  const firstTutorialSteps = [
-    {
-      target: '.plus-button',
-      content: t('Click here to start a new request!'),
-    },
-  ];
-
-  // Steps for the second tutorial (modal)
-  const secondTutorialSteps = [
-    {
-      target: '.modal-content',
-      content: t('Select the app you need help with.'),
-    },
-  ];
 
   const options = [
     { id: 1, label: 'WhatsApp', src: 'Whatsapp.png'},
@@ -352,23 +330,6 @@ const ElderlyRequests: React.FC = () => {
     setIsNewRequestModalOpen(true);
   };
 
-  const handleJoyrideCallback = (data) => {
-    const { status } = data;
-    if (status === 'finished' || status === 'skipped') {
-      setRunFirstTutorial(false);
-      setIsNewRequestModalOpen(true);
-      setRunSecondTutorial(true);
-      localStorage.setItem("tutorialCompletedRequests", "true");
-    }
-  };
-
-  const handleJoyrideCallback2 = (data) => {
-    const { status } = data;
-    if (status === 'finished' || status === 'skipped') {
-      setRunSecondTutorial(false);
-    }
-  };
-
   useEffect(() => {
     fetchHistory();
     fetchOngoingRequests();
@@ -398,11 +359,6 @@ const ElderlyRequests: React.FC = () => {
     };
 
     loadUserLanguage();
-
-    if (Tutorial && !tutorialCompleted) {
-      setRunFirstTutorial(true);
-    }
-
   }, [db]);
 
   if (loading) return <p>{t("Loading...")}</p>;
@@ -523,29 +479,6 @@ const ElderlyRequests: React.FC = () => {
 
         </IonModal>
 
-        <Joyride 
-          steps={firstTutorialSteps}
-          run={runFirstTutorial}
-          continuous
-          showSkipButton
-          callback={handleJoyrideCallback}
-          styles={{
-            options: {
-              arrowColor: 'var(--accent-100)',
-              backgroundColor: 'var(--accent-100)',
-              primaryColor: 'var(--primary-300)',
-              textColor: 'var(--text)',
-            },
-          }}
-          locale={{
-            back: t('Back'),
-            close: t('Close'),
-            last: t('Finish'),
-            next: t('Next'),
-            skip: t('Skip')
-          }}
-        />
-
         <IonFab vertical="bottom" horizontal="center" slot="fixed">
           <IonFabButton className="plus-button" onClick={handleOpenModal} style={{ width: '80px', height: '80px', borderRadius: '50%' }}>
             <IonIcon icon={add} style={{ fontSize: '36px' }} />
@@ -591,29 +524,6 @@ const ElderlyRequests: React.FC = () => {
             </IonButtons>
           </IonToolbar>
         </IonHeader>
-
-        <Joyride 
-          steps={secondTutorialSteps}
-          run={runSecondTutorial}
-          continuous
-          showSkipButton
-          callback={handleJoyrideCallback2}
-          styles={{
-            options: {
-              arrowColor: 'var(--accent-100)',
-              backgroundColor: 'var(--accent-100)',
-              primaryColor: 'var(--primary-300)',
-              textColor: 'var(--text)',
-            },
-          }}
-          locale={{
-            back: t('Back'),
-            close: t('Close'),
-            last: t('Finish'),
-            next: t('Next'),
-            skip: t('Skip')
-          }}
-        />
 
         <IonContent style={{ textAlign: 'center' }}>
           <h3 className="modal-content">{t("What do you need help learning?")}</h3>

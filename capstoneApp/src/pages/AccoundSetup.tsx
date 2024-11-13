@@ -70,7 +70,6 @@ const AccountSetup: React.FC = () => {
         favorites: [],
       });
       console.log('User data uploaded successfully');
-      localStorage.setItem("Tutorial", "true");
       history.push('/tabs/home');
     } catch (error) {
       setErrorMessage(t('Failed to register. Please try again.'));

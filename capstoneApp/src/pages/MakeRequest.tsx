@@ -26,7 +26,6 @@ import { LiveAudioVisualizer } from 'react-audio-visualize';
 import Calendar from './Calendar';
 import { useTranslation } from 'react-i18next';
 import { fetchUserLanguage } from './GetLanguage';
-import Joyride from 'react-joyride';
 
 const MakeRequest: React.FC = () => {
   const { t } = useTranslation(); // Initialize useTranslation
@@ -49,34 +48,6 @@ const MakeRequest: React.FC = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isMediaRecorderReady, setIsMediaRecorderReady] = useState<boolean>(false);
   const [uploading, setupLoading] = useState(false);
-  const [runFirstTutorial, setRunFirstTutorial] = useState(false);
-  const [runSecondTutorial, setRunSecondTutorial] = useState(false);
-
-  const Tutorial = localStorage.getItem("Tutorial");
-  const tutorialCompleted = localStorage.getItem("tutorialCompletedRequests2");
-
-  const firstTutorialSteps = [
-    {
-      target: '.select-time',
-      content: t('Select a timing where you are free from the below.'),
-    }
-  ];
-  
-  // Steps for the second tutorial (modal)
-  const secondTutorialSteps = [
-    {
-      target: '.recording-button',
-      content: t('Press this button to start voice recording your request and press it again to stop the recording.'),
-    },
-    {
-      target: '.remarks-space',
-      content: t('You can use this space to type out any comments you may have.'),
-    },
-    {
-      target: '.submit-button',
-      content: t('Once you are done, press this button to submit the request.'),
-    }
-  ];  
 
   const handleRecordClick = async () => {
     setIsRecording(!isRecording);
@@ -225,24 +196,6 @@ const MakeRequest: React.FC = () => {
     }
   }
 
-  const handleJoyrideCallback = (data) => {
-    const { status } = data;
-    if (status === 'finished' || status === 'skipped') {
-      setRunFirstTutorial(false);
-      setIsModalOpen(true);
-      setRunSecondTutorial(true);
-      localStorage.setItem("tutorialCompletedRequests2", "true");
-    }
-  };
-
-  const handleJoyrideCallback2 = (data) => {
-    const { status } = data;
-    if (status === 'finished' || status === 'skipped') {
-      setRunSecondTutorial(false);
-      setIsModalOpen(false);
-    }
-  };
-
   const formattedDate = (new Date(selectedDate)).toLocaleString('en-US', {
     year: 'numeric',
     month: 'long',
@@ -277,10 +230,6 @@ const MakeRequest: React.FC = () => {
     };
 
     loadUserLanguage();
-
-    if (Tutorial && !tutorialCompleted) {
-      setRunFirstTutorial(true);
-    }
   }, [db]);
 
   if (loading) return <p>{t("Loading...")}</p>;
@@ -298,29 +247,6 @@ const MakeRequest: React.FC = () => {
 
       <IonContent style={{ textAlign: 'center' }}>
 
-        <Joyride 
-          steps={firstTutorialSteps}
-          run={runFirstTutorial}
-          continuous
-          showSkipButton
-          callback={handleJoyrideCallback}
-          styles={{
-            options: {
-              arrowColor: 'var(--accent-100)',
-              backgroundColor: 'var(--accent-100)',
-              primaryColor: 'var(--primary-300)',
-              textColor: 'var(--text)',
-            },
-          }}
-          locale={{
-            back: t('Back'),
-            close: t('Close'),
-            last: t('Finish'),
-            next: t('Next'),
-            skip: t('Skip')
-          }}
-        />
-
         <h3 className='select-time'>{t("Choose a time when you are free.")}</h3>
 
         <Calendar handleCalendarClick={handleCalendarClick}/>
@@ -336,29 +262,6 @@ const MakeRequest: React.FC = () => {
             </IonButtons>
           </IonToolbar>
         </IonHeader>
-
-        <Joyride 
-          steps={secondTutorialSteps}
-          run={runSecondTutorial}
-          continuous
-          showSkipButton
-          callback={handleJoyrideCallback2}
-          styles={{
-            options: {
-              arrowColor: 'var(--accent-100)',
-              backgroundColor: 'var(--accent-100)',
-              primaryColor: 'var(--primary-300)',
-              textColor: 'var(--text)',
-            },
-          }}
-          locale={{
-            back: t('Back'),
-            close: t('Close'),
-            last: t('Finish'),
-            next: t('Next'),
-            skip: t('Skip')
-          }}
-        />
 
         {errorMessage && (
           <IonText color="primary" style={{ textAlign: 'center' }}>
