@@ -48,7 +48,7 @@ const Login: React.FC = () => {
       const phoneNumber = "65" + otpPhone; // Use actual phone number
   
       // Make a request to the proxy server
-      const response = await axios.get('', {
+      const response = await axios.get('insert otp server here', {
         params: {
           to: phoneNumber,
           otp: token
